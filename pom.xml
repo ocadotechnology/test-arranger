@@ -20,9 +20,9 @@
     </properties>
 
     <scm>
-        <connection>scm:git:git@gitlab.tech.lastmile.com:GeMBuS/test-arranger.git</connection>
-        <url>scm:git:git@gitlab.tech.lastmile.com:GeMBuS/test-arranger.git</url>
-        <developerConnection>scm:git:git@gitlab.tech.lastmile.com:GeMBuS/test-arranger.git</developerConnection>
+        <connection>scm:git:git@gitlab.ocado.tech:GeMBuS/test-arranger.git</connection>
+        <url>scm:git:git@gitlab.ocado.tech:GeMBuS/test-arranger.git</url>
+        <developerConnection>scm:git:git@gitlab.ocado.tech:GeMBuS/test-arranger.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
