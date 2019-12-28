@@ -1,0 +1,33 @@
+image: internal.docker.ocean.tech.lastmile.com/gembus/gembus-build-agent:latest
+
+before_script:
+  - eval $(ssh-agent -s)
+  - /ssh-config.sh
+  - /git-configuration.sh
+
+stages:
+  - Build and deploy
+
+build:
+  stage: Build and deploy
+  except:
+    - schedules
+    - tags
+    - master
+  script:
+    - mvn -B  deploy -s .mvn/settings.xml
+  tags:
+    - ocean-aws-medium-insecure
+
+build-master:
+  stage: Build and deploy
+  except:
+    - schedules
+    - tags
+  only:
+    - master
+  script:
+    - git checkout master
+    - mvn -B verify release:prepare release:perform -s .mvn/settings.xml
+  tags:
+    - ocean-aws-medium-insecure
