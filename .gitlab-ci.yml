@@ -28,6 +28,7 @@ build-master:
     - master
   script:
     - git checkout master
+    - echo "AAAAA $CI_PROJECT_PATH"
     - mvn -B verify release:prepare release:perform -s .mvn/settings.xml -X
   tags:
     - ocean-aws-medium-insecure
