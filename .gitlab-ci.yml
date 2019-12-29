@@ -29,6 +29,10 @@ build-master:
   script:
     - git checkout master
     - git config --list
+    - echo "test" >> README.md
+    - git add README.md
+    - git commit -m'test'
+    - git push
 #    - mvn -B verify release:prepare release:perform -s .mvn/settings.xml -X
   tags:
     - ocean-aws-medium-insecure
