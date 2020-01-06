@@ -87,15 +87,15 @@ class AbstractParentArranger extends CustomArranger<AbstractParentArranger> {
 
 class ParentArranger extends CustomArranger<Parent> {
     @Override
-    protected Parent some() {
+    protected Parent instance() {
         CustomArrangerTest.whichArrangerWasUsed = CustomArrangerTest.PARENT;
-        return super.some();
+        return super.instance();
     }
 }
 
 class ChildArranger extends CustomArranger<Child> {
     @Override
-    protected Child some() {
+    protected Child instance() {
         CustomArrangerTest.whichArrangerWasUsed = CustomArrangerTest.CHILD;
         return enhancedRandom.nextObject(type);
     }

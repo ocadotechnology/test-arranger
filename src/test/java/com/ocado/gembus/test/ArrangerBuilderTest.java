@@ -44,7 +44,7 @@ class MyEntity {
 class MyEntityArranger extends CustomArranger<MyEntity> {
 
     @Override
-    protected MyEntity some() {
+    protected MyEntity instance() {
         return new MyEntity(ArrangerBuilderTest.hardcoded_string);
     }
 }

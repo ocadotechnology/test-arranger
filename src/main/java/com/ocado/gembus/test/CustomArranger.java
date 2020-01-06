@@ -6,12 +6,12 @@ import java.lang.reflect.ParameterizedType;
 
 /**
  * <p>Extend this class to provide custom Arranger implementations.
- * It will be automatically picked up by {@code Arranger} and used whenever a new instance of {@code T} is created by {@code Arranger}.</p>
+ * It will be automatically picked up by {@link Arranger} and used whenever a new instance of {@code T} is created by the {@link Arranger}.</p>
  *
  * Custom Arranger example (in kotlin):
  * <pre>{@code
  *  class EntityArranger : CustomArranger<Entity>() {
- *       override fun whatever(): Entity = enhancedRandom.nextObject(Entity::class.java).copy(field=fixedValue)
+ *       override fun instance(): Entity = enhancedRandom.nextObject(Entity::class.java).copy(field=fixedValue)
  *  }
  * }</pre>
  */
@@ -23,18 +23,18 @@ public abstract class CustomArranger<T> {
     /**
      * <p>Method for internal Arranger creation of objects of type T.
      * Do no use this method directly to generate test objects.
-     * Use {@code some<T>()} instead.</p>
+     * Use {@code some<T>()} in Kotlin and {@link Arranger#some(Class, String...)} in Java instead.</p>
      *
-     * <p>However, never use {@code some<T>()} in the {@code whatever()} method implementation.
-     * Inside the method the {@code enhancedRandom} field should be used.</p>
+     * <p>However, never use {@code some<T>()} nor {@link Arranger#some(Class, String...)} in the {@link CustomArranger#instance()} method implementation.
+     * Inside the method the {@code enhancedRandom} field should be used instead.</p>
      *
      * @return instance of type T, by default a random one
      */
-    protected T some(){
+    protected T instance(){
         return enhancedRandom.nextObject(type);
     }
 
-    protected void setEnhancedRandom(EnhancedRandom enhancedRandom) {
+    final void setEnhancedRandom(EnhancedRandom enhancedRandom) {
         this.enhancedRandom = enhancedRandom;
     }
 }

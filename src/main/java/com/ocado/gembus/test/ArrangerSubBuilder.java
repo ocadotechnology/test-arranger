@@ -48,7 +48,7 @@ class ArrangerSubBuilder {
     }
 
     private Randomizer<?> customArrangerToRandomizer(CustomArranger instance) {
-        return () -> instance.some();
+        return () -> instance.instance();
     }
 
 }
