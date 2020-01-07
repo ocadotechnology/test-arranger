@@ -34,7 +34,7 @@ class ArrangerSubBuilder {
         try {
             return (CustomArranger) constructor.newInstance();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Cannot create arranger for " + constructor.getName());;
             return null;
         }
     }

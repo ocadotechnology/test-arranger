@@ -5,7 +5,10 @@ import io.github.benas.randombeans.api.EnhancedRandom;
 import io.github.classgraph.ClassGraph;
 
 import java.lang.reflect.Constructor;
-import java.util.*;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 class ArrangerBuilder {
@@ -24,6 +27,7 @@ class ArrangerBuilder {
                 .getSubclasses(CustomArranger.class.getName())
                 .loadClasses(CustomArranger.class, true)
                 .stream()
+                .filter(clazz -> isNotAbstract(clazz))
                 .map(clazz -> extractConstructor(clazz))
                 .filter(constructor -> constructor.isPresent())
                 .map(constructor -> constructor.get())
@@ -56,6 +60,10 @@ class ArrangerBuilder {
                 .stringLengthRange(5, 10);
         flatSubBuilder.configureEnhancedRandomBuilder(enhancedRandomBuilder, target, this::buildFlatArranger);
         return enhancedRandomBuilder.build();
+    }
+
+    private boolean isNotAbstract(Class<CustomArranger> clazz) {
+        return !Modifier.isAbstract(clazz.getModifiers());
     }
 
     private Optional<Constructor<?>> extractConstructor(Class<?> clazz) {
