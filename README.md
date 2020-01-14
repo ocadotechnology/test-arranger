@@ -14,15 +14,6 @@ When pseudo random value for a given field is not good enough, only this field m
 Product product = Arranger.some(Product.class);
 product.setBrand("Ocado");
 ```
-----
-
-## On this page
-{:.no_toc}
-
-- TOC
-{:toc}
-
-----
 
 ## Features
 
@@ -169,11 +160,51 @@ The life would be much easier with Test Arranger.
 When in all places requiring just not null ```TimeRange``` we have ```Arranger.some(TimeRange.class)```, it is as good for the new version of ```TimeRange``` as it was for the old one.
 That leaves us with those few cases requiring not random ```TimeRange```, but as we already use Test Arranger to reveal test intention, in each case we exactly know what value should be used for the ```TimeRange```.
 
-But, that is not everything we can do to improve the test.
+But, that is not everything we can do to improve the tests.
 Presumably, we can identify some categories of the ```TimeRange``` instance, e.g. ranges from past, ranges from future and ranges currently active.
 The ```TimeRangeArranger``` is a great place to arrange that:
 ```java
+class TimeRangeArranger extends CustomArranger<TimeRange> {
 
+    private final long MAX_DISTANCE = 999_999L;
+
+    @Override
+    protected TimeRange instance() {
+        LocalDateTime start = enhancedRandom.nextObject(LocalDateTime.class);
+        LocalDateTime end = start.plusHours(Arranger.somePositiveLong(MAX_DISTANCE));
+        return new TimeRange(start,end);
+    }
+
+    public TimeRange fromPast() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime end = now.minusHours(Arranger.somePositiveLong(MAX_DISTANCE));
+        return new TimeRange(end.minusHours(Arranger.somePositiveLong(MAX_DISTANCE)), end);
+    }
+
+    public TimeRange fromFuture() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime start = now.plusHours(Arranger.somePositiveLong(MAX_DISTANCE));
+        return new TimeRange(start, start.plusHours(Arranger.somePositiveLong(MAX_DISTANCE)));
+    }
+
+    public TimeRange currentlyActive() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime start = now.minusHours(Arranger.somePositiveLong(MAX_DISTANCE));
+        LocalDateTime end = now.plusHours(Arranger.somePositiveLong(MAX_DISTANCE));
+        return new TimeRange(start, end);
+    }
+}
 ```
+Such creation method should not be created upfront but rather correspond with existing test cases.
+Nonetheless, there are chances that the ```TimeRangeArranger``` will cover all cases where instances of ```TimeRange``` are created for tests.
+As a consequence, in place of constructor calls with a number of mysterious parameters, we have arranger with well named method explaining the domain meaning of created object and helping in understanding test intention. 
 
 ## How to organize tests with Test Arranger
+
+```mermaid
+graph TD;
+  A-->B;
+  A-->C;
+  B-->D;
+  C-->D;
+```
