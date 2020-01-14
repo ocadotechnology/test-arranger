@@ -202,9 +202,9 @@ As a consequence, in place of constructor calls with a number of mysterious para
 ## How to organize tests with Test Arranger
 
 ```mermaid
-graph TD;
-  A-->B;
-  A-->C;
-  B-->D;
-  C-->D;
+classDiagram
+  Prmitive_or_object --o Entity_or_aggregate
+  Entity_or_aggregate --o Bounded_conext
+  Some --o Arranger
+  Arranger --o Fixture
 ```
