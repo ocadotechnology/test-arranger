@@ -14,6 +14,15 @@ When pseudo random value for a given field is not good enough, only this field m
 Product product = Arranger.some(Product.class);
 product.setBrand("Ocado");
 ```
+----
+
+## On this page
+{:.no_toc}
+
+- TOC
+{:toc}
+
+----
 
 ## Features
 
@@ -72,7 +81,7 @@ Try to have the package as specific as possible as having something to generic (
 ## The challenges it solves
 
 When going through tests of a software project one seldom has the impression that it cannot be done better.
-In the scope of arranging test data, there are two issues we are addressing with Test Arranger.
+In the scope of arranging test data, there are two areas we are trying to improve with Test Arranger.
 
 ### Tests readability
 
@@ -87,7 +96,7 @@ Product product = Product.builder()
 ...
     .build();
 ```
-When looking at such code, it is hard to say which values are relevant for the test and which are provided only to satisfy not-null requirements.
+When looking at such code, it is hard to say which values are relevant for the test and which are provided only to satisfy some not-null requirements.
 If the test is about brand, why not write it like that:
 ```java
 Product product = Arranger.some(Product.class);
@@ -109,8 +118,8 @@ assertThat(actualReport.getBrand).isEqualTo("Some brand")
 ```
 We're testing now that the report was created for "Some brand" brand.
 But is that really the goal?
-It makes more sense to expect that the report will be generated for the brand, the given product is assigned to.
-So what we want to test is that:
+It makes more sense to expect that the report will be generated for the same brand, the given product is assigned to.
+So what we want to test is:
 ```java
 //arrange
 Product product = Arranger.some(Product.class);
@@ -122,14 +131,49 @@ Report actualReport = sut.createBrandReport(Collections.singletonList(product))
 assertThat(actualReport.getBrand).isEqualTo(product.getBrand()) 
 ```
 In case the brand field is mutable and we're afraid the `sut` may modify it, we can store its value in a variable before going into act phase and later use it for the assertion.
-The test will be longer, but the intention remain clear.
+The test will be longer, but the intention remains clear.
 
-It is noteworthy that what we have just did is application of Generated Value and to some extent Creation Method patterns described in xUnit Test Patterns: Refactoring Test Code by Gerard Meszaros.
+It is noteworthy that what we have just did is application of Generated Value and to some extent Creation Method patterns described in *xUnit Test Patterns: Refactoring Test Code* by Gerard Meszaros.
 
 ### Shotgun surgery
+
+Have you ever changed some tiny thing in production code and end up with errors in dozen of tests?
+Some of them reporting failing assertion, some maybe even refusing to compile.
+This is shotgun surgery code smell that just shot at your innocent tests.
+Well maybe not so innocent as they could be designed differently, to limit the collateral damage caused by tiny change.
+Let's analyse it using an example.
+Suppose we have in our domain a following class:
 ```java
 class TimeRange{
-}
+    private LocalDateTime start;
+    private long durationinMs;
+
+    public TimeRange(LocalDateTime start, long durationInMs) {
+        ...
+```
+and that it is used in many places.
+Especially in the tests, without Test Arranger, using statements like this one: ```new TimeRange(LocalDateTime.now(), 3600_000L);```
+What will happen if for some important reasons we are be forced to change the class to:
+```java
+class TimeRange {
+    private LocalDateTime start;
+    private LocalDateTime end;
+
+    public TimeRange(LocalDateTime start, LocalDateTime end) {
+        ...
+```
+It is quite challenging to come up with a series of refactoring that transform the old version to the new one without breaking all dependant tests.
+More likely is scenario where the tests are adjusted to new API of the class one by one.
+Which means a lot of not exactly exciting work with many questions regarding the desired value of duration (should I carefully convert it to the ```end``` of LocalDateTime type or was it just a convenient random value).
+The life would be much easier with Test Arranger.
+When in all places requiring just not null ```TimeRange``` we have ```Arranger.some(TimeRange.class)```, it is as good for the new version of ```TimeRange``` as it was for the old one.
+That leaves us with those few cases requiring not random ```TimeRange```, but as we already use Test Arranger to reveal test intention, in each case we exactly know what value should be used for the ```TimeRange```.
+
+But, that is not everything we can do to improve the test.
+Presumably, we can identify some categories of the ```TimeRange``` instance, e.g. ranges from past, ranges from future and ranges currently active.
+The ```TimeRangeArranger``` is a great place to arrange that:
+```java
+
 ```
 
-## How to organize tests with TestArranger
+## How to organize tests with Test Arranger
