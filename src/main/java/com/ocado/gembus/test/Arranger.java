@@ -76,10 +76,18 @@ public class Arranger {
     }
 
     /**
-     * @return whatever (pseudo random) text, that looks like a sequence of words
+     * @return whatever (pseudo-random) text, that looks a bit like a sequence of words; there is a Markov chain trained on English text underneath that generates a sequence of characters
      */
     public static String someText() {
         return stringRandomizer.getRandomValue();
+    }
+
+    /**
+     * @return whatever (pseudo-random) text, that looks a bit like a sequence of words; there is a Markov chain trained on English text underneath that generates a sequence of characters
+     */
+    public static String someText(int minLength, int maxLength) {
+        MarkovStringRandomizer randomizer = new MarkovStringRandomizer(minLength, maxLength);
+        return randomizer.getRandomValue();
     }
 
     /**

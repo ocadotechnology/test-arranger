@@ -7,7 +7,7 @@ import java.lang.reflect.ParameterizedType;
 /**
  * <p>Extend this class to provide custom Arranger implementations.
  * It will be automatically picked up by {@link Arranger} and used whenever a new instance of {@code T} is created by the {@link Arranger}.</p>
- *
+ * <p>
  * Custom Arranger example (in kotlin):
  * <pre>{@code
  *  class EntityArranger : CustomArranger<Entity>() {
@@ -17,7 +17,7 @@ import java.lang.reflect.ParameterizedType;
  */
 public abstract class CustomArranger<T> {
 
-    protected EnhancedRandom enhancedRandom;
+    protected EnhancedRandom enhancedRandom = ArrangerBuilder.getEnhancedRandomBuilder().build();
     protected final Class<T> type = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
 
     /**
@@ -30,7 +30,7 @@ public abstract class CustomArranger<T> {
      *
      * @return instance of type T, by default a random one
      */
-    protected T instance(){
+    protected T instance() {
         return enhancedRandom.nextObject(type);
     }
 

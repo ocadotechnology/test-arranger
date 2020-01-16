@@ -3,12 +3,12 @@
 In TDD there are 3 phases: arrange, act and assert (given, when, then in BDD).
 The assert phase has great tool support, you may be familiar with AssertJ, FEST-Assert or Hamcrest.
 It is in contrast to the arrange phase.
-While arranging test data is often challenging and significant part of test is typically devoted to it, it is hard to point out a tool that supports it. 
+While arranging test data is often challenging and significant part of the test is typically devoted to it, it is hard to point out a tool that supports it. 
 
 Test Arranger tries to fulfill this gap by arranging instances of classes required for tests.
-The instances are filled with pseudo random values which simplifies the process of test data creation.
+The instances are filled with pseudo-random values that simplify the process of test data creation.
 The tester only declares types of the required objects and gets brand new instances.
-When pseudo random value for a given field is not good enough, only this field must be set manually:
+When a pseudo-random value for a given field is not good enough, only this field must be set manually:
 
 ```java
 Product product = Arranger.some(Product.class);
@@ -19,7 +19,7 @@ product.setBrand("Ocado");
 
 ### Arranger
 
-The Arranger class has a number of static methods for generating pseudo random values of simple types.
+The Arranger class has several static methods for generating pseudo-random values of simple types.
 Each of them has a wrapping function to make the calls simpler for Kotlin.
 Some of the possible calls are listed below:
 
@@ -35,9 +35,9 @@ Some of the possible calls are listed below:
 
 ### Custom Arrangers
 
-By default the random values are generated according to field type.
+By default, the random values are generated according to the field type.
 Random values not always correspond well with class invariants.
-When an entity always needs to be arranged with respect to some rules regarding values of fields you may provide a custom arranger:
+When an entity always needs to be arranged concerning some rules regarding values of fields you may provide a custom arranger:
 ```java
 class ProductArranger extends CustomArranger<Product> {
     @Override
@@ -48,13 +48,12 @@ class ProductArranger extends CustomArranger<Product> {
     }
 }
 ```
-The custom arranger extends the ```CustomArranger``` abstract class and specifies for sake of which type, in the above example it is ```Product```.
-In order to have control over the process of instantiating ```Product``` we need to override the ```instance()``` method.
+To have control over the process of instantiating ```Product``` we need to override the ```instance()``` method.
 Inside the method we can create the instance of ```Product``` however we want.
 Specifically, we may generate some random values.
-For convenience we have there an ```enhancedRandom``` field in the ```CustomArranger``` class.
-In the given example, we generate an instance of ```Product``` with all fields having pseudo random values, but then we change the price to something acceptable in our domain.
-That is not negative and smaller than 10k number.
+For convenience, we have there a ```enhancedRandom``` field in the ```CustomArranger``` class.
+In the given example, we generate an instance of ```Product``` with all fields having pseudo-random values, but then we change the price to something acceptable in our domain.
+That is not negative and smaller than the 10k number.
 
 The ```ProductArranger``` is automatically (using reflection) picked up by Arranger and used whenever new instance of ```Product``` is requested.
 It not only regards direct calls like ```Arranger.some(Product.class)```, but also indirect.
@@ -88,14 +87,14 @@ Product product = Product.builder()
     .build();
 ```
 When looking at such code, it is hard to say which values are relevant for the test and which are provided only to satisfy some not-null requirements.
-If the test is about brand, why not write it like that:
+If the test is about the brand, why not write it like that:
 ```java
 Product product = Arranger.some(Product.class);
 product.setBrand("Some brand");
 ```
 Now it is obvious that the brand is important.
 Let's try to make one step further.
-It is possible that the whole test looks as follows:
+The whole test may look as follows:
 ```java
 //arrange
 Product product = Arranger.some(Product.class);
@@ -107,8 +106,8 @@ Report actualReport = sut.createBrandReport(Collections.singletonList(product))
 //assert
 assertThat(actualReport.getBrand).isEqualTo("Some brand") 
 ```
-We're testing now that the report was created for "Some brand" brand.
-But is that really the goal?
+We're testing now that the report was created for the "Some brand" brand.
+But is that the goal?
 It makes more sense to expect that the report will be generated for the same brand, the given product is assigned to.
 So what we want to test is:
 ```java
@@ -124,16 +123,16 @@ assertThat(actualReport.getBrand).isEqualTo(product.getBrand())
 In case the brand field is mutable and we're afraid the `sut` may modify it, we can store its value in a variable before going into act phase and later use it for the assertion.
 The test will be longer, but the intention remains clear.
 
-It is noteworthy that what we have just did is application of Generated Value and to some extent Creation Method patterns described in *xUnit Test Patterns: Refactoring Test Code* by Gerard Meszaros.
+It is noteworthy that what we have just done is an application of Generated Value and to some extent Creation Method patterns described in *xUnit Test Patterns: Refactoring Test Code* by Gerard Meszaros.
 
 ### Shotgun surgery
 
-Have you ever changed some tiny thing in production code and end up with errors in dozen of tests?
+Have you ever changed a tiny thing in production code and end up with errors in dozen of tests?
 Some of them reporting failing assertion, some maybe even refusing to compile.
-This is shotgun surgery code smell that just shot at your innocent tests.
-Well maybe not so innocent as they could be designed differently, to limit the collateral damage caused by tiny change.
-Let's analyse it using an example.
-Suppose we have in our domain a following class:
+This is a shotgun surgery code smell that just shot at your innocent tests.
+Well, maybe not so innocent as they could be designed differently, to limit the collateral damage caused by tiny change.
+Let's analyze it using an example.
+Suppose we have in our domain the following class:
 ```java
 class TimeRange{
     private LocalDateTime start;
@@ -144,7 +143,7 @@ class TimeRange{
 ```
 and that it is used in many places.
 Especially in the tests, without Test Arranger, using statements like this one: ```new TimeRange(LocalDateTime.now(), 3600_000L);```
-What will happen if for some important reasons we are be forced to change the class to:
+What will happen if for some important reasons we are being forced to change the class to:
 ```java
 class TimeRange {
     private LocalDateTime start;
@@ -153,9 +152,9 @@ class TimeRange {
     public TimeRange(LocalDateTime start, LocalDateTime end) {
         ...
 ```
-It is quite challenging to come up with a series of refactoring that transform the old version to the new one without breaking all dependant tests.
-More likely is scenario where the tests are adjusted to new API of the class one by one.
-Which means a lot of not exactly exciting work with many questions regarding the desired value of duration (should I carefully convert it to the ```end``` of LocalDateTime type or was it just a convenient random value).
+It is quite challenging to come up with a series of refactoring that transforms the old version to the new one without breaking all dependent tests.
+More likely is a scenario where the tests are adjusted to the new API of the class one by one.
+This means a lot of not exactly exciting work with many questions regarding the desired value of duration (should I carefully convert it to the ```end``` of LocalDateTime type or was it just a convenient random value).
 The life would be much easier with Test Arranger.
 When in all places requiring just not null ```TimeRange``` we have ```Arranger.some(TimeRange.class)```, it is as good for the new version of ```TimeRange``` as it was for the old one.
 That leaves us with those few cases requiring not random ```TimeRange```, but as we already use Test Arranger to reveal test intention, in each case we exactly know what value should be used for the ```TimeRange```.
@@ -195,16 +194,34 @@ class TimeRangeArranger extends CustomArranger<TimeRange> {
     }
 }
 ```
-Such creation method should not be created upfront but rather correspond with existing test cases.
+Such a creation method should not be created upfront but rather correspond with existing test cases.
 Nonetheless, there are chances that the ```TimeRangeArranger``` will cover all cases where instances of ```TimeRange``` are created for tests.
-As a consequence, in place of constructor calls with a number of mysterious parameters, we have arranger with well named method explaining the domain meaning of created object and helping in understanding test intention. 
+As a consequence, in place of constructor calls with several mysterious parameters, we have arranger with a well-named method explaining the domain meaning of the created object and helping in understanding test intention. 
 
 ## How to organize tests with Test Arranger
 
+We identified two levels of test data creators when discussing the challenges solved by Test Arranger.
+To make the picture complete we need to mention at least one more, that is the Fixtures.
+For the sake of this discussion, we may assume that Fixture is a class designed to create complex structures of test data.
+The custom arranger is always focused on one class, but sometimes you can observe in your test cases reoccurring constellations of two or more classes.
+That may be User and his or her Bank account.
+There may be CustomArranger for each of them, but why ignore the fact that they often come together.
+This is when we should start thinking about a Fixture.
+It will be responsible for creating both User and the Bank account (presumably using dedicated custom arrangers) and linking them together.
+The Fixtures are described in detail, including several implementation variants in *xUnit Test Patterns: Refactoring Test Code* by Gerard Meszaros.
+
+So we have three types of building blocks in the test classes.
+Each of them can be considered to be the counterpart of a concept (Domain Driven Design building block) from production code:
 ```mermaid
 classDiagram
   Prmitive_or_object --o Entity_or_aggregate
   Entity_or_aggregate --o Bounded_conext
-  Some --o Arranger
-  Arranger --o Fixture
+  SomeXxx --o CustomArranger
+  CustomArranger --o Fixture
 ```
+
+On the surface, there are primitives and simple objects.
+That is something that appears even in the simplest unit tests.
+You can cover arranging such test data with the `someXxx` methods from ```Arranger``` class.
+
+One level deeper, there are entities and aggregates.

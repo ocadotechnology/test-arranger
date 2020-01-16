@@ -68,6 +68,21 @@ public class ArrangerTest {
     }
 
     @Test
+    void someTextWhenRequestingExplicitLength() {
+        //given
+        int minLength = 900;
+        int maxLength = 1000;
+
+        //when
+        final String actual = Arranger.someText(minLength, maxLength);
+
+        //then
+        assertThat(actual.length())
+                .isGreaterThanOrEqualTo(minLength)
+                .isLessThanOrEqualTo(maxLength);
+    }
+
+    @Test
     void someFromEmptyList() {
         assertThrows(IllegalArgumentException.class, () -> Arranger.someFrom(new ArrayList<>()));
     }
