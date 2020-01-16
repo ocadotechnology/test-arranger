@@ -1,5 +1,6 @@
 package com.ocado.gembus.test;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -53,6 +54,7 @@ public class MarkovChainTest {
     }
 
     @Test
+    @Disabled
     public void generateChainOfChars() throws URISyntaxException, IOException {
         Map<String, Map<String, Integer>> charOccurences = loadOccurences("file", text -> {
             List<String> listOf = new ArrayList<>(text.length());
@@ -65,6 +67,7 @@ public class MarkovChainTest {
     }
 
     @Test
+    @Disabled
     public void generateChainOfWords() throws URISyntaxException, IOException {
         Map<String, Map<String, Integer>> charOccurences = loadOccurences("file", text -> Arrays.stream(text.split("\\s+"))
                 .map(word -> word.trim().replaceAll("[^a-zA-Z\\'\\-]", ""))
