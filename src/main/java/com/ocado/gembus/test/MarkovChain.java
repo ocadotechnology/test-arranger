@@ -16,27 +16,45 @@ import java.util.regex.Pattern;
 class MarkovChain {
     final Map<String, Transition[]> transitions = new HashMap<>();
     final MarkovChainParser parser = new MarkovChainParser();
+    final Random generator = new Random();
+    private boolean hasWords = false;
 
-    public MarkovChain(String transitionsFile) {
+    MarkovChain(String transitionsFile) {
         try (InputStream in = getClass().getResourceAsStream("/" + transitionsFile);
              BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 Pair<String, Transition[]> parsed = parser.parseLine(line);
                 transitions.put(parsed.getKey(), parsed.getValue());
+                if(parsed.getKey().length() > 1) {
+                    hasWords = true;
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public String fireTransition(String from) {
-        final double random = Math.random();
-        final Transition transition = Arrays.stream(this.transitions.get(from))
+    String fireTransition(String from) {
+        final double random = generator.nextDouble();
+        final Transition transition = Arrays.stream(getNode(from))
                 .filter(t -> random <= t.cumulativeProbability)
                 .findFirst()
                 .get();
         return transition.target;
+    }
+
+    boolean generateWords() {
+        return hasWords;
+    }
+
+    private Transition[] getNode(String from) {
+        Transition[] result = this.transitions.get(from);
+        if (result == null) {
+            List<Transition[]> values = new ArrayList<>(this.transitions.values());
+            result = values.get(generator.nextInt(values.size()));
+        }
+        return result;
     }
 }
 

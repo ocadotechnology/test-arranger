@@ -45,12 +45,16 @@ class ArrangerBuilder {
     }
 
     EnhancedRandom buildArranger(Optional<Class> target) {
-        final EnhancedRandomBuilder enhancedRandomBuilder = EnhancedRandomBuilder.aNewEnhancedRandomBuilder()
-                .collectionSizeRange(1, 3)
-                .randomizationDepth(15)
-                .stringLengthRange(STRING_MIN_LENGTH, STRING_MAX_LENGTH);
+        final EnhancedRandomBuilder enhancedRandomBuilder = getEnhancedRandomBuilder();
         defaultSubBuilder.configureEnhancedRandomBuilder(enhancedRandomBuilder, target, this::buildArranger);
         return enhancedRandomBuilder.build();
+    }
+
+    static EnhancedRandomBuilder getEnhancedRandomBuilder() {
+        return EnhancedRandomBuilder.aNewEnhancedRandomBuilder()
+                    .collectionSizeRange(1, 3)
+                    .randomizationDepth(15)
+                    .stringLengthRange(STRING_MIN_LENGTH, STRING_MAX_LENGTH);
     }
 
     EnhancedRandom buildFlatArranger(Optional<Class> target) {

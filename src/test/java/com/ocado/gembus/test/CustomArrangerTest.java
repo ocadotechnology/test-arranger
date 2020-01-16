@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -17,7 +18,19 @@ public class CustomArrangerTest {
     final static String PARENT = "Parent";
 
     @Test
-    public void whatever_shouldGenerateInstancesOfChildClassUsingCustomArranger() {
+    public void shouldNotFailWhenInstanceMethodCalledDirectlyOnConstructorCreatedArranger() {
+        //given
+        ChildArranger sut = new ChildArranger();
+
+        //when
+        Child actual = sut.instance();
+
+        //then
+        assertThat(actual).isNotNull();
+    }
+
+    @Test
+    public void shouldGenerateInstancesOfChildClassUsingCustomArranger() {
         //given
         whichArrangerWasUsed = "";
         final EnhancedRandom random = ArrangerBuilder.instance().buildArranger(Optional.empty());
@@ -31,7 +44,7 @@ public class CustomArrangerTest {
     }
 
     @Test
-    public void whatever_shouldGenerateInstancesOfParentClassUsingCustomArranger() {
+    public void shouldGenerateInstancesOfParentClassUsingCustomArranger() {
         //given
         whichArrangerWasUsed = "";
 
@@ -44,7 +57,7 @@ public class CustomArrangerTest {
     }
 
     @Test
-    public void whatever_shouldRaiseException_when_TryingToGenerateAbstractClass() {
+    public void shouldRaiseException_when_TryingToGenerateAbstractClass() {
         //when
         try {
             Arranger.some(AbstractParent.class);
