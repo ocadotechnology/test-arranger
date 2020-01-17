@@ -19,13 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MarkovChainTest {
 
     @Test
-    public void test(){
-        Stream.generate(() -> Arranger.some(String.class))
-                .limit(9)
-                .forEach(a -> a.toCharArray());
-    }
-
-    @Test
     public void loadMarkovChain() {
         //given
         final MarkovChain markov = new MarkovChain("enMarkovChain");
