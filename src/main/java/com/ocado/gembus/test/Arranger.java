@@ -4,6 +4,7 @@ import io.github.benas.randombeans.api.EnhancedRandom;
 import io.github.benas.randombeans.randomizers.EmailRandomizer;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
@@ -94,8 +95,9 @@ public class Arranger {
      * @return whatever positive BigDecimal with 2 decimal places, i.e. like a price
      */
     public static BigDecimal somePriceLikeBigDecimal() {
-        return new BigDecimal(somePositiveInt(10_000)).divide(BigDecimal.valueOf(100), 2, BigDecimal.ROUND_HALF_UP);
+        return new BigDecimal(somePositiveInt(10_000)).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
     }
+
     public static Long someLong() {
         return whatever.nextLong();
     }
@@ -109,7 +111,14 @@ public class Arranger {
      * @return whatever integer from range [1,boundIncl]
      */
     public static Integer somePositiveInt(Integer boundIncl) {
+        if (boundIncl <= 1) {
+            return 1;
+        }
         return 1 + whatever.nextInt(boundIncl - 1);
+    }
+
+    private static int someNonNegativeInt() {
+        return Arranger.somePositiveInt(100) - 1;
     }
 
     /**
@@ -150,12 +159,16 @@ public class Arranger {
         return Instant.now();
     }
 
-    private static int someNonNegativeInt() {
-        return Arranger.somePositiveInt(100) - 1;
+    public static BigDecimal somePriceLikeBigDecimal(BigDecimal min, BigDecimal max) {
+        if (min.compareTo(max) >= 0) {
+            return min;
+        }
+        final BigDecimal centsRatio = BigDecimal.valueOf(100);
+        Integer valueInCents = somePositiveInt(max.add(new BigDecimal("0.01")).subtract(min).multiply(centsRatio).intValue());
+        return new BigDecimal(valueInCents).divide(centsRatio).add(min);
     }
 
     static class CannotSatisfyPredicateException extends RuntimeException {
-
         public CannotSatisfyPredicateException(String type) {
             super("Cannot satisfy provided predicate when generating data of type " + type);
         }

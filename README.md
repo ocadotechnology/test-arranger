@@ -25,13 +25,14 @@ Some of the possible calls are listed below:
 
 |Java|Kotlin|result|
 |----|------|------|
-|```Arranger.some(Product.class)```|```some<Product>()```|instance of Product with all fields filled with values|
-|```Arranger.some(Product.class, "brand")```|```some<Product>("brand")```|instance of Product without value for the brand field|
-|```Arranger.someSimplified(Category.class)```|```someSimplified<Category>()```|instance of Category, fields of type collection has size reduced to 1 and depth for objects tree is limited to 3|
-|```Arranger.someObjects(Product.class, 7)```|```someObjects<Product>(7)```|stream of size 7 of instances of Product|
-|```Arranger.someEmail()```|```someEmail()```|string containing email address|
-|```Arranger.someLong()```|```someLong()```|pseudo random number of type long|
-|```Arranger.someFrom(listOfCategories)```|```someFrom(listOfCategories)```|entry form the listOfCategories|
+|```Arranger.some(Product.class)```|```some<Product>()```|an instance of Product with all fields filled with values|
+|```Arranger.some(Product.class, "brand")```|```some<Product>("brand")```|an instance of Product without value for the brand field|
+|```Arranger.someSimplified(Category.class)```|```someSimplified<Category>()```|an instance of Category, fields of type collection has size reduced to 1 and depth for objects tree is limited to 3|
+|```Arranger.someObjects(Product.class, 7)```|```someObjects<Product>(7)```|a stream of size 7 of instances of Product|
+|```Arranger.someEmail()```|```someEmail()```|a string containing email address|
+|```Arranger.someLong()```|```someLong()```|a pseudo random number of type long|
+|```Arranger.someFrom(listOfCategories)```|```someFrom(listOfCategories)```|an entry form the listOfCategories|
+|```Arranger.someText()```|```someText()```|a string generated from a Markov Chain; by default, it is Markov Chain of characters trained on English text, but it can be reconfigured by putting other 'enMarkovChain' file on the test classpath with alternative Markov Chain definition; consult the included in the project 'enMarkovChain' file for the file format|
 
 ### Custom Arrangers
 
@@ -205,7 +206,7 @@ To make the picture complete we need to mention at least one more, that is the F
 For the sake of this discussion, we may assume that Fixture is a class designed to create complex structures of test data.
 The custom arranger is always focused on one class, but sometimes you can observe in your test cases reoccurring constellations of two or more classes.
 That may be User and his or her Bank account.
-There may be CustomArranger for each of them, but why ignore the fact that they often come together.
+There may be a CustomArranger for each of them, but why ignore the fact that they often come together.
 This is when we should start thinking about a Fixture.
 It will be responsible for creating both User and the Bank account (presumably using dedicated custom arrangers) and linking them together.
 The Fixtures are described in detail, including several implementation variants in *xUnit Test Patterns: Refactoring Test Code* by Gerard Meszaros.
@@ -224,4 +225,30 @@ On the surface, there are primitives and simple objects.
 That is something that appears even in the simplest unit tests.
 You can cover arranging such test data with the `someXxx` methods from ```Arranger``` class.
 
-One level deeper, there are entities and aggregates.
+So you may have services requiring tests that work solely on `User` instances or both `User` and other classes contained in the `User` class, like a list of addresses.
+To cover such cases, typically a custom arranger is required, i.e. the `UserArranger`.
+It will create instances of `User` respecting all constraints and class invariants.
+Moreover, it will pick up `AddressArranger`, when exists, to fill the list of addresses with valid data.
+When several test cases require a certain type of user, e.g. homeless users with an empty list of addresses, an additional method can be created in the UserArranger.
+As a consequence, whenever it will be required to create a `User` instance for the tests, it will be enough to look into `UserArranger` and select an adequate factory method or just call `Arranger.some(User.class)`.
+
+The most challenging case regards tests depending on large data structures.
+In eCommerce that could be a shop containing many products, but also user accounts with shopping history.
+Arranging data for such test cases is usually non-trivial and repeating such a thing wouldn't be wise.
+It is much better to store it in a dedicated class under a well-named method, like `shopWithNineProductsAndFourCustomers`, and reuse in each of the tests.
+We strongly recommend to use a naming convention for such classes, in order to make them easy to find, our suggestion is to use `Fixture` postfix.
+Eventually, we may end up with something like this:
+```java
+class ShopFixture {
+    Repository repo;
+    public void shopWithNineProductsAndFourCustomers() {
+        Stream.generate(() -> Arranger.some(Product.class))
+                .limit(9)
+                .forEach(p -> repo.save(p));
+
+        Stream.generate(() -> Arranger.some(Customer.class))
+                .limit(4)
+                .forEach(p -> repo.save(p));
+    }
+}
+```

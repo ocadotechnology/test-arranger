@@ -46,6 +46,36 @@ public class ArrangerTest {
     }
 
     @Test
+    void priceLikeFromGivenRange() {
+        //given
+        final BigDecimal min = new BigDecimal("100.01");
+        final BigDecimal max = new BigDecimal("100.05");
+
+        //when
+        final BigDecimal actual = Arranger.somePriceLikeBigDecimal(min, max);
+
+        //then
+        assertThat(actual).isGreaterThanOrEqualTo(min);
+        assertThat(actual).isLessThanOrEqualTo(max);
+
+    }
+
+    @Test
+    void priceLikeFromGivenRange_emptyRange() {
+        //given
+        final BigDecimal min = new BigDecimal("100.01");
+        final BigDecimal max = new BigDecimal("100.01");
+
+        //when
+        final BigDecimal actual = Arranger.somePriceLikeBigDecimal(min, max);
+
+        //then
+        assertThat(actual).isGreaterThanOrEqualTo(min);
+        assertThat(actual).isLessThanOrEqualTo(max);
+
+    }
+
+    @Test
     void someString() {
         //when
         final String actual = Arranger.some(String.class);
@@ -92,7 +122,7 @@ public class ArrangerTest {
         //given
         final List<String> someStrings = Arrays.asList(Arranger.someText(), Arranger.someText(), Arranger.someText());
 
-        for(int i=0; i<100; i++) {
+        for (int i = 0; i < 100; i++) {
             //when
             String actual = Arranger.someFrom(someStrings);
 
@@ -106,7 +136,7 @@ public class ArrangerTest {
         //given
         final Set<Integer> someNumbers = new HashSet<>(Arrays.asList(Arranger.someInteger(), Arranger.someInteger(), Arranger.someInteger()));
 
-        for(int i=0; i<100; i++) {
+        for (int i = 0; i < 100; i++) {
             //when
             Integer actual = Arranger.someFrom(someNumbers);
 

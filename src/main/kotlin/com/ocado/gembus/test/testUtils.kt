@@ -17,6 +17,7 @@ inline fun <reified T> someMatching(crossinline predicate: (T) -> Boolean, varar
 fun someInt(): Int = Arranger.someInteger()
 fun someLong(): Long = Arranger.someLong()
 fun someText(): String = Arranger.someText()
+fun someText(minLength: Int, maxLength: Int): String = Arranger.someText(minLength, maxLength)
 fun somePriceLikeBigDecimal(): BigDecimal = Arranger.somePriceLikeBigDecimal()
 fun someBoolean(): Boolean = Arranger.someBoolean()
 fun someTwoDecimalPlacesBigDecimal(): BigDecimal = Arranger.somePriceLikeBigDecimal()
