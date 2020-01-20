@@ -21,6 +21,7 @@ fun someText(minLength: Int, maxLength: Int): String = Arranger.someText(minLeng
 fun somePriceLikeBigDecimal(): BigDecimal = Arranger.somePriceLikeBigDecimal()
 fun someBoolean(): Boolean = Arranger.someBoolean()
 fun someTwoDecimalPlacesBigDecimal(): BigDecimal = Arranger.somePriceLikeBigDecimal()
+fun someTwoDecimalPlacesBigDecimal(min: BigDecimal, max: BigDecimal): BigDecimal = Arranger.somePriceLikeBigDecimal(min, max)
 fun somePositiveInt(boundInclusive: Int): Int = Arranger.somePositiveInt(boundInclusive)
 fun somePositiveLong(boundInclusive: Long): Long = Arranger.somePositiveLong(boundInclusive)
 
