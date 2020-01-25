@@ -19,7 +19,11 @@ class ArrangerSubBuilder {
         customArrangers = arrangerConstructors.stream()
                 .map(constructor -> createCustomArranger(constructor))
                 .filter(customArranger -> customArranger != null)
-                .collect(Collectors.toMap(customArranger -> customArranger.type, customArranger -> customArranger));
+                .collect(Collectors.toMap(customArranger -> customArranger.type, customArranger -> customArranger,
+                        (arrangerA, arrangerB) -> {
+                            throw new IllegalArgumentException("There are two arrangers registered for " + arrangerA.type.getName()
+                                    + ", those are " + arrangerA.getClass().getName() + " and " + arrangerB.getClass().getName());
+                        }));
     }
 
     void configureEnhancedRandomBuilder(EnhancedRandomBuilder enhancedRandomBuilder, Optional<Class> target, Function<Optional<Class>, EnhancedRandom> nestedArrangerBuilder) {
