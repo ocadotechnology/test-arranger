@@ -12,6 +12,11 @@
 
     <servers>
         <server>
+            <id>atm-nexus-release</id>
+            <username>${env.ATM_NEXUS_USERNAME}</username>
+            <password>${env.ATM_NEXUS_PASSWORD}</password>
+        </server>
+        <server>
             <id>ocado-maven-releases</id>
             <username>gembusci.user</username>
             <password>${env.GEMBUSCI_LDAP_PASSWORD}</password>
