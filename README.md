@@ -14,6 +14,7 @@ When a pseudo-random value for a given field is not good enough, only this field
 Product product = Arranger.some(Product.class);
 product.setBrand("Ocado");
 ```
+Test Arranger is an implementation of the [ObjectMother](https://martinfowler.com/bliki/ObjectMother.html) pattern suggested by M. Fowler.
 
 ## Features
 

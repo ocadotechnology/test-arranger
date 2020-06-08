@@ -206,18 +206,26 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
+        <repository>
+            <id>atm-nexus-release</id>
+            <name>atm-nexus-release</name>
+            <url>https://nexus.atm.osp.tech/repository/maven-release-group</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
     </repositories>
 
     <distributionManagement>
         <repository>
-            <id>ocado-maven-releases</id>
+            <id>atm-nexus-release</id>
             <name>ocado-maven-releases</name>
-            <url>https://nexus.ocean.tech.lastmile.com/repository/maven-releases/</url>
+            <url>https://nexus.atm.osp.tech/repository/maven-releases/</url>
         </repository>
         <snapshotRepository>
-            <id>ocado-maven-snapshots</id>
+            <id>atm-nexus-release</id>
             <name>ocado-maven-snapshots</name>
-            <url>https://nexus.ocean.tech.lastmile.com/repository/maven-snapshots/</url>
+            <url>https://nexus.atm.osp.tech/repository/maven-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 
