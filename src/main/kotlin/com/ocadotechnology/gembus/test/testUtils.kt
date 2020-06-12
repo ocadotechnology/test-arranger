@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.ocado.gembus.test
+package com.ocadotechnology.gembus.test
 
 import java.math.BigDecimal
 import java.time.Instant

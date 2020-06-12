@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.ocado.gembus.test;
+package com.ocadotechnology.gembus.test;
 
 import java.io.InputStream;
 import java.util.Properties;
@@ -34,6 +34,7 @@ public class ReflectionsRoot {
                 properties.load(is);
                 root = getPropertyAssertValuePresent(properties);
             } catch (Exception ex) {
+                System.err.println(defaultRoot + " is scanned for custom arranger, change it in 'arranger.properties' if that's not convenient for you.");
                 root = defaultRoot;
             }
         }

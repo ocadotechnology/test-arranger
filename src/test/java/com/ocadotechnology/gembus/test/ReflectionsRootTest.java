@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.ocado.gembus.test;
+package com.ocadotechnology.gembus.test;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -48,6 +48,6 @@ public class ReflectionsRootTest {
         final String actual = ReflectionsRoot.getRootPackage();
 
         //then
-        assertEquals("com.ocado.gembus", actual);
+        assertEquals("com.ocadotechnology.gembus", actual);
     }
 }

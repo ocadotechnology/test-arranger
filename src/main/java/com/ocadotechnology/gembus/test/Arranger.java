@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.ocado.gembus.test;
+package com.ocadotechnology.gembus.test;
 
 import io.github.benas.randombeans.api.EnhancedRandom;
 import io.github.benas.randombeans.randomizers.EmailRandomizer;
