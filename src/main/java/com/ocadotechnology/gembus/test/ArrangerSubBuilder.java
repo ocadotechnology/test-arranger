@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.ocado.gembus.test;
+package com.ocadotechnology.gembus.test;
 
 import io.github.benas.randombeans.EnhancedRandomBuilder;
 import io.github.benas.randombeans.api.EnhancedRandom;
@@ -53,7 +53,7 @@ class ArrangerSubBuilder {
         try {
             return (CustomArranger) constructor.newInstance();
         } catch (Exception e) {
-            System.err.println("Cannot create arranger for " + constructor.getName());;
+            System.err.println("Cannot create arranger " + constructor.getName() + ", check if the class is public.");
             return null;
         }
     }
