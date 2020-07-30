@@ -14,6 +14,20 @@ When a pseudo-random value for a given field is not good enough, only this field
 Product product = Arranger.some(Product.class);
 product.setBrand("Ocado");
 ```
+### Maven
+```xml
+<dependency>
+    <groupId>com.ocadotechnology.gembus</groupId>
+    <artifactId>test-arranger</artifactId>
+    <version>0.13</version>
+</dependency>
+```
+
+### Gradle
+
+```groovy
+compile group: 'com.ocadotechnology.gembus', name: 'test-arranger', version: '0.13'
+```
 
 ## Features
 
