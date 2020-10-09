@@ -227,13 +227,7 @@ The Fixtures are described in detail, including several implementation variants 
 
 So we have three types of building blocks in the test classes.
 Each of them can be considered to be the counterpart of a concept (Domain Driven Design building block) from production code:
-```mermaid
-classDiagram
-  Prmitive_or_object --o Entity_or_aggregate
-  Entity_or_aggregate --o Bounded_conext
-  SomeXxx --o CustomArranger
-  CustomArranger --o Fixture
-```
+![](readme_class_diagram.jpg)
 
 On the surface, there are primitives and simple objects.
 That is something that appears even in the simplest unit tests.
