@@ -25,11 +25,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 public class ArrangerTest {
 
@@ -161,5 +163,131 @@ public class ArrangerTest {
             //then
             assertThat(someNumbers).contains(actual);
         }
+    }
+
+    @Test
+    void someShouldRespectExclusionForField() {
+        //when
+        final SomeClass actual = Arranger.some(SomeClass.class, "text");
+
+        //then
+        assertThat(actual.text).isNull();
+    }
+
+    @Test
+    void someSimplifiedShouldRespectExclusionForField() {
+        //when
+        final SomeClass actual = Arranger.someSimplified(SomeClass.class, "text");
+
+        //then
+        assertThat(actual.text).isNull();
+        assertThat(actual.lorem.size()).isLessThanOrEqualTo(1);
+    }
+
+    @Test
+    void someShouldRespectExclusionForFieldWhenRequestingCollection() {
+        //when
+        final List<SomeClass> actual = Arranger.someObjects(SomeClass.class, Arranger.somePositiveInt(20), "text").collect(Collectors.toList());
+
+        //then
+        assertThat(actual).allMatch(it -> it.text == null);
+    }
+
+    @Test
+    public void someSimplifiedShouldGenerateSmallCollections() {
+        Set<Integer> sizes = new HashSet<>();
+
+        //when
+        for (int i = 0; i < 100; i++) {
+            sizes.add(Arranger.someSimplified(SomeClass.class).lorem.size());
+        }
+
+        //then
+        assertThat(sizes)
+                .hasSize(2)
+                .contains(1)
+                .contains(0);
+    }
+
+    @Test
+    public void sequenceOfGeneratedLongsShouldNotBeRepeated() {
+        //given
+        Set<Long> longs = new HashSet<>();
+        Set<Long> objects = new HashSet<>();
+        int N = 100;
+
+        //when
+        for (int i = 0; i < N; i++) {
+            longs.add(Arranger.someLong());
+            objects.add(Arranger.some(SomeClass.class).number);
+        }
+
+        //then
+        assertThat(longs).hasSize(N);
+        longs.addAll(objects);
+        assertThat(longs).hasSize(2 * N);
+    }
+
+    @Test
+    public void sequenceOfGeneratedLongsShouldNotBeRepeatedInCustomArrangers() {
+        //given
+        Set<Long> withLong = new HashSet<>();
+        Set<Long> anotherWithLong = new HashSet<>();
+        int N = 100;
+
+        //when
+        for (int i = 0; i < N; i++) {
+            withLong.add(Arranger.some(ClassWithLong.class).number);
+            anotherWithLong.add(Arranger.some(AnotherClassWithLong.class).number);
+        }
+
+        //then
+        assertThat(withLong).hasSize(N);
+        withLong.addAll(anotherWithLong);
+        assertThat(withLong).hasSize(2 * N);
+    }
+
+    @Test
+    public void respectExcludedFieldsInCustomArrangers() {
+        //when
+        ClassWithLong number = Arranger.some(ClassWithLong.class, "number");
+
+        //then
+        assertThat(number.number).isEqualTo(0);
+    }
+
+    @Test
+    public void respectExcludedFieldsInCustomArrangersInSimplifiedMode() {
+        //when
+        ClassWithLong number = Arranger.someSimplified(ClassWithLong.class, "number");
+
+        //then
+        assertThat(number.number).isEqualTo(0);
+    }
+}
+
+class SomeClass {
+    long number;
+    String text;
+    List<String> lorem;
+}
+
+class ClassWithLong {
+    long number;
+}
+
+class ClassWithLongArranger extends CustomArranger<ClassWithLong> {
+    protected ClassWithLong instance() {
+        return enhancedRandom.nextObject(type);
+    }
+}
+
+class AnotherClassWithLong {
+    long number;
+}
+
+class AnotherClassWithLongArranger extends CustomArranger<AnotherClassWithLong> {
+    protected AnotherClassWithLong instance() {
+        return enhancedRandom.nextObject(type);
     }
 }

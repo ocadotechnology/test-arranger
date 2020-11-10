@@ -34,7 +34,6 @@ public class ReflectionsRoot {
                 properties.load(is);
                 root = getPropertyAssertValuePresent(properties);
             } catch (Exception ex) {
-                System.err.println(defaultRoot + " is scanned for custom arranger, change it in 'arranger.properties' if that's not convenient for you.");
                 root = defaultRoot;
             }
         }

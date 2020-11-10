@@ -65,19 +65,19 @@
         <junit-jupiter.version>5.2.0</junit-jupiter.version>
         <junit-platform.version>1.2.0</junit-platform.version>
         <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
-        <random-beans.version>3.9.0</random-beans.version>
+        <easy-random.version>4.3.0</easy-random.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>io.github.benas</groupId>
-            <artifactId>random-beans</artifactId>
-            <version>${random-beans.version}</version>
+            <groupId>org.jeasy</groupId>
+            <artifactId>easy-random-core</artifactId>
+            <version>${easy-random.version}</version>
         </dependency>
         <dependency>
-            <artifactId>random-beans-randomizers</artifactId>
-            <groupId>io.github.benas</groupId>
-            <version>${random-beans.version}</version>
+            <groupId>org.jeasy</groupId>
+            <artifactId>easy-random-randomizers</artifactId>
+            <version>${easy-random.version}</version>
         </dependency>
         <dependency>
             <groupId>io.github.classgraph</groupId>

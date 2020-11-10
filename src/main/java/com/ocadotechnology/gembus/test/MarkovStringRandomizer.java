@@ -15,7 +15,7 @@
  */
 package com.ocadotechnology.gembus.test;
 
-import io.github.benas.randombeans.api.Randomizer;
+import org.jeasy.random.api.Randomizer;
 
 import java.util.stream.Stream;
 

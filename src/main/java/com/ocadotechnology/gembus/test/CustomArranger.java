@@ -15,9 +15,10 @@
  */
 package com.ocadotechnology.gembus.test;
 
-import io.github.benas.randombeans.api.EnhancedRandom;
-
 import java.lang.reflect.ParameterizedType;
+import java.util.HashMap;
+
+import static com.ocadotechnology.gembus.test.EnhancedRandomBuilder.DEFAULT_SEED;
 
 /**
  * <p>Extend this class to provide custom Arranger implementations.
@@ -32,7 +33,7 @@ import java.lang.reflect.ParameterizedType;
  */
 public abstract class CustomArranger<T> {
 
-    protected EnhancedRandom enhancedRandom = ArrangerBuilder.getEnhancedRandomBuilder().build();
+    protected EnhancedRandom enhancedRandom = EnhancedRandom.of(new HashMap<>(), () -> EnhancedRandomBuilder.getEasyRandomDefaultParameters(), DEFAULT_SEED);
     protected final Class<T> type = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
 
     /**
