@@ -23,6 +23,9 @@ import java.util.function.Predicate
 inline fun <reified T> some(vararg excludedFields: String) =
         Arranger.some(T::class.java, *excludedFields)!!
 
+inline fun <reified T> someSimplified(vararg excludedFields: String): T =
+        Arranger.someSimplified(T::class.java, *excludedFields)!!
+
 inline fun <reified T> someObjects(numberOfObjects: Int, vararg excludedFields: String) =
         Arranger.someObjects(T::class.java, numberOfObjects, *excludedFields).iterator().asSequence<T>()
 
