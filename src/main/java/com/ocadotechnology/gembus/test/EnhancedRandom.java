@@ -18,6 +18,8 @@ package com.ocadotechnology.gembus.test;
 import org.jeasy.random.EasyRandom;
 import org.jeasy.random.EasyRandomParameters;
 import org.jeasy.random.api.Randomizer;
+import org.jeasy.random.randomizers.misc.BooleanRandomizer;
+import org.jeasy.random.randomizers.number.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -45,7 +47,7 @@ public class EnhancedRandom extends Random {
         this.parametersSupplier = parametersSupplier;
         final EasyRandomParameters parameters = parametersSupplier.get();
         parameters.seed(seed);
-        addRandomizersToParameters(Optional.empty(), parameters, arrangers);
+        addRandomizersToParameters(Optional.empty(), parameters, arrangers, seed);
         this.easyRandom = new EasyRandom(parameters);
     }
 
@@ -102,7 +104,7 @@ public class EnhancedRandom extends Random {
         return cache.get(key);
     }
 
-    private void addRandomizersToParameters(Optional<Class> typeToSkip, EasyRandomParameters parameters, Map<Class<?>, CustomArranger<?>> customArrangers) {
+    private void addRandomizersToParameters(Optional<Class> typeToSkip, EasyRandomParameters parameters, Map<Class<?>, CustomArranger<?>> customArrangers, long seed) {
         for (Map.Entry<Class<?>, CustomArranger<?>> entry : customArrangers.entrySet()) {
             if (entry.getKey() != typeToSkip.orElse(null)) {
                 final Class key = entry.getKey();
@@ -110,6 +112,13 @@ public class EnhancedRandom extends Random {
                 parameters.randomize(key, randomizer);
             }
         }
+        parameters.randomize(Boolean.class, new BooleanRandomizer(seed+1));
+        parameters.randomize(Byte.class, new ByteRandomizer(seed+1));
+        parameters.randomize(Short.class, new ShortRandomizer(seed+1));
+        parameters.randomize(Integer.class, new IntegerRandomizer(seed+1));
+        parameters.randomize(Long.class, new LongRandomizer(seed+1));
+        parameters.randomize(Double.class, new DoubleRandomizer(seed+1));
+        parameters.randomize(Float.class, new FloatRandomizer(seed+1));
     }
 
     private Randomizer<?> customArrangerToRandomizer(CustomArranger instance) {
