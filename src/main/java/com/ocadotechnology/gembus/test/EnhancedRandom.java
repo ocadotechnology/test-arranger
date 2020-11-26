@@ -19,8 +19,12 @@ import org.jeasy.random.EasyRandom;
 import org.jeasy.random.EasyRandomParameters;
 import org.jeasy.random.api.Randomizer;
 import org.jeasy.random.randomizers.misc.BooleanRandomizer;
-import org.jeasy.random.randomizers.number.*;
-import org.jetbrains.annotations.NotNull;
+import org.jeasy.random.randomizers.number.ByteRandomizer;
+import org.jeasy.random.randomizers.number.DoubleRandomizer;
+import org.jeasy.random.randomizers.number.FloatRandomizer;
+import org.jeasy.random.randomizers.number.IntegerRandomizer;
+import org.jeasy.random.randomizers.number.LongRandomizer;
+import org.jeasy.random.randomizers.number.ShortRandomizer;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -42,17 +46,25 @@ public class EnhancedRandom extends Random {
     private final HashMap<Set<String>, EasyRandom> cache = new HashMap<>();
     private final Supplier<EasyRandomParameters> parametersSupplier;
 
+    static class Builder {
+        private final Supplier<EasyRandomParameters> parametersSupplier;
+
+        Builder(Supplier<EasyRandomParameters> parametersSupplier) {
+            this.parametersSupplier = parametersSupplier;
+        }
+
+        EnhancedRandom build(Map<Class<?>, CustomArranger<?>> customArrangersByTargetType, Long seed) {
+            return new EnhancedRandom(customArrangersByTargetType, parametersSupplier, seed);
+        }
+    }
+
     private EnhancedRandom(Map<Class<?>, CustomArranger<?>> arrangers, Supplier<EasyRandomParameters> parametersSupplier, long seed) {
         this.arrangers = arrangers;
         this.parametersSupplier = parametersSupplier;
-        final EasyRandomParameters parameters = parametersSupplier.get();
+        EasyRandomParameters parameters = parametersSupplier.get();
         parameters.seed(seed);
         addRandomizersToParameters(Optional.empty(), parameters, arrangers, seed);
         this.easyRandom = new EasyRandom(parameters);
-    }
-
-    static EnhancedRandom of(Map<Class<?>, CustomArranger<?>> arrangers, Supplier<EasyRandomParameters> parametersSupplier, long seed) {
-        return new EnhancedRandom(arrangers, parametersSupplier, seed);
     }
 
     /**
@@ -67,7 +79,7 @@ public class EnhancedRandom extends Random {
         if (excludedFields.length == 0) {
             return easyRandom.nextObject(type);
         } else {
-            return createEasyRandomWithExclusions(excludedFields).nextObject(type);
+            return createEasyRandomWithExclusions(excludedFields, type).nextObject(type);
         }
     }
 
@@ -84,24 +96,25 @@ public class EnhancedRandom extends Random {
         if (excludedFields.length == 0) {
             return easyRandom.objects(type, amount);
         } else {
-            return createEasyRandomWithExclusions(excludedFields).objects(type, amount);
+            return createEasyRandomWithExclusions(excludedFields, type).objects(type, amount);
         }
     }
 
-    @NotNull
-    private EasyRandom createEasyRandomWithExclusions(String[] excludedFields) {
-        Set<String> key = new HashSet<>(Arrays.asList(excludedFields));
-        cache.computeIfAbsent(key, fields -> {
-            EnhancedRandom enhancedRandom = EnhancedRandomBuilder.instance().buildCustomDefaultRandom(() -> {
-                final EasyRandomParameters parameters = parametersSupplier.get();
-                for (String fieldName : fields) {
-                    parameters.excludeField(field -> field.getName().equals(fieldName));
-                }
-                return parameters;
-            });
+    private EasyRandom createEasyRandomWithExclusions(String[] excludedFields, Class type) {
+        Set<String> fields = new HashSet<>(Arrays.asList(excludedFields));
+        cache.computeIfAbsent(fields, key -> {
+            EnhancedRandom enhancedRandom = ArrangersConfigurer.instance().randomForGivenConfiguration(type, arrangers, () -> addExclusionToParameters(fields));
             return enhancedRandom.easyRandom;
         });
-        return cache.get(key);
+        return cache.get(fields);
+    }
+
+    private EasyRandomParameters addExclusionToParameters(Set<String> fields) {
+        final EasyRandomParameters parameters = parametersSupplier.get();
+        for (String fieldName : fields) {
+            parameters.excludeField(field -> field.getName().equals(fieldName));
+        }
+        return parameters;
     }
 
     private void addRandomizersToParameters(Optional<Class> typeToSkip, EasyRandomParameters parameters, Map<Class<?>, CustomArranger<?>> customArrangers, long seed) {
@@ -112,16 +125,16 @@ public class EnhancedRandom extends Random {
                 parameters.randomize(key, randomizer);
             }
         }
-        parameters.randomize(Boolean.class, new BooleanRandomizer(seed+1));
-        parameters.randomize(Byte.class, new ByteRandomizer(seed+1));
-        parameters.randomize(Short.class, new ShortRandomizer(seed+1));
-        parameters.randomize(Integer.class, new IntegerRandomizer(seed+1));
-        parameters.randomize(Long.class, new LongRandomizer(seed+1));
-        parameters.randomize(Double.class, new DoubleRandomizer(seed+1));
-        parameters.randomize(Float.class, new FloatRandomizer(seed+1));
+        parameters.randomize(Boolean.class, new BooleanRandomizer(seed + 1));
+        parameters.randomize(Byte.class, new ByteRandomizer(seed + 1));
+        parameters.randomize(Short.class, new ShortRandomizer(seed + 1));
+        parameters.randomize(Integer.class, new IntegerRandomizer(seed + 1));
+        parameters.randomize(Long.class, new LongRandomizer(seed + 1));
+        parameters.randomize(Double.class, new DoubleRandomizer(seed + 1));
+        parameters.randomize(Float.class, new FloatRandomizer(seed + 1));
     }
 
-    private Randomizer<?> customArrangerToRandomizer(CustomArranger instance) {
-        return () -> instance.instance();
+    private Randomizer<?> customArrangerToRandomizer(CustomArranger arranger) {
+        return arranger::instance;
     }
 }

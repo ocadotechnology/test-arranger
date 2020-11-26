@@ -16,6 +16,7 @@
 package com.ocadotechnology.gembus.test;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -264,6 +265,16 @@ public class ArrangerTest {
         //then
         assertThat(number.number).isEqualTo(0);
     }
+
+    @Test
+    @Timeout(2)
+    public void respectExcludedFieldsInNestedObjectsWithCustomArrangers() {
+        //when
+        NestedStructure actual = Arranger.some(NestedStructure.class, "id");
+
+        //then
+        assertThat(actual.id).isNull();
+    }
 }
 
 class SomeClass {
@@ -289,5 +300,17 @@ class AnotherClassWithLong {
 class AnotherClassWithLongArranger extends CustomArranger<AnotherClassWithLong> {
     protected AnotherClassWithLong instance() {
         return enhancedRandom.nextObject(type);
+    }
+}
+
+class NestedStructure {
+    Long id;
+    List<NestedStructure> children;
+}
+
+class NestedStructureArranger extends CustomArranger<NestedStructure> {
+    @Override
+    protected NestedStructure instance() {
+        return enhancedRandom.nextObject(NestedStructure.class, "id");
     }
 }

@@ -19,14 +19,14 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class EnhancedRandomBuilderTest {
+public class ArrangersConfigurerTest {
 
     final static String hardcoded_string = "hardcoded string";
 
     @Test
     public void customArrangerShouldBeRegistered_and_usedForNestedClass() {
         //given
-        final EnhancedRandom random = EnhancedRandomBuilder.instance().buildDefaultRandom();
+        final EnhancedRandom random = ArrangersConfigurer.instance().defaultRandom();
 
         //when
         final Wrapper wrapper = random.nextObject(Wrapper.class);
@@ -56,6 +56,6 @@ class MyEntityArranger extends CustomArranger<MyEntity> {
 
     @Override
     protected MyEntity instance() {
-        return new MyEntity(EnhancedRandomBuilderTest.hardcoded_string);
+        return new MyEntity(ArrangersConfigurerTest.hardcoded_string);
     }
 }

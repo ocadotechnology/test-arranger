@@ -19,29 +19,28 @@ import org.jeasy.random.EasyRandomParameters;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
-class EnhancedRandomBuilder {
+class ArrangersConfigurer {
 
     static final int STRING_MIN_LENGTH = 9;
     static final int STRING_MAX_LENGTH = 16;
     static final long DEFAULT_SEED = 123L;
-    private static EnhancedRandomBuilder instance;
+    private static ArrangersConfigurer instance;
 
     private final Map<Class<?>, CustomArranger<?>> defaultArrangers;
     private final Map<Class<?>, CustomArranger<?>> simplifiedArrangers;
 
-    private EnhancedRandomBuilder() {
+    private ArrangersConfigurer() {
         final ReflectionHelper reflectionHelper = new ReflectionHelper();
 
         defaultArrangers = reflectionHelper.createAllCustomArrangers();
         simplifiedArrangers = reflectionHelper.createAllCustomArrangers();
     }
 
-    static EnhancedRandomBuilder instance() {
+    static ArrangersConfigurer instance() {
         if (instance == null) {
-            instance = new EnhancedRandomBuilder();
+            instance = new ArrangersConfigurer();
         }
         return instance;
     }
@@ -49,7 +48,7 @@ class EnhancedRandomBuilder {
     static EasyRandomParameters getEasyRandomDefaultParameters() {
         return new EasyRandomParameters()
                 .collectionSizeRange(1, 4)
-                .randomizationDepth(15)
+                .randomizationDepth(4)
                 .objectPoolSize(30)
                 .stringLengthRange(STRING_MIN_LENGTH, STRING_MAX_LENGTH);
     }
@@ -57,29 +56,40 @@ class EnhancedRandomBuilder {
     static EasyRandomParameters getEasyRandomSimplifiedParameters() {
         return new EasyRandomParameters()
                 .collectionSizeRange(0, 2)
-                .randomizationDepth(3)
+                .randomizationDepth(2)
                 .objectPoolSize(10)
                 .stringLengthRange(5, 10);
     }
 
-    EnhancedRandom buildDefaultRandom() {
-        return buildRandom(defaultArrangers, (arrangers, seed) -> EnhancedRandom.of(arrangers, EnhancedRandomBuilder::getEasyRandomDefaultParameters, seed));
+    EnhancedRandom defaultRandom() {
+        return randomWithArrangers(defaultArrangers, new EnhancedRandom.Builder(ArrangersConfigurer::getEasyRandomDefaultParameters));
     }
 
-    EnhancedRandom buildCustomDefaultRandom(Supplier<EasyRandomParameters> parametersSupplier) {
-        return buildRandom(defaultArrangers, (arrangers, seed) -> EnhancedRandom.of(arrangers, parametersSupplier, seed));
+    EnhancedRandom simplifiedRandom() {
+        return randomWithArrangers(simplifiedArrangers, new EnhancedRandom.Builder(ArrangersConfigurer::getEasyRandomSimplifiedParameters));
     }
 
-    EnhancedRandom buildSimplifiedRandom() {
-        return buildRandom(simplifiedArrangers, (arrangers, seed) -> EnhancedRandom.of(arrangers, EnhancedRandomBuilder::getEasyRandomSimplifiedParameters, seed));
+    EnhancedRandom randomForGivenConfiguration(Class<?> type, Map<Class<?>, CustomArranger<?>> arrangers, Supplier<EasyRandomParameters> parametersSupplier) {
+        EnhancedRandom.Builder randomBuilder = new EnhancedRandom.Builder(parametersSupplier);
+        CustomArranger<?> arrangerToUpdate = arrangers.get(type);
+        if (arrangerToUpdate == null) {
+            return randomBuilder.build(arrangers, DEFAULT_SEED);
+        } else {
+            return randomWithoutSelfReferenceThroughArranger(arrangers, randomBuilder, type);
+        }
     }
 
-    private EnhancedRandom buildRandom(Map<Class<?>, CustomArranger<?>> arrangers, BiFunction<Map<Class<?>, CustomArranger<?>>, Long, EnhancedRandom> enhancedRandomProducer) {
+    private EnhancedRandom randomWithArrangers(Map<Class<?>, CustomArranger<?>> arrangers, EnhancedRandom.Builder randomBuilder) {
         arrangers.forEach((clazz, customArranger) -> {
-            final HashMap<Class<?>, CustomArranger<?>> forCustomArranger = new HashMap<>(arrangers);
-            forCustomArranger.remove(clazz);
-            customArranger.setEnhancedRandom(enhancedRandomProducer.apply(forCustomArranger, (long) clazz.getName().hashCode()));
+            EnhancedRandom random = randomWithoutSelfReferenceThroughArranger(arrangers, randomBuilder, clazz);
+            customArranger.setEnhancedRandom(random);
         });
-        return enhancedRandomProducer.apply(arrangers, DEFAULT_SEED);
+        return randomBuilder.build(arrangers, DEFAULT_SEED);
+    }
+
+    private EnhancedRandom randomWithoutSelfReferenceThroughArranger(Map<Class<?>, CustomArranger<?>> arrangers, EnhancedRandom.Builder enhancedRandomBuilder, Class<?> type) {
+        final HashMap<Class<?>, CustomArranger<?>> forCustomArranger = new HashMap<>(arrangers);
+        forCustomArranger.remove(type);
+        return enhancedRandomBuilder.build(forCustomArranger, (long) type.getName().hashCode());
     }
 }

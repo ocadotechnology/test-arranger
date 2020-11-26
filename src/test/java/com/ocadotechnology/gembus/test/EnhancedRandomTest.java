@@ -26,7 +26,7 @@ class EnhancedRandomTest {
     @Test
     void nextObjectShouldRespectExcludedFields() {
         //given
-        final EnhancedRandom enhancedRandom = EnhancedRandom.of(new HashMap<>(), EnhancedRandomBuilder::getEasyRandomDefaultParameters, 1L);
+        final EnhancedRandom enhancedRandom = new EnhancedRandom.Builder(ArrangersConfigurer::getEasyRandomDefaultParameters).build(new HashMap<>(), 1L);
 
         //when
         final SomeClass actual = enhancedRandom.nextObject(SomeClass.class, "text");
@@ -38,7 +38,7 @@ class EnhancedRandomTest {
     @Test
     void nextObjectShouldNotRememberExcludedFields() {
         //given
-        final EnhancedRandom enhancedRandom = EnhancedRandom.of(new HashMap<>(), EnhancedRandomBuilder::getEasyRandomDefaultParameters, 1L);
+        final EnhancedRandom enhancedRandom = new EnhancedRandom.Builder(ArrangersConfigurer::getEasyRandomDefaultParameters).build(new HashMap<>(), 1L);
         enhancedRandom.nextObject(SomeClass.class, "text");
 
         //when

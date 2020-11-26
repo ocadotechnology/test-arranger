@@ -33,10 +33,10 @@ import java.util.stream.Stream;
  * To arrange test data using pseudo random values.
  */
 public class Arranger {
-    private static EnhancedRandom random = EnhancedRandomBuilder.instance().buildDefaultRandom();
-    private static EnhancedRandom simplifiedRandom = EnhancedRandomBuilder.instance().buildSimplifiedRandom();
+    private static EnhancedRandom random = ArrangersConfigurer.instance().defaultRandom();
+    private static EnhancedRandom simplifiedRandom = ArrangersConfigurer.instance().simplifiedRandom();
     private static final EmailRandomizer emailRandomizer = new EmailRandomizer();
-    private static final MarkovStringRandomizer stringRandomizer = new MarkovStringRandomizer(EnhancedRandomBuilder.STRING_MIN_LENGTH, EnhancedRandomBuilder.STRING_MAX_LENGTH);
+    private static final MarkovStringRandomizer stringRandomizer = new MarkovStringRandomizer(ArrangersConfigurer.STRING_MIN_LENGTH, ArrangersConfigurer.STRING_MAX_LENGTH);
 
     /**
      * @see org.jeasy.random.EasyRandom#nextObject

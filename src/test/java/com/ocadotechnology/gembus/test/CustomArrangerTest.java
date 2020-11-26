@@ -44,7 +44,7 @@ public class CustomArrangerTest {
     public void shouldGenerateInstancesOfChildClassUsingCustomArranger() {
         //given
         whichArrangerWasUsed = "";
-        final EnhancedRandom random = EnhancedRandomBuilder.instance().buildDefaultRandom();
+        final EnhancedRandom random = ArrangersConfigurer.instance().defaultRandom();
 
         //when
         final Child actual = random.nextObject(Child.class);
