@@ -49,7 +49,8 @@ class ArrangersConfigurer {
         return new EasyRandomParameters()
                 .collectionSizeRange(1, 4)
                 .randomizationDepth(4)
-                .objectPoolSize(30)
+                .objectPoolSize(60)
+                .objectFactory(new NullSafeObjectFactory())
                 .stringLengthRange(STRING_MIN_LENGTH, STRING_MAX_LENGTH);
     }
 
@@ -58,6 +59,7 @@ class ArrangersConfigurer {
                 .collectionSizeRange(0, 2)
                 .randomizationDepth(2)
                 .objectPoolSize(10)
+                .objectFactory(new NullSafeObjectFactory())
                 .stringLengthRange(5, 10);
     }
 
