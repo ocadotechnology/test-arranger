@@ -15,27 +15,23 @@
  */
 package com.ocadotechnology.gembus.test;
 
-import io.github.benas.randombeans.EnhancedRandomBuilder;
-import io.github.benas.randombeans.api.EnhancedRandom;
 import io.github.classgraph.ClassGraph;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-class ArrangerBuilder {
+class ReflectionHelper {
 
-    static final int STRING_MIN_LENGTH = 9;
-    static final int STRING_MAX_LENGTH = 16;
-    private static ArrangerBuilder instance;
-    private ArrangerSubBuilder defaultSubBuilder = new ArrangerSubBuilder();
-    private ArrangerSubBuilder flatSubBuilder = new ArrangerSubBuilder();
+    Map<Class<?>, CustomArranger<?>> customArrangers;
+    private final List<Constructor<?>> arrangerConstructors;
 
-    private ArrangerBuilder() {
-        final List<Constructor<?>> arrangerConstructors = new ClassGraph()
+    ReflectionHelper() {
+        arrangerConstructors = new ClassGraph()
                 .whitelistPackages(ReflectionsRoot.getRootPackage())
                 .enableAllInfo()
                 .scan()
@@ -47,38 +43,28 @@ class ArrangerBuilder {
                 .filter(constructor -> constructor.isPresent())
                 .map(constructor -> constructor.get())
                 .collect(Collectors.toList());
-
-        defaultSubBuilder.createAllCustomArrangers(arrangerConstructors);
-        flatSubBuilder.createAllCustomArrangers(arrangerConstructors);
     }
 
-    static ArrangerBuilder instance() {
-        if (instance == null) {
-            instance = new ArrangerBuilder();
+    Map<Class<?>, CustomArranger<?>> createAllCustomArrangers() {
+        return customArrangers = arrangerConstructors.stream()
+                .map(constructor -> createCustomArranger(constructor))
+                .filter(customArranger -> customArranger != null)
+                .collect(Collectors.toMap(
+                        customArranger -> customArranger.type,
+                        customArranger -> customArranger,
+                        (arrangerA, arrangerB) -> {
+                            throw new IllegalArgumentException("There are two arrangers registered for " + arrangerA.type.getName()
+                                                                       + ", those are " + arrangerA.getClass().getName() + " and " + arrangerB.getClass().getName());
+                        }));
+    }
+
+    private CustomArranger<?> createCustomArranger(Constructor<?> constructor) {
+        try {
+            return (CustomArranger) constructor.newInstance();
+        } catch (Exception e) {
+            System.err.println("Cannot create arranger for " + constructor.getName());
+            return null;
         }
-        return instance;
-    }
-
-    EnhancedRandom buildArranger(Optional<Class> target) {
-        final EnhancedRandomBuilder enhancedRandomBuilder = getEnhancedRandomBuilder();
-        defaultSubBuilder.configureEnhancedRandomBuilder(enhancedRandomBuilder, target, this::buildArranger);
-        return enhancedRandomBuilder.build();
-    }
-
-    static EnhancedRandomBuilder getEnhancedRandomBuilder() {
-        return EnhancedRandomBuilder.aNewEnhancedRandomBuilder()
-                .collectionSizeRange(1, 3)
-                .randomizationDepth(15)
-                .stringLengthRange(STRING_MIN_LENGTH, STRING_MAX_LENGTH);
-    }
-
-    EnhancedRandom buildFlatArranger(Optional<Class> target) {
-        final EnhancedRandomBuilder enhancedRandomBuilder = EnhancedRandomBuilder.aNewEnhancedRandomBuilder()
-                .collectionSizeRange(1, 1)
-                .randomizationDepth(3)
-                .stringLengthRange(5, 10);
-        flatSubBuilder.configureEnhancedRandomBuilder(enhancedRandomBuilder, target, this::buildFlatArranger);
-        return enhancedRandomBuilder.build();
     }
 
     private boolean isNotAbstract(Class<CustomArranger> clazz) {
@@ -95,4 +81,3 @@ class ArrangerBuilder {
         return result;
     }
 }
-

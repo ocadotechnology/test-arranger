@@ -15,8 +15,7 @@
  */
 package com.ocadotechnology.gembus.test;
 
-import io.github.benas.randombeans.api.EnhancedRandom;
-import io.github.benas.randombeans.randomizers.EmailRandomizer;
+import org.jeasy.random.randomizers.EmailRandomizer;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -26,7 +25,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -35,30 +33,30 @@ import java.util.stream.Stream;
  * To arrange test data using pseudo random values.
  */
 public class Arranger {
-    private static EnhancedRandom whatever = ArrangerBuilder.instance().buildArranger(Optional.empty());
-    private static EnhancedRandom flatWhatever = ArrangerBuilder.instance().buildFlatArranger(Optional.empty());
+    private static EnhancedRandom random = ArrangersConfigurer.instance().defaultRandom();
+    private static EnhancedRandom simplifiedRandom = ArrangersConfigurer.instance().simplifiedRandom();
     private static final EmailRandomizer emailRandomizer = new EmailRandomizer();
-    private static final MarkovStringRandomizer stringRandomizer = new MarkovStringRandomizer(ArrangerBuilder.STRING_MIN_LENGTH, ArrangerBuilder.STRING_MAX_LENGTH);
+    private static final MarkovStringRandomizer stringRandomizer = new MarkovStringRandomizer(ArrangersConfigurer.STRING_MIN_LENGTH, ArrangersConfigurer.STRING_MAX_LENGTH);
 
     /**
-     * @see io.github.benas.randombeans.api.EnhancedRandom#nextObject
+     * @see org.jeasy.random.EasyRandom#nextObject
      */
     public static <T> T some(final Class<T> type, final String... excludedFields) {
-        return whatever.nextObject(type, excludedFields);
+        return random.nextObject(type, excludedFields);
     }
 
     /**
-     * @see io.github.benas.randombeans.api.EnhancedRandom#nextObject
+     * @see org.jeasy.random.EasyRandom#nextObject
      */
     public static <T> T someSimplified(final Class<T> type, final String... excludedFields) {
-        return flatWhatever.nextObject(type, excludedFields);
+        return simplifiedRandom.nextObject(type, excludedFields);
     }
 
     /**
-     * @see io.github.benas.randombeans.api.EnhancedRandom#objects(Class, int, String...)
+     * @see org.jeasy.random.EasyRandom#objects(Class, int)
      */
     public static <T> Stream<T> someObjects(final Class<T> type, final int amount, final String... excludedFields) {
-        return whatever.objects(type, amount, excludedFields);
+        return random.objects(type, amount, excludedFields);
     }
 
     /**
@@ -68,7 +66,7 @@ public class Arranger {
         T whatever;
         int noTries = 0;
         do {
-            whatever = Arranger.whatever.nextObject(type, excludedFields);
+            whatever = some(type, excludedFields);
             if (noTries++ > 250) {
                 throw new CannotSatisfyPredicateException(type.getName());
             }
@@ -119,11 +117,11 @@ public class Arranger {
     }
 
     public static Long someLong() {
-        return whatever.nextLong();
+        return random.easyRandom.nextLong();
     }
 
     public static Integer someInteger() {
-        return whatever.nextInt();
+        return random.easyRandom.nextInt();
     }
 
     /**
@@ -134,7 +132,7 @@ public class Arranger {
         if (boundIncl <= 1) {
             return 1;
         }
-        return 1 + whatever.nextInt(boundIncl - 1);
+        return 1 + random.easyRandom.nextInt(boundIncl - 1);
     }
 
     private static int someNonNegativeInt() {
@@ -149,11 +147,11 @@ public class Arranger {
         if (boundIncl <= 0) {
             throw new IllegalArgumentException("bound must be positive");
         }
-        return 1 + Math.abs(whatever.nextLong() - 2) % boundIncl;
+        return 1 + Math.abs(random.easyRandom.nextLong() - 2) % boundIncl;
     }
 
     public static Boolean someBoolean() {
-        return whatever.nextBoolean();
+        return random.easyRandom.nextBoolean();
     }
 
     public static <T> T someFrom(Collection<T> source) {

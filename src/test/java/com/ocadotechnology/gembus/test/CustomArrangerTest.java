@@ -15,11 +15,8 @@
  */
 package com.ocadotechnology.gembus.test;
 
-import io.github.benas.randombeans.api.EnhancedRandom;
-import io.github.benas.randombeans.api.ObjectGenerationException;
+import org.jeasy.random.ObjectCreationException;
 import org.junit.jupiter.api.Test;
-
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -47,7 +44,7 @@ public class CustomArrangerTest {
     public void shouldGenerateInstancesOfChildClassUsingCustomArranger() {
         //given
         whichArrangerWasUsed = "";
-        final EnhancedRandom random = ArrangerBuilder.instance().buildArranger(Optional.empty());
+        final EnhancedRandom random = ArrangersConfigurer.instance().defaultRandom();
 
         //when
         final Child actual = random.nextObject(Child.class);
@@ -77,9 +74,18 @@ public class CustomArrangerTest {
             Arranger.some(AbstractParent.class);
         } catch (Exception actual) {
             //then
-            assertTrue(actual instanceof ObjectGenerationException);
+            assertTrue(actual instanceof ObjectCreationException);
             assertTrue(actual.getMessage().contains(AbstractParent.class.getName()));
         }
+    }
+
+    @Test
+    public void customArrangerShouldBreakInfiniteRecursion() {
+        //when
+        final ForRecursion actual = Arranger.some(ForRecursion.class);
+
+        //then
+        assertThat(actual.text).isNotBlank();
     }
 }
 
@@ -125,5 +131,16 @@ class ChildArranger extends CustomArranger<Child> {
     protected Child instance() {
         CustomArrangerTest.whichArrangerWasUsed = CustomArrangerTest.CHILD;
         return enhancedRandom.nextObject(type);
+    }
+}
+
+class ForRecursion {
+    String text;
+}
+
+class ForRecursionArranger extends CustomArranger<ForRecursion> {
+    @Override
+    protected ForRecursion instance() {
+        return enhancedRandom.nextObject(ForRecursion.class);
     }
 }
