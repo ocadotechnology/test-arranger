@@ -23,6 +23,7 @@ import org.jeasy.random.util.ReflectionUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
+import java.util.Optional;
 
 public class NullSafeObjectFactory implements ObjectFactory {
     private ObjenesisObjectFactory originalFactory = new ObjenesisObjectFactory();
@@ -59,6 +60,9 @@ public class NullSafeObjectFactory implements ObjectFactory {
         }
         if (ReflectionUtils.isMapType(fieldType)) {
             return ReflectionUtils.getEmptyImplementationForMapInterface(fieldType);
+        }
+        if (ReflectionUtils.isOptionalType(fieldType)) {
+            return Optional.empty();
         }
         return null;
     }

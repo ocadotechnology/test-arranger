@@ -41,6 +41,20 @@ public class ArrangerTestNestedObjects {
                 .anyMatch(it -> it.array.length == 0)
                 .anyMatch(it -> it.map.isEmpty());
     }
+
+    @Test
+    public void avoidNullsInOptionalsOnDeepestNestingLevel() {
+        //when
+        RecursiveThroughOptional actual = Arranger.some(RecursiveThroughOptional.class);
+
+        //then
+        assertThat(actual).isNotNull();
+        do {
+            assertThat(actual.optional).isNotNull();
+            assertThat(actual.field).isNotNull();
+            actual = actual.optional.get();
+        } while(actual.optional.isPresent());
+    }
 }
 
 class RecursiveObject {
@@ -75,4 +89,9 @@ class RecursiveObject {
         return stream.flatMap(it -> it.flatten().stream())
                 .collect(Collectors.toList());
     }
+}
+
+class RecursiveThroughOptional {
+    String field;
+    Optional<RecursiveThroughOptional> optional;
 }
