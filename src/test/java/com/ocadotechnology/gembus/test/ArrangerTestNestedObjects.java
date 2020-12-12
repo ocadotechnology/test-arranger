@@ -43,22 +43,25 @@ public class ArrangerTestNestedObjects {
     }
 
     @Test
-    public void avoidNullsInOptionalsOnDeepestNestingLevel() {
-        //when
-        RecursiveThroughOptional actual = Arranger.some(RecursiveThroughOptional.class);
+    void avoidInfiniteLoopsInRecursiveObjects() {
+        for (int i = 0; i < 100; i++) {
+            //when
+            RecursiveObject actual = Arranger.some(RecursiveObject.class);
 
-        //then
-        assertThat(actual).isNotNull();
-        do {
-            assertThat(actual.optional).isNotNull();
-            assertThat(actual.field).isNotNull();
-            actual = actual.optional.get();
-        } while(actual.optional.isPresent());
+            //then
+            List<RecursiveObject> flattenList = actual.flatten();
+            HashSet<RecursiveObject> flattenSet = new HashSet<>(flattenList);
+            assertThat(flattenList.size())
+                    .as("When the test fails a StackOverflowError is thrown before reaching this assertion")
+                    .isEqualTo(flattenSet.size());
+        }
     }
 }
 
 class RecursiveObject {
     String field;
+    String field2;
+    String field3;
     List<RecursiveObject> collection;
     RecursiveObject[] array;
     Map<String, RecursiveObject> map;
@@ -85,13 +88,21 @@ class RecursiveObject {
         return result;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RecursiveObject that = (RecursiveObject) o;
+        return field.equals(that.field) && field2.equals(that.field2) && field3.equals(that.field3);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(field, field2, field3);
+    }
+
     private List<RecursiveObject> flattenRecursively(Stream<RecursiveObject> stream) {
         return stream.flatMap(it -> it.flatten().stream())
                 .collect(Collectors.toList());
     }
-}
-
-class RecursiveThroughOptional {
-    String field;
-    Optional<RecursiveThroughOptional> optional;
 }

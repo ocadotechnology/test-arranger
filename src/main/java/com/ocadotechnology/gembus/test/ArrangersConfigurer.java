@@ -46,20 +46,20 @@ class ArrangersConfigurer {
     }
 
     static EasyRandomParameters getEasyRandomDefaultParameters() {
-        return new EasyRandomParameters()
+        return new MyEasyRandomParameters()
                 .collectionSizeRange(1, 4)
                 .randomizationDepth(4)
-                .objectPoolSize(60)
-                .objectFactory(new NullSafeObjectFactory())
+                .objectPoolSize(-1)
+                .objectFactory(new DecoratedObjectFactory())
                 .stringLengthRange(STRING_MIN_LENGTH, STRING_MAX_LENGTH);
     }
 
     static EasyRandomParameters getEasyRandomSimplifiedParameters() {
-        return new EasyRandomParameters()
+        return new MyEasyRandomParameters()
                 .collectionSizeRange(0, 2)
                 .randomizationDepth(2)
-                .objectPoolSize(10)
-                .objectFactory(new NullSafeObjectFactory())
+                .objectPoolSize(-1)
+                .objectFactory(new DecoratedObjectFactory())
                 .stringLengthRange(5, 10);
     }
 
