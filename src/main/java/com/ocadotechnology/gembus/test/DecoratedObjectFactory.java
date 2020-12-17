@@ -35,12 +35,19 @@ import java.util.Map;
  */
 public class DecoratedObjectFactory implements ObjectFactory {
     private final ObjenesisObjectFactory originalFactory = new ObjenesisObjectFactory();
+    private final boolean cacheEnable;
+
+    public DecoratedObjectFactory(boolean cacheEnable) {
+        this.cacheEnable = cacheEnable;
+    }
 
     @Override
     public <T> T createInstance(Class<T> type, RandomizerContext context) throws ObjectCreationException {
         try {
             T result = originalFactory.createInstance(type, context);
-            disableCache(type, context);
+            if (!cacheEnable) {
+                disableCache(type, context);
+            }
             if (isItDeepestRandomizationDepth(context)) {
                 ReflectionUtils.getDeclaredFields(result).forEach(field -> {
                     try {

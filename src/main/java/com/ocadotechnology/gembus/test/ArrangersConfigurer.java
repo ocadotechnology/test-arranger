@@ -26,6 +26,7 @@ class ArrangersConfigurer {
     static final int STRING_MIN_LENGTH = 9;
     static final int STRING_MAX_LENGTH = 16;
     static final long DEFAULT_SEED = 123L;
+    static final int CACHE_SIZE = 15;
     private static ArrangersConfigurer instance;
 
     private final Map<Class<?>, CustomArranger<?>> defaultArrangers;
@@ -49,17 +50,25 @@ class ArrangersConfigurer {
         return new MyEasyRandomParameters()
                 .collectionSizeRange(1, 4)
                 .randomizationDepth(4)
-                .objectPoolSize(-1)
-                .objectFactory(new DecoratedObjectFactory())
+                .objectPoolSize(calculateObjectPoolSize())
+                .objectFactory(new DecoratedObjectFactory(PropertiesWrapper.getCacheEnable()))
                 .stringLengthRange(STRING_MIN_LENGTH, STRING_MAX_LENGTH);
+    }
+
+    private static int calculateObjectPoolSize() {
+        if (PropertiesWrapper.getCacheEnable()) {
+            return CACHE_SIZE;
+        } else {
+            return -1;
+        }
     }
 
     static EasyRandomParameters getEasyRandomSimplifiedParameters() {
         return new MyEasyRandomParameters()
                 .collectionSizeRange(0, 2)
                 .randomizationDepth(2)
-                .objectPoolSize(-1)
-                .objectFactory(new DecoratedObjectFactory())
+                .objectPoolSize(calculateObjectPoolSize())
+                .objectFactory(new DecoratedObjectFactory(PropertiesWrapper.getCacheEnable()))
                 .stringLengthRange(5, 10);
     }
 

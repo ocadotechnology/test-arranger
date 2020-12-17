@@ -32,7 +32,7 @@ class ReflectionHelper {
 
     ReflectionHelper() {
         arrangerConstructors = new ClassGraph()
-                .whitelistPackages(ReflectionsRoot.getRootPackage())
+                .acceptPackages(PropertiesWrapper.getRootPackage())
                 .enableAllInfo()
                 .scan()
                 .getSubclasses(CustomArranger.class.getName())
