@@ -23,15 +23,31 @@ import org.jeasy.random.util.ReflectionUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
-import java.util.Optional;
+import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
-public class NullSafeObjectFactory implements ObjectFactory {
-    private ObjenesisObjectFactory originalFactory = new ObjenesisObjectFactory();
+/**
+ * Delegates instance creation to EasyRandom object factory but decorates the process by
+ * avoiding null in nested objects
+ * and disabling cache to prevent the possibility of infinite loops in nested objects.
+ */
+public class DecoratedObjectFactory implements ObjectFactory {
+    private final ObjenesisObjectFactory originalFactory = new ObjenesisObjectFactory();
+    private final boolean cacheEnable;
+
+    public DecoratedObjectFactory(boolean cacheEnable) {
+        this.cacheEnable = cacheEnable;
+    }
 
     @Override
     public <T> T createInstance(Class<T> type, RandomizerContext context) throws ObjectCreationException {
         try {
             T result = originalFactory.createInstance(type, context);
+            if (!cacheEnable) {
+                disableCache(type, context);
+            }
             if (isItDeepestRandomizationDepth(context)) {
                 ReflectionUtils.getDeclaredFields(result).forEach(field -> {
                     try {
@@ -50,6 +66,17 @@ public class NullSafeObjectFactory implements ObjectFactory {
         }
     }
 
+    private <T> void disableCache(Class<T> type, RandomizerContext context) {
+        try {
+            Field populatedBeans = context.getClass().getDeclaredField("populatedBeans");
+            populatedBeans.setAccessible(true);
+            Map<Class<?>, List<Object>> cache = (Map<Class<?>, List<Object>>) populatedBeans.get(context);
+            cache.put(type, Collections.emptyList());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     @Nullable
     private Object produceEmptyValueForField(Class<?> fieldType) {
         if (ReflectionUtils.isArrayType(fieldType)) {
@@ -60,9 +87,6 @@ public class NullSafeObjectFactory implements ObjectFactory {
         }
         if (ReflectionUtils.isMapType(fieldType)) {
             return ReflectionUtils.getEmptyImplementationForMapInterface(fieldType);
-        }
-        if (ReflectionUtils.isOptionalType(fieldType)) {
-            return Optional.empty();
         }
         return null;
     }
