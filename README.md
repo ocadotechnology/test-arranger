@@ -47,6 +47,7 @@ Some of the possible calls are listed below:
 |```Arranger.someLong()```|```someLong()```|a pseudo random number of type long|
 |```Arranger.someFrom(listOfCategories)```|```someFrom(listOfCategories)```|an entry form the listOfCategories|
 |```Arranger.someText()```|```someText()```|a string generated from a Markov Chain; by default, it is Markov Chain of characters trained on English text, but it can be reconfigured by putting other 'enMarkovChain' file on the test classpath with alternative Markov Chain definition; consult the included in the project 'enMarkovChain' file for the file format|
+| - |```some<Product> {name = "not so random"}```|an instance of Product with all fields filled with random values except for `name` which is set to "not so random", this syntax can be used to set as many fields of the object as necessary|
 
 ### Custom Arrangers
 
