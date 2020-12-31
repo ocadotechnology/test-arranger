@@ -15,23 +15,18 @@
  */
 package com.ocadotechnology.gembus.test;
 
+import com.ocadotechnology.gembus.ToTestNonPublic;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class ArrangerTest {
@@ -274,6 +269,16 @@ public class ArrangerTest {
 
         //then
         assertThat(actual.id).isNull();
+    }
+
+    @Test
+    public void shouldSupportPackagePrivateArrangers() {
+        //when
+        ToTestNonPublic actual = Arranger.some(ToTestNonPublic.class);
+
+        //then
+        assertThat(actual.someText).isEqualTo(ToTestNonPublic.ARRANGER_TEXT);
+        assertThat(actual.someNumber).isNotNull();
     }
 }
 

@@ -60,6 +60,7 @@ class ReflectionHelper {
 
     private CustomArranger<?> createCustomArranger(Constructor<?> constructor) {
         try {
+            constructor.setAccessible(true);
             return (CustomArranger) constructor.newInstance();
         } catch (Exception e) {
             System.err.println("Cannot create arranger for " + constructor.getName());
