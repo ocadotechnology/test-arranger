@@ -114,6 +114,18 @@ public class ArrangerTest {
     }
 
     @Test
+    void someTextWhenRequestingMaxLength() {
+        //given
+        int maxLen = 1;
+
+        //when
+        final String actual = Arranger.someText(maxLen);
+
+        //then
+        assertThat(actual.length()).isEqualTo(maxLen);
+    }
+
+    @Test
     void someTextWhenRequestingExplicitLength() {
         //given
         int minLength = 900;
@@ -279,6 +291,81 @@ public class ArrangerTest {
         //then
         assertThat(actual.someText).isEqualTo(ToTestNonPublic.ARRANGER_TEXT);
         assertThat(actual.someNumber).isNotNull();
+    }
+
+    @Test
+    public void shouldGenerateStringOfGivenMaxLength() {
+        for (int i = 0; i < 100; i++) {
+            //given
+            int maxLen = Arranger.somePositiveInt(50);
+
+            //when
+            String actual = Arranger.someString(maxLen);
+
+            //then
+            assertThat(actual.length()).isLessThanOrEqualTo(maxLen);
+        }
+    }
+
+    @Test
+    public void shouldGenerateStringOfLengthWithinGivenBoundaries() {
+        //given
+        int minLen = 995;
+        int maxLen = 1_000;
+
+        //when
+        String actual = Arranger.someString(minLen, maxLen);
+
+        //then
+        assertThat(actual.length())
+                .isLessThanOrEqualTo(maxLen)
+                .isGreaterThanOrEqualTo(minLen);
+    }
+
+    @Test
+    public void shouldGenerateIntFromGivenRange() {
+        for (int i = 0; i < 100; i++) {
+            //given
+            int min = Arranger.somePositiveInt(500);
+            int max = min + 10;
+
+            //when
+            int actual = Arranger.someInteger(min, max);
+
+            //then
+            assertThat(actual)
+                    .isLessThanOrEqualTo(max)
+                    .isGreaterThanOrEqualTo(min);
+        }
+    }
+
+    @Test
+    public void shouldGenerateIntFromGivenRangeIncludingBoundaries() {
+        //given
+        int boundaries = Arranger.somePositiveInt(100);
+
+        //when
+        int actual = Arranger.someInteger(boundaries, boundaries);
+
+        //then
+        assertThat(actual).isEqualTo(boundaries);
+    }
+
+    @Test
+    public void shouldGenerateIntFromRangeOverNegativeNumbers() {
+        for (int i = 0; i < 100; i++) {
+            //given
+            int min = Integer.MIN_VALUE;
+            int max = Arranger.somePositiveInt(100);
+
+            //when
+            int actual = Arranger.someInteger(min, max);
+
+            //then
+            assertThat(actual)
+                    .isLessThanOrEqualTo(max)
+                    .isGreaterThanOrEqualTo(min);
+        }
     }
 }
 
