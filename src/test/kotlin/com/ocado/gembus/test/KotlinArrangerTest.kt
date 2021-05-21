@@ -15,6 +15,8 @@
  */
 package com.ocado.gembus.test
 
+import com.ocadotechnology.gembus.test.some
+import com.ocadotechnology.gembus.test.someInt
 import com.ocadotechnology.gembus.test.someSimplified
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -30,8 +32,27 @@ class KotlinArrangerTest {
         assertThat(actual.objects).isNotNull
         assertThat(actual.ts).isNotNull
     }
+
+    @Test
+    fun testSomeWithAdjustment() {
+        //given
+        val someNumber = someInt()
+        val someString = some<String>()
+
+        //when
+        val notSoRandom = some<BB> {
+            number = someNumber
+            txt = someString
+        }
+
+        //then
+        assertThat(notSoRandom.number).isEqualTo(someNumber)
+        assertThat(notSoRandom.txt).isEqualTo(someString)
+    }
 }
 
 class A(var ts: List<A>) {
     val objects: List<A>? = null
 }
+
+class BB(var number: Int, var txt: String)

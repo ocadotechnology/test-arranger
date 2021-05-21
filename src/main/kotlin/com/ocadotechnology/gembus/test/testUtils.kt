@@ -20,6 +20,12 @@ import java.time.Instant
 import java.time.LocalDate
 import java.util.function.Predicate
 
+inline fun <reified T> some(adjustment: T.() -> Unit): T {
+    val result = some<T>()
+    result.adjustment()
+    return result
+}
+
 inline fun <reified T> some(vararg excludedFields: String) =
     Arranger.some(T::class.java, *excludedFields)!!
 
@@ -30,7 +36,7 @@ inline fun <reified T> someObjects(numberOfObjects: Int, vararg excludedFields: 
     Arranger.someObjects(T::class.java, numberOfObjects, *excludedFields).iterator().asSequence<T>()
 
 inline fun <reified T> someMatching(crossinline predicate: (T) -> Boolean, vararg excludedFields: String) =
-    Arranger.someMatching<T>(T::class.java, Predicate { it -> predicate.invoke(it) }, *excludedFields)!!
+    Arranger.someMatching<T>(T::class.java, Predicate { predicate.invoke(it) }, *excludedFields)!!
 
 fun someInt(): Int = Arranger.someInteger()
 fun someInt(minValue: Int, maxValue: Int): Int = Arranger.someInteger(minValue, maxValue)
