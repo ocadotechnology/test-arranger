@@ -21,11 +21,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -104,9 +100,43 @@ public class Arranger {
     /**
      * @return whatever (pseudo-random) text, that looks a bit like a sequence of words; there is a Markov chain trained on English text underneath that generates a sequence of characters
      */
+    public static String someText(int maxLength) {
+        MarkovStringRandomizer randomizer = new MarkovStringRandomizer(1, maxLength);
+        return randomizer.getRandomValue();
+    }
+
+    /**
+     * @return whatever (pseudo-random) text, that looks a bit like a sequence of words; there is a Markov chain trained on English text underneath that generates a sequence of characters
+     */
     public static String someText(int minLength, int maxLength) {
         MarkovStringRandomizer randomizer = new MarkovStringRandomizer(minLength, maxLength);
         return randomizer.getRandomValue();
+    }
+
+    /**
+     * @return whatever string i.e. some(String.class)
+     */
+    public static String someString() {
+        return some(String.class);
+    }
+
+    /**
+     * @return whatever string i.e. some(String.class), but with length less or equal the maxLength
+     */
+    public static String someString(int maxLength) {
+        return someString(1, maxLength);
+    }
+
+    /**
+     * @return whatever string i.e. some(String.class), but with length greater or equal the minLength and less or equal the maxLength
+     */
+    public static String someString(int minLength, int maxLength) {
+        int length = someInteger(minLength, maxLength);
+        StringBuilder result = new StringBuilder();
+        do {
+            result.append(some(String.class));
+        } while (result.length() < length);
+        return result.substring(0, length);
     }
 
     /**
@@ -116,19 +146,30 @@ public class Arranger {
         return new BigDecimal(somePositiveInt(10_000)).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
     }
 
-    public static Long someLong() {
+    public static long someLong() {
         return random.easyRandom.nextLong();
     }
 
-    public static Integer someInteger() {
+    public static int someInteger() {
         return random.easyRandom.nextInt();
+    }
+
+    /**
+     * @param minValue inclusive
+     * @param maxValue inclusive
+     * @return whatever integer from range [minValue,maxValue]
+     */
+    public static int someInteger(int minValue, int maxValue) {
+        Long rangeSize = 1L + maxValue - minValue;
+        long randomWithinSize = Math.abs(random.easyRandom.nextLong()) % rangeSize;
+        return (int) randomWithinSize + minValue;
     }
 
     /**
      * @param boundIncl non null positive value
      * @return whatever integer from range [1,boundIncl]
      */
-    public static Integer somePositiveInt(Integer boundIncl) {
+    public static int somePositiveInt(Integer boundIncl) {
         if (boundIncl <= 1) {
             return 1;
         }
@@ -143,14 +184,14 @@ public class Arranger {
      * @param boundIncl non null positive value
      * @return whatever long from range [1,boundIncl]
      */
-    public static Long somePositiveLong(Long boundIncl) {
+    public static long somePositiveLong(Long boundIncl) {
         if (boundIncl <= 0) {
             throw new IllegalArgumentException("bound must be positive");
         }
         return 1 + Math.abs(random.easyRandom.nextLong() - 2) % boundIncl;
     }
 
-    public static Boolean someBoolean() {
+    public static boolean someBoolean() {
         return random.easyRandom.nextBoolean();
     }
 

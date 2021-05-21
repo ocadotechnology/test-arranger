@@ -39,9 +39,14 @@ inline fun <reified T> someMatching(crossinline predicate: (T) -> Boolean, varar
     Arranger.someMatching<T>(T::class.java, Predicate { predicate.invoke(it) }, *excludedFields)!!
 
 fun someInt(): Int = Arranger.someInteger()
+fun someInt(minValue: Int, maxValue: Int): Int = Arranger.someInteger(minValue, maxValue)
 fun someLong(): Long = Arranger.someLong()
 fun someText(): String = Arranger.someText()
+fun someText(maxLength: Int): String = Arranger.someText(maxLength)
 fun someText(minLength: Int, maxLength: Int): String = Arranger.someText(minLength, maxLength)
+fun someString(): String = Arranger.someString()
+fun someString(maxLength: Int): String = Arranger.someString(maxLength)
+fun someString(minLength: Int, maxLength: Int): String = Arranger.someString(minLength, maxLength)
 fun somePriceLikeBigDecimal(): BigDecimal = Arranger.somePriceLikeBigDecimal()
 fun somePriceLikeBigDecimal(min: BigDecimal, max: BigDecimal): BigDecimal = Arranger.somePriceLikeBigDecimal(min, max)
 fun someBoolean(): Boolean = Arranger.someBoolean()
