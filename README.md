@@ -1,4 +1,16 @@
-# Test Arranger
+***
+
+<div align="center">
+    <b><em>Test Arranger</em></b><br>
+
+[![Apache 2 license](https://img.shields.io/badge/license-Apache%202-blue?style=flat)](http://www.apache.org/licenses/)
+[![Build Status](https://github.com/ocadotechnology/test-arranger/actions/workflows/maven-verify.yml/badge.svg)](https://github.com/ocadotechnology/test-arranger/actions)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.ocadotechnology.gembus/test-arranger/badge.svg?style=flat)](https://repo1.maven.org/maven2/com/ocadotechnology/gembus/test-arranger/1.1/)
+[![Javadocs](http://www.javadoc.io/badge/com.ocadotechnology.gembus/test-arranger.svg)](https://www.javadoc.io/doc/com.ocadotechnology.gembus/test-arranger/latest/index.html)
+
+</div>
+
+***
 
 In TDD there are 3 phases: arrange, act and assert (given, when, then in BDD).
 The assert phase has great tool support, you may be familiar with AssertJ, FEST-Assert or Hamcrest.
