@@ -88,13 +88,21 @@ It not only regards direct calls like ```Arranger.some(Product.class)```, but al
 Assuming there is class ```Shop``` with field ```products``` of type ```List<Product>```.
 When calling ```Arranger.some(Shop.class)```, the arranger will use ```ProductArranger``` to create all the products stored in ```Shop.products```.
 
-The custom arrangers are picked up using reflection.
-All classes extending ```CustomArranger``` are considered to be custom arrangers.
-The reflection is focused on a certain package which by default is `com.ocado`.
-That not necessarily is convenient for you.
-If you want to use other package, create `arranger.properties` file and save it in the root of classpath (usually that will be `src/test/resources/` directory).
-Inside the file write `arranger.root=your_package`.
-Try to have the package as specific as possible as having something to generic (e.g. just `com` which is root package in many libraries) will result in scanning hundreds of classes which will take noticeable time.
+### Properties
+The behaviour of the test-arranger can be configured using properties.
+If you create `arranger.properties` file and save it in the root of classpath (usually that will be `src/test/resources/` directory), it will be picked up and the following properties will be applied:
+
+* `arranger.root`
+  The custom arrangers are picked up using reflection.
+  All classes extending ```CustomArranger``` are considered to be custom arrangers.
+  The reflection is focused on a certain package which by default is `com.ocado`.
+  That not necessarily is convenient for you.
+  However, with `arranger.root=your_package` it can be changed to `you_package`.
+  Try to have the package as specific as possible as having something to generic (e.g. just `com` which is root package in many libraries) will result in scanning hundreds of classes which will take noticeable time.
+* `arranger.randomseed`
+  By default, always the same seed is used to initialize the underlying pseudorandom values generator.
+  As a consequence, the subsequent executions will generate the same values.
+  To achieve randomness across runs, i.e. to always start with other random values, setting `arranger.randomseed=true` is necessary.
 
 ## The challenges it solves
 
