@@ -25,7 +25,6 @@ class ArrangersConfigurer {
 
     static final int STRING_MIN_LENGTH = 9;
     static final int STRING_MAX_LENGTH = 16;
-    static final long DEFAULT_SEED = 123L;
     static final int CACHE_SIZE = 15;
     private static ArrangersConfigurer instance;
 
@@ -52,15 +51,8 @@ class ArrangersConfigurer {
                 .randomizationDepth(4)
                 .objectPoolSize(calculateObjectPoolSize())
                 .objectFactory(new DecoratedObjectFactory(PropertiesWrapper.getCacheEnable()))
-                .stringLengthRange(STRING_MIN_LENGTH, STRING_MAX_LENGTH);
-    }
-
-    private static int calculateObjectPoolSize() {
-        if (PropertiesWrapper.getCacheEnable()) {
-            return CACHE_SIZE;
-        } else {
-            return -1;
-        }
+                .stringLengthRange(STRING_MIN_LENGTH, STRING_MAX_LENGTH)
+                .seed(calculateSeed());
     }
 
     static EasyRandomParameters getEasyRandomSimplifiedParameters() {
@@ -69,7 +61,16 @@ class ArrangersConfigurer {
                 .randomizationDepth(2)
                 .objectPoolSize(calculateObjectPoolSize())
                 .objectFactory(new DecoratedObjectFactory(PropertiesWrapper.getCacheEnable()))
-                .stringLengthRange(5, 10);
+                .stringLengthRange(5, 10)
+                .seed(calculateSeed());
+    }
+
+    static long calculateSeed() {
+        long seed = EasyRandomParameters.DEFAULT_SEED;
+        if (PropertiesWrapper.getRandomSeedEnabled()) {
+            seed = System.nanoTime();
+        }
+        return seed;
     }
 
     EnhancedRandom defaultRandom() {
@@ -84,9 +85,17 @@ class ArrangersConfigurer {
         EnhancedRandom.Builder randomBuilder = new EnhancedRandom.Builder(parametersSupplier);
         CustomArranger<?> arrangerToUpdate = arrangers.get(type);
         if (arrangerToUpdate == null) {
-            return randomBuilder.build(arrangers, DEFAULT_SEED);
+            return randomBuilder.build(arrangers, calculateSeed());
         } else {
             return randomWithoutSelfReferenceThroughArranger(arrangers, randomBuilder, type);
+        }
+    }
+
+    private static int calculateObjectPoolSize() {
+        if (PropertiesWrapper.getCacheEnable()) {
+            return CACHE_SIZE;
+        } else {
+            return -1;
         }
     }
 
@@ -95,12 +104,12 @@ class ArrangersConfigurer {
             EnhancedRandom random = randomWithoutSelfReferenceThroughArranger(arrangers, randomBuilder, clazz);
             customArranger.setEnhancedRandom(random);
         });
-        return randomBuilder.build(arrangers, DEFAULT_SEED);
+        return randomBuilder.build(arrangers, calculateSeed());
     }
 
     private EnhancedRandom randomWithoutSelfReferenceThroughArranger(Map<Class<?>, CustomArranger<?>> arrangers, EnhancedRandom.Builder enhancedRandomBuilder, Class<?> type) {
         final HashMap<Class<?>, CustomArranger<?>> forCustomArranger = new HashMap<>(arrangers);
         forCustomArranger.remove(type);
-        return enhancedRandomBuilder.build(forCustomArranger, (long) type.getName().hashCode());
+        return enhancedRandomBuilder.build(forCustomArranger, calculateSeed() + type.getName().hashCode());
     }
 }

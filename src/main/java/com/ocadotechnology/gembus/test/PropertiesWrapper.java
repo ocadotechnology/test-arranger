@@ -21,6 +21,8 @@ public class PropertiesWrapper {
     private static final String defaultRoot = "com.ocado";
     private static final String cacheKey = "arranger.cache.enable";
     private static final String defaultCache = "false";
+    private static final String randomSeedKey = "arranger.randomseed";
+    private static final String defaultRandomSeed = "false";
     private static final PropertiesFromFile propertiesFromFile = new PropertiesFromFile();
 
     public static String getRootPackage() {
@@ -28,7 +30,11 @@ public class PropertiesWrapper {
     }
 
     public static boolean getCacheEnable() {
-        return Boolean.valueOf(getPropertyValue(cacheKey, defaultCache));
+        return Boolean.parseBoolean(getPropertyValue(cacheKey, defaultCache));
+    }
+
+    public static boolean getRandomSeedEnabled() {
+        return Boolean.parseBoolean(getPropertyValue(randomSeedKey, defaultRandomSeed));
     }
 
     private static String getPropertyValue(String key, String defaultValue) {

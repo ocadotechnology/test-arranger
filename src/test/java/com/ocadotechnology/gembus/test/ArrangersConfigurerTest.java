@@ -15,8 +15,10 @@
  */
 package com.ocadotechnology.gembus.test;
 
+import org.jeasy.random.EasyRandomParameters;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ArrangersConfigurerTest {
@@ -33,6 +35,60 @@ public class ArrangersConfigurerTest {
 
         //then
         assertEquals(hardcoded_string, wrapper.myEntity.text);
+    }
+
+    @Test
+    void should_useTheHardcodedSeed_when_randomSeedIsNotEnabled() {
+        //given
+        System.setProperty("arranger.randomseed", "false");
+
+        //when
+        EasyRandomParameters actual = ArrangersConfigurer.getEasyRandomDefaultParameters();
+
+        //then
+        assertThat(actual.getSeed()).isEqualTo(123);
+    }
+
+    @Test
+    void should_useRandomSeed_when_randomSeedIsEnabled() {
+        //given
+        System.setProperty("arranger.randomseed", "true");
+
+        //when
+        EasyRandomParameters actual1 = ArrangersConfigurer.getEasyRandomDefaultParameters();
+        EasyRandomParameters actual2 = ArrangersConfigurer.getEasyRandomDefaultParameters();
+
+        //then
+        assertThat(actual1.getSeed()).isNotEqualTo(123);
+        assertThat(actual2.getSeed()).isNotEqualTo(123);
+        assertThat(actual1.getSeed()).isNotEqualTo(actual2.getSeed());
+    }
+
+    @Test
+    void should_useTheHardcodedSeedForSimplified_when_randomSeedIsNotEnabled() {
+        //given
+        System.setProperty("arranger.randomseed", "false");
+
+        //when
+        EasyRandomParameters actual = ArrangersConfigurer.getEasyRandomSimplifiedParameters();
+
+        //then
+        assertThat(actual.getSeed()).isEqualTo(123);
+    }
+
+    @Test
+    void should_useRandomSeedForSimplified_when_randomSeedIsEnabled() {
+        //given
+        System.setProperty("arranger.randomseed", "true");
+
+        //when
+        EasyRandomParameters actual1 = ArrangersConfigurer.getEasyRandomSimplifiedParameters();
+        EasyRandomParameters actual2 = ArrangersConfigurer.getEasyRandomSimplifiedParameters();
+
+        //then
+        assertThat(actual1.getSeed()).isNotEqualTo(123);
+        assertThat(actual2.getSeed()).isNotEqualTo(123);
+        assertThat(actual1.getSeed()).isNotEqualTo(actual2.getSeed());
     }
 }
 
