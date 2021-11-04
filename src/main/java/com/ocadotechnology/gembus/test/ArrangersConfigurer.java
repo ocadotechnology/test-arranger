@@ -110,6 +110,10 @@ class ArrangersConfigurer {
     private EnhancedRandom randomWithoutSelfReferenceThroughArranger(Map<Class<?>, CustomArranger<?>> arrangers, EnhancedRandom.Builder enhancedRandomBuilder, Class<?> type) {
         final HashMap<Class<?>, CustomArranger<?>> forCustomArranger = new HashMap<>(arrangers);
         forCustomArranger.remove(type);
-        return enhancedRandomBuilder.build(forCustomArranger, calculateSeed() + type.getName().hashCode());
+        return enhancedRandomBuilder.build(forCustomArranger, customArrangerTypeSpecificSeedRespectingRandomSeedSetting(type));
+    }
+
+    private long customArrangerTypeSpecificSeedRespectingRandomSeedSetting(Class<?> type) {
+        return calculateSeed() + type.getName().hashCode();
     }
 }
