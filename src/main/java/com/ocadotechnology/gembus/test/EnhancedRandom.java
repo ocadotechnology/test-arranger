@@ -18,21 +18,8 @@ package com.ocadotechnology.gembus.test;
 import org.jeasy.random.EasyRandom;
 import org.jeasy.random.EasyRandomParameters;
 import org.jeasy.random.api.Randomizer;
-import org.jeasy.random.randomizers.misc.BooleanRandomizer;
-import org.jeasy.random.randomizers.number.ByteRandomizer;
-import org.jeasy.random.randomizers.number.DoubleRandomizer;
-import org.jeasy.random.randomizers.number.FloatRandomizer;
-import org.jeasy.random.randomizers.number.IntegerRandomizer;
-import org.jeasy.random.randomizers.number.LongRandomizer;
-import org.jeasy.random.randomizers.number.ShortRandomizer;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -63,7 +50,7 @@ public class EnhancedRandom extends Random {
         this.parametersSupplier = parametersSupplier;
         EasyRandomParameters parameters = parametersSupplier.get();
         parameters.seed(seed);
-        addRandomizersToParameters(Optional.empty(), parameters, arrangers, seed);
+        addRandomizersToParameters(Optional.empty(), parameters, arrangers);
         this.easyRandom = new EasyRandom(parameters);
     }
 
@@ -117,7 +104,7 @@ public class EnhancedRandom extends Random {
         return parameters;
     }
 
-    private void addRandomizersToParameters(Optional<Class> typeToSkip, EasyRandomParameters parameters, Map<Class<?>, CustomArranger<?>> customArrangers, long seed) {
+    private void addRandomizersToParameters(Optional<Class> typeToSkip, EasyRandomParameters parameters, Map<Class<?>, CustomArranger<?>> customArrangers) {
         for (Map.Entry<Class<?>, CustomArranger<?>> entry : customArrangers.entrySet()) {
             if (entry.getKey() != typeToSkip.orElse(null)) {
                 final Class key = entry.getKey();
@@ -125,16 +112,13 @@ public class EnhancedRandom extends Random {
                 parameters.randomize(key, randomizer);
             }
         }
-        parameters.randomize(Boolean.class, new BooleanRandomizer(seed + 1));
-        parameters.randomize(Byte.class, new ByteRandomizer(seed + 1));
-        parameters.randomize(Short.class, new ShortRandomizer(seed + 1));
-        parameters.randomize(Integer.class, new IntegerRandomizer(seed + 1));
-        parameters.randomize(Long.class, new LongRandomizer(seed + 1));
-        parameters.randomize(Double.class, new DoubleRandomizer(seed + 1));
-        parameters.randomize(Float.class, new FloatRandomizer(seed + 1));
+        long newSeed = parameters.getSeed() + SeedHelper.customArrangerTypeSpecificSeedRespectingRandomSeedSetting(typeToSkip.orElse(CustomArranger.class));
+        parameters.randomizerRegistry(new CustomArrangerRandomizerRegistry(newSeed));
     }
 
     private Randomizer<?> customArrangerToRandomizer(CustomArranger arranger) {
         return arranger::instance;
     }
+
+
 }
