@@ -50,7 +50,7 @@ public class EnhancedRandom extends Random {
         this.parametersSupplier = parametersSupplier;
         EasyRandomParameters parameters = parametersSupplier.get();
         parameters.seed(seed);
-        addRandomizersToParameters(Optional.empty(), parameters, arrangers, seed);
+        addRandomizersToParameters(Optional.empty(), parameters, arrangers);
         this.easyRandom = new EasyRandom(parameters);
     }
 
@@ -104,7 +104,7 @@ public class EnhancedRandom extends Random {
         return parameters;
     }
 
-    private void addRandomizersToParameters(Optional<Class> typeToSkip, EasyRandomParameters parameters, Map<Class<?>, CustomArranger<?>> customArrangers, long seed) {
+    private void addRandomizersToParameters(Optional<Class> typeToSkip, EasyRandomParameters parameters, Map<Class<?>, CustomArranger<?>> customArrangers) {
         for (Map.Entry<Class<?>, CustomArranger<?>> entry : customArrangers.entrySet()) {
             if (entry.getKey() != typeToSkip.orElse(null)) {
                 final Class key = entry.getKey();
@@ -112,7 +112,8 @@ public class EnhancedRandom extends Random {
                 parameters.randomize(key, randomizer);
             }
         }
-        parameters.randomizerRegistry(new CustomArrangerRandomizerRegistry(seed));
+        long newSeed = parameters.getSeed() + SeedHelper.customArrangerTypeSpecificSeedRespectingRandomSeedSetting(typeToSkip.orElse(CustomArranger.class));
+        parameters.randomizerRegistry(new CustomArrangerRandomizerRegistry(newSeed));
     }
 
     private Randomizer<?> customArrangerToRandomizer(CustomArranger arranger) {

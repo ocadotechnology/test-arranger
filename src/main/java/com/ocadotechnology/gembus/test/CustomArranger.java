@@ -32,7 +32,7 @@ import java.util.HashMap;
  */
 public abstract class CustomArranger<T> {
 
-    protected EnhancedRandom enhancedRandom = new EnhancedRandom.Builder(ArrangersConfigurer::getEasyRandomDefaultParameters).build(new HashMap<>(), ArrangersConfigurer.calculateSeed());
+    protected EnhancedRandom enhancedRandom = new EnhancedRandom.Builder(ArrangersConfigurer::getEasyRandomDefaultParameters).build(new HashMap<>(), SeedHelper.calculateSeed());
     protected final Class<T> type = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
 
     /**
