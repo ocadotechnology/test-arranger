@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2020 Ocado (marian.jureczko@ocado.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
