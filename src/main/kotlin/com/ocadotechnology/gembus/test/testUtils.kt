@@ -27,16 +27,16 @@ inline fun <reified T> some(adjustment: T.() -> Unit): T {
 }
 
 inline fun <reified T> some(vararg excludedFields: String) =
-    Arranger.some(T::class.java, *excludedFields)!!
+        Arranger.some(T::class.java, *excludedFields)!!
 
 inline fun <reified T> someSimplified(vararg excludedFields: String): T =
-    Arranger.someSimplified(T::class.java, *excludedFields)!!
+        Arranger.someSimplified(T::class.java, *excludedFields)!!
 
 inline fun <reified T> someObjects(numberOfObjects: Int, vararg excludedFields: String) =
-    Arranger.someObjects(T::class.java, numberOfObjects, *excludedFields).iterator().asSequence<T>()
+        Arranger.someObjects(T::class.java, numberOfObjects, *excludedFields).iterator().asSequence<T>()
 
 inline fun <reified T> someMatching(crossinline predicate: (T) -> Boolean, vararg excludedFields: String) =
-    Arranger.someMatching<T>(T::class.java, Predicate { predicate.invoke(it) }, *excludedFields)!!
+        Arranger.someMatching<T>(T::class.java, Predicate { predicate.invoke(it) }, *excludedFields)!!
 
 fun someInt(): Int = Arranger.someInteger()
 fun someInt(minValue: Int, maxValue: Int): Int = Arranger.someInteger(minValue, maxValue)
@@ -57,12 +57,15 @@ fun somePositiveLong(boundInclusive: Long): Long = Arranger.somePositiveLong(bou
 fun someEmail(): String = Arranger.someEmail()
 
 fun <T> someMatchingOrNull(array: Array<T>, predicate: (T) -> Boolean): T? =
-    Arranger.someMatching(array, predicate)
+        Arranger.someMatching(array, predicate)
 
 fun <T> someMatching(array: Array<T>, predicate: (T) -> Boolean) =
-    someMatchingOrNull(array, predicate) ?: throw RuntimeException("No match found.")
+        someMatchingOrNull(array, predicate) ?: throw RuntimeException("No match found.")
 
 fun someGivenOrLater(given: LocalDate): LocalDate = Arranger.someGivenOrLater(given)
 fun someGivenOrEarlier(given: LocalDate): LocalDate = Arranger.someGivenOrEarlier(given)
 fun someInstant(): Instant = Arranger.someInstant()
 fun <T> someFrom(source: Collection<T>): T = Arranger.someFrom(source)
+fun someFirstName(): String = Arranger.someFirstName()
+fun someLastName(): String = Arranger.someLastName()
+fun someStringLike(regex: String): String = Arranger.someStringLike(regex)

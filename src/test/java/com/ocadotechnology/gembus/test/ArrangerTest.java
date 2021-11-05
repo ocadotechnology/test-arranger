@@ -367,6 +367,27 @@ public class ArrangerTest {
                     .isGreaterThanOrEqualTo(min);
         }
     }
+
+    @Test
+    public void should_generateFirstName() {
+        //when
+        String actual = Arranger.someFirstName();
+
+        //then
+        assertThat(actual.length()).isGreaterThan(1);
+        assertThat(actual.charAt(0)).isUpperCase();
+        assertThat(actual.substring(1)).isEqualTo(actual.substring(1).toLowerCase(Locale.ROOT));
+    }
+
+    @Test
+    public void should_generateLastName() {
+        //when
+        String actual = Arranger.someLastName();
+
+        //then
+        assertThat(actual.length()).isGreaterThan(1);
+        assertThat(actual.charAt(0)).isUpperCase();
+    }
 }
 
 class SomeClass {

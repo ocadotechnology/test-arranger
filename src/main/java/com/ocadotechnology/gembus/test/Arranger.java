@@ -16,6 +16,9 @@
 package com.ocadotechnology.gembus.test;
 
 import org.jeasy.random.randomizers.EmailRandomizer;
+import org.jeasy.random.randomizers.FirstNameRandomizer;
+import org.jeasy.random.randomizers.LastNameRandomizer;
+import org.jeasy.random.randomizers.RegularExpressionRandomizer;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -33,6 +36,8 @@ public class Arranger {
     private static EnhancedRandom simplifiedRandom = ArrangersConfigurer.instance().simplifiedRandom();
     private static final EmailRandomizer emailRandomizer = new EmailRandomizer();
     private static final MarkovStringRandomizer stringRandomizer = new MarkovStringRandomizer(ArrangersConfigurer.STRING_MIN_LENGTH, ArrangersConfigurer.STRING_MAX_LENGTH);
+    private static final FirstNameRandomizer firstNameRandomizer = new FirstNameRandomizer();
+    private static final LastNameRandomizer lastNameRandomizer = new LastNameRandomizer();
 
     /**
      * @see org.jeasy.random.EasyRandom#nextObject
@@ -225,6 +230,18 @@ public class Arranger {
         final BigDecimal centsRatio = BigDecimal.valueOf(100);
         Integer valueInCents = somePositiveInt(max.add(new BigDecimal("0.01")).subtract(min).multiply(centsRatio).intValue());
         return new BigDecimal(valueInCents).divide(centsRatio).add(min);
+    }
+
+    public static String someFirstName() {
+        return firstNameRandomizer.getRandomValue();
+    }
+
+    public static String someLastName() {
+        return lastNameRandomizer.getRandomValue();
+    }
+
+    public static String someStringLike(String regex) {
+        return new RegularExpressionRandomizer(regex).getRandomValue();
     }
 
     static class CannotSatisfyPredicateException extends RuntimeException {
