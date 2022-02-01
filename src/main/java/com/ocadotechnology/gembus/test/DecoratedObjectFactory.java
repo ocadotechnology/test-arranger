@@ -60,6 +60,9 @@ public class DecoratedObjectFactory implements ObjectFactory {
                     }
                 });
             }
+            if (type.isRecord()) {
+                return RecordObjectFactory.createRandomRecord(type);
+            }
             return result;
         } catch (Exception e) {
             throw new ObjectCreationException("Unable to create a new instance of " + type, e);
@@ -94,4 +97,6 @@ public class DecoratedObjectFactory implements ObjectFactory {
     private boolean isItDeepestRandomizationDepth(RandomizerContext context) {
         return context.getCurrentRandomizationDepth() == context.getParameters().getRandomizationDepth() - 1;
     }
+
 }
+

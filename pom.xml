@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.ocadotechnology.gembus</groupId>
     <artifactId>test-arranger</artifactId>
-    <version>1.4</version>
+    <version>1.5</version>
     <packaging>jar</packaging>
     <name>test-arranger</name>
     <description>A tool for arranging test data with pseudo-random values.</description>
@@ -58,7 +58,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>1.8</java.version>
+        <java.version>17</java.version>
         <kotlin.version>1.5.31</kotlin.version>
         <easy-random.version>4.3.0</easy-random.version>
     </properties>
