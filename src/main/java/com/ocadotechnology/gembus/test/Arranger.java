@@ -152,11 +152,11 @@ public class Arranger {
     }
 
     public static long someLong() {
-        return random.easyRandom.nextLong();
+        return random.nextObject(Long.class);
     }
 
     public static int someInteger() {
-        return random.easyRandom.nextInt();
+        return random.nextObject(Integer.class);
     }
 
     /**
@@ -166,7 +166,7 @@ public class Arranger {
      */
     public static int someInteger(int minValue, int maxValue) {
         Long rangeSize = 1L + maxValue - minValue;
-        long randomWithinSize = Math.abs(random.easyRandom.nextLong()) % rangeSize;
+        long randomWithinSize = Math.abs(someLong()) % rangeSize;
         return (int) randomWithinSize + minValue;
     }
 
@@ -193,7 +193,7 @@ public class Arranger {
         if (boundIncl <= 0) {
             throw new IllegalArgumentException("bound must be positive");
         }
-        return 1 + Math.abs(random.easyRandom.nextLong() - 2) % boundIncl;
+        return 1 + Math.abs(someLong() - 2) % boundIncl;
     }
 
     public static boolean someBoolean() {

@@ -17,6 +17,7 @@ package com.ocadotechnology.gembus.test;
 
 import org.jeasy.random.EasyRandomParameters;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -46,23 +47,17 @@ class ArrangersConfigurer {
     }
 
     static EasyRandomParameters getEasyRandomDefaultParameters() {
-        return new MyEasyRandomParameters()
+        return sharedParameters()
                 .collectionSizeRange(1, 4)
                 .randomizationDepth(4)
-                .objectPoolSize(calculateObjectPoolSize())
-                .objectFactory(new DecoratedObjectFactory(PropertiesWrapper.getCacheEnable()))
-                .stringLengthRange(STRING_MIN_LENGTH, STRING_MAX_LENGTH)
-                .seed(SeedHelper.calculateSeed());
+                .stringLengthRange(STRING_MIN_LENGTH, STRING_MAX_LENGTH);
     }
 
     static EasyRandomParameters getEasyRandomSimplifiedParameters() {
-        return new MyEasyRandomParameters()
+        return sharedParameters()
                 .collectionSizeRange(0, 2)
                 .randomizationDepth(2)
-                .objectPoolSize(calculateObjectPoolSize())
-                .objectFactory(new DecoratedObjectFactory(PropertiesWrapper.getCacheEnable()))
-                .stringLengthRange(5, 10)
-                .seed(SeedHelper.calculateSeed());
+                .stringLengthRange(5, 10);
     }
 
     EnhancedRandom defaultRandom() {
@@ -81,6 +76,14 @@ class ArrangersConfigurer {
         } else {
             return randomWithoutSelfReferenceThroughArranger(arrangers, randomBuilder, type);
         }
+    }
+
+    private static EasyRandomParameters sharedParameters() {
+        return new MyEasyRandomParameters()
+                .objectPoolSize(calculateObjectPoolSize())
+                .objectFactory(new DecoratedObjectFactory(PropertiesWrapper.getCacheEnable()))
+                .excludeField(Field::isSynthetic)
+                .seed(SeedHelper.calculateSeed());
     }
 
     private static int calculateObjectPoolSize() {
