@@ -31,14 +31,14 @@ product.setBrand("Ocado");
 <dependency>
     <groupId>com.ocadotechnology.gembus</groupId>
     <artifactId>test-arranger</artifactId>
-    <version>1.4</version>
+    <version>1.5.1</version>
 </dependency>
 ```
 
 ### Gradle
 
 ```groovy
-compile group: 'com.ocadotechnology.gembus', name: 'test-arranger', version: '1.4'
+compile group: 'com.ocadotechnology.gembus', name: 'test-arranger', version: '1.5.1'
 ```
 
 ## Features
@@ -281,3 +281,7 @@ class ShopFixture {
     }
 }
 ```
+## Versioning
+
+The newest test-arranger version is compiled using Java 17 and should be used in Java 17 runtime.
+However, there is also a Java 8 branch for backward compatibility, covered with the 1.4.x versions.
