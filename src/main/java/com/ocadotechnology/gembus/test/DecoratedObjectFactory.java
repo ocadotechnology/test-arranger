@@ -49,16 +49,18 @@ public class DecoratedObjectFactory implements ObjectFactory {
                 disableCache(type, context);
             }
             if (isItDeepestRandomizationDepth(context)) {
-                ReflectionUtils.getDeclaredFields(result).forEach(field -> {
-                    try {
-                        Object emptyOne = produceEmptyValueForField(field.getType());
-                        if (emptyOne != null) {
-                            ReflectionUtils.setProperty(result, field, emptyOne);
-                        }
-                    } catch (Exception e) {
-                        System.err.println("Unable to set " + type.getName() + "." + field.getName() + ". " + e.getMessage());
-                    }
-                });
+                ReflectionUtils.getDeclaredFields(result).stream()
+                        .filter(field -> !field.isSynthetic())
+                        .forEach(field -> {
+                            try {
+                                Object emptyOne = produceEmptyValueForField(field.getType());
+                                if (emptyOne != null) {
+                                    ReflectionUtils.setProperty(result, field, emptyOne);
+                                }
+                            } catch (Exception e) {
+                                System.err.println("Unable to set " + type.getName() + "." + field.getName() + ". " + e.getMessage());
+                            }
+                        });
             }
             if (type.isRecord()) {
                 return RecordObjectFactory.createRandomRecord(type);
