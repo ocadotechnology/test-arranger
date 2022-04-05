@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.ocadotechnology.gembus</groupId>
     <artifactId>test-arranger</artifactId>
-    <version>1.5.1</version>
+    <version>1.5.2</version>
     <packaging>jar</packaging>
     <name>test-arranger</name>
     <description>A tool for arranging test data with pseudo-random values.</description>
@@ -60,7 +60,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>17</java.version>
         <kotlin.version>1.5.31</kotlin.version>
-        <easy-random.version>4.3.0</easy-random.version>
+        <easy-random.version>5.0.0</easy-random.version>
     </properties>
 
     <dependencies>
@@ -83,7 +83,7 @@
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
-            <version>1.23</version>
+            <version>1.30</version>
         </dependency>
         <dependency>
             <groupId>io.github.classgraph</groupId>
