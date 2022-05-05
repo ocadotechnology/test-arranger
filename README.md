@@ -281,6 +281,12 @@ class ShopFixture {
     }
 }
 ```
+
+## Articles and blog posts
+
+* [Start the new year with test-arranger](https://www.linkedin.com/pulse/start-new-year-test-arranger-marian-jureczko/)
+* [On testing in DDD](https://medium.com/p/f250482b5717)
+
 ## Versioning
 
 The newest test-arranger version is compiled using Java 17 and should be used in Java 17 runtime.
