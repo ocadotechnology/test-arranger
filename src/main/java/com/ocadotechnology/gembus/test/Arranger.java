@@ -32,7 +32,7 @@ import java.util.stream.Stream;
  * To arrange test data using pseudo random values.
  */
 public class Arranger {
-    private static EnhancedRandom random = ArrangersConfigurer.instance().defaultRandom();
+    static EnhancedRandom random = ArrangersConfigurer.instance().defaultRandom();
     private static EnhancedRandom simplifiedRandom = ArrangersConfigurer.instance().simplifiedRandom();
     private static final EmailRandomizer emailRandomizer = new EmailRandomizer();
     private static final MarkovStringRandomizer stringRandomizer = new MarkovStringRandomizer(ArrangersConfigurer.STRING_MIN_LENGTH, ArrangersConfigurer.STRING_MAX_LENGTH);
@@ -43,6 +43,7 @@ public class Arranger {
      * @see org.jeasy.random.EasyRandom#nextObject
      */
     public static <T> T some(final Class<T> type, final String... excludedFields) {
+        CurrentEnhancedRandom.set(random);
         return random.nextObject(type, excludedFields);
     }
 
@@ -50,6 +51,7 @@ public class Arranger {
      * @see org.jeasy.random.EasyRandom#nextObject
      */
     public static <T> T someSimplified(final Class<T> type, final String... excludedFields) {
+        CurrentEnhancedRandom.set(simplifiedRandom);
         return simplifiedRandom.nextObject(type, excludedFields);
     }
 
@@ -57,6 +59,7 @@ public class Arranger {
      * @see org.jeasy.random.EasyRandom#objects(Class, int)
      */
     public static <T> Stream<T> someObjects(final Class<T> type, final int amount, final String... excludedFields) {
+        CurrentEnhancedRandom.set(random);
         return random.objects(type, amount, excludedFields);
     }
 

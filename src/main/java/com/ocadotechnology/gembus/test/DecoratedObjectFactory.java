@@ -15,14 +15,14 @@
  */
 package com.ocadotechnology.gembus.test;
 
+import com.ocadotechnology.gembus.test.easyrandom.DepthLimitationObjectFactory;
+import com.ocadotechnology.gembus.test.easyrandom.RecordObjectFactory;
 import org.jeasy.random.ObjectCreationException;
 import org.jeasy.random.ObjenesisObjectFactory;
 import org.jeasy.random.api.ObjectFactory;
 import org.jeasy.random.api.RandomizerContext;
 import org.jeasy.random.util.ReflectionUtils;
-import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
@@ -35,6 +35,7 @@ import java.util.Map;
  */
 public class DecoratedObjectFactory implements ObjectFactory {
     private final ObjenesisObjectFactory originalFactory = new ObjenesisObjectFactory();
+    private final RecordObjectFactory recordFactory = new RecordObjectFactory(this);
     private final boolean cacheEnable;
 
     public DecoratedObjectFactory(boolean cacheEnable) {
@@ -48,12 +49,15 @@ public class DecoratedObjectFactory implements ObjectFactory {
             if (!cacheEnable) {
                 disableCache(type, context);
             }
-            if (isItDeepestRandomizationDepth(context)) {
+            if (type.isRecord()) {
+                return recordFactory.createRandomRecord(type, context);
+            }
+            if (DepthLimitationObjectFactory.isItDeepestRandomizationDepth(context, context.getCurrentRandomizationDepth())) {
                 ReflectionUtils.getDeclaredFields(result).stream()
                         .filter(field -> !field.isSynthetic())
                         .forEach(field -> {
                             try {
-                                Object emptyOne = produceEmptyValueForField(field.getType());
+                                Object emptyOne = DepthLimitationObjectFactory.produceEmptyValueForField(field.getType());
                                 if (emptyOne != null) {
                                     ReflectionUtils.setProperty(result, field, emptyOne);
                                 }
@@ -61,9 +65,6 @@ public class DecoratedObjectFactory implements ObjectFactory {
                                 System.err.println("Unable to set " + type.getName() + "." + field.getName() + ". " + e.getMessage());
                             }
                         });
-            }
-            if (type.isRecord()) {
-                return RecordObjectFactory.createRandomRecord(type);
             }
             return result;
         } catch (Exception e) {
@@ -81,24 +82,4 @@ public class DecoratedObjectFactory implements ObjectFactory {
             e.printStackTrace();
         }
     }
-
-    @Nullable
-    private Object produceEmptyValueForField(Class<?> fieldType) {
-        if (ReflectionUtils.isArrayType(fieldType)) {
-            return Array.newInstance(fieldType.getComponentType(), 0);
-        }
-        if (ReflectionUtils.isCollectionType(fieldType)) {
-            return ReflectionUtils.getEmptyImplementationForCollectionInterface(fieldType);
-        }
-        if (ReflectionUtils.isMapType(fieldType)) {
-            return ReflectionUtils.getEmptyImplementationForMapInterface(fieldType);
-        }
-        return null;
-    }
-
-    private boolean isItDeepestRandomizationDepth(RandomizerContext context) {
-        return context.getCurrentRandomizationDepth() == context.getParameters().getRandomizationDepth() - 1;
-    }
-
 }
-

@@ -23,6 +23,9 @@ public class ToTestNonPublic {
     public static final String ARRANGER_TEXT = "Arranger was used";
     public String someText;
     public Integer someNumber;
+
+    record NonPublicRecord(String name) {
+    }
 }
 
 class ToTestNonPublicArranger extends CustomArranger<ToTestNonPublic> {

@@ -13,30 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.ocadotechnology.gembus.test;
-
-import org.junit.jupiter.api.Test;
-
-import static com.ocadotechnology.gembus.test.Arranger.some;
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class ArrangerTestRecords {
-    @Test
-    void shouldArrangeRecords() {
-        //when
-        Data actual = some(Data.class);
-
-        //then
-        assertThat(actual.value()).isNotEqualTo(0);
-        assertThat(actual.name()).isNotBlank();
-    }
-}
-
-record Data(int value, String name) {
-    Data {
-    }
-
-    Data(String name) {
-        this(0, name);
-    }
-}
+/**
+ * The code from this package should be located in EasyRandom.
+ * So, if deciding about creating an EasyRandom fork, the fork should be extended with this package classes.
+ */
+package com.ocadotechnology.gembus.test.easyrandom;

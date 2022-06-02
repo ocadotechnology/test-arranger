@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 
 class ArrangersConfigurer {
 
-    static final int STRING_MIN_LENGTH = 9;
+    static final int STRING_MIN_LENGTH = 10;
     static final int STRING_MAX_LENGTH = 16;
     static final int CACHE_SIZE = 15;
     private static ArrangersConfigurer instance;
@@ -57,7 +57,7 @@ class ArrangersConfigurer {
         return sharedParameters()
                 .collectionSizeRange(0, 2)
                 .randomizationDepth(2)
-                .stringLengthRange(5, 10);
+                .stringLengthRange(5, 9);
     }
 
     EnhancedRandom defaultRandom() {
