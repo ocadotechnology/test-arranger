@@ -31,7 +31,7 @@ product.setBrand("Ocado");
 <dependency>
     <groupId>com.ocadotechnology.gembus</groupId>
     <artifactId>test-arranger</artifactId>
-    <version>1.4</version>
+    <version>1.4.3</version>
 </dependency>
 ```
 
@@ -60,6 +60,18 @@ Some of the possible calls are listed below:
 |```Arranger.someFrom(listOfCategories)```|```someFrom(listOfCategories)```|an entry form the listOfCategories|
 |```Arranger.someText()```|```someText()```|a string generated from a Markov Chain; by default, it is a very simple chain, but it can be reconfigured by putting other 'enMarkovChain' file on the test classpath with alternative definition, you can find one trained on an english corpus [here](https://github.com/ocadotechnology/test-arranger/releases/download/v1.1/enMarkovChain.zip); consult the included in the project 'enMarkovChain' file for the file format|
 | - |```some<Product> {name = "not so random"}```|an instance of Product with all fields filled with random values except for `name` which is set to "not so random", this syntax can be used to set as many fields of the object as necessary|
+
+### Adjusting the arranged data
+
+Completely random data may be not suitable for every test case. 
+Often there is at least one field that is crucial for the test goal and needs a certain value. 
+When the arranged class is mutable, or it is a Kotlin data class, or there is a way to create an altered copy (e.g. [Lombok's @Builder(toBuilder = true)](https://projectlombok.org/features/Builder)) then just use what is available.
+Fortunately, even if it is unadjustable, you can use the Test Arranger. 
+There are dedicated versions of the ```some()``` and ```someObjects()``` methods that accept a parameter of type ```Map<String,Supplier>```.
+The keys in this map represent field names whilst the corresponding suppliers deliver values that Test Arranger will set for you on those fields, e.g.:
+```java
+Product product = Arranger.some(Product.class, Map.of("name", () -> value));
+```
 
 ### Custom Arrangers
 
