@@ -26,6 +26,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 /**
@@ -48,7 +49,25 @@ public class Arranger {
     }
 
     /**
+     * Generate a random instance of the given type.
+     *
+     * @param type      the type for which an instance will be generated
+     * @param overrides map of fields that should be overridden. Field name should be used as the key in the map entry
+     *                  while the corresponding value should be a supplier of the value that should be set on the field.
+     *                  Invalid map entries result in error logs, but do not break the object generation process.
+     * @return a random instance of the given type
+     */
+    public static <T> T some(final Class<T> type, final Map<String, Supplier<?>> overrides) {
+        T result = random.nextObject(type);
+        OverridesHelper.applyOverrides(result, overrides);
+        return result;
+    }
+
+    /**
      * @see org.jeasy.random.EasyRandom#nextObject
+     * @deprecated
+     * This methods creates a lot of complexity resulting in lesser performance and increased memory consumption.
+     * Use {@link Arranger#some(Class, String...)} instead.
      */
     public static <T> T someSimplified(final Class<T> type, final String... excludedFields) {
         CurrentEnhancedRandom.set(simplifiedRandom);
@@ -56,7 +75,26 @@ public class Arranger {
     }
 
     /**
-     * @see org.jeasy.random.EasyRandom#objects(Class, int)
+     * Generate a random instance of the given type.
+     *
+     * @param type      the type for which an instance will be generated
+     * @param amount    number of objects to generate
+     * @param overrides map of fields that should be overridden. Field name should be used as the key in the map entry
+     *                  while the corresponding value should be a supplier of the value that should be set on the field.
+     *                  Invalid map entries result in error logs, but do not break the object generation process.
+     * @return a random instance of the given type
+     */
+    public static <T> Stream<T> someObjects(final Class<T> type, final int amount, final Map<String, Supplier<?>> overrides) {
+        return random.objects(type, amount)
+                .peek(o -> OverridesHelper.applyOverrides(o, overrides));
+    }
+
+    /**
+     * Generate a random instance of the given type.
+     *
+     * @param type   the type for which an instance will be generated
+     * @param amount number of objects to generate
+     * @return a random instance of the given type
      */
     public static <T> Stream<T> someObjects(final Class<T> type, final int amount, final String... excludedFields) {
         CurrentEnhancedRandom.set(random);

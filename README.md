@@ -49,17 +49,29 @@ The Arranger class has several static methods for generating pseudo-random value
 Each of them has a wrapping function to make the calls simpler for Kotlin.
 Some of the possible calls are listed below:
 
-|Java|Kotlin|result|
-|----|------|------|
-|```Arranger.some(Product.class)```|```some<Product>()```|an instance of Product with all fields filled with values|
-|```Arranger.some(Product.class, "brand")```|```some<Product>("brand")```|an instance of Product without value for the brand field|
-|```Arranger.someSimplified(Category.class)```|```someSimplified<Category>()```|an instance of Category, fields of type collection has size reduced to 1 and depth for objects tree is limited to 3|
-|```Arranger.someObjects(Product.class, 7)```|```someObjects<Product>(7)```|a stream of size 7 of instances of Product|
-|```Arranger.someEmail()```|```someEmail()```|a string containing email address|
-|```Arranger.someLong()```|```someLong()```|a pseudo random number of type long|
-|```Arranger.someFrom(listOfCategories)```|```someFrom(listOfCategories)```|an entry form the listOfCategories|
-|```Arranger.someText()```|```someText()```|a string generated from a Markov Chain; by default, it is a very simple chain, but it can be reconfigured by putting other 'enMarkovChain' file on the test classpath with alternative definition, you can find one trained on an english corpus [here](https://github.com/ocadotechnology/test-arranger/releases/download/v1.1/enMarkovChain.zip); consult the included in the project 'enMarkovChain' file for the file format|
-| - |```some<Product> {name = "not so random"}```|an instance of Product with all fields filled with random values except for `name` which is set to "not so random", this syntax can be used to set as many fields of the object as necessary|
+|Java|Kotlin| result                                                                                                                                                                                                                                                                                                                                                                                                                     |
+|----|------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|```Arranger.some(Product.class)```|```some<Product>()```| an instance of Product with all fields filled with values                                                                                                                                                                                                                                                                                                                                                                  |
+|```Arranger.some(Product.class, "brand")```|```some<Product>("brand")```| an instance of Product without value for the brand field                                                                                                                                                                                                                                                                                                                                                                   |
+|```Arranger.someSimplified(Category.class)```|```someSimplified<Category>()```| an instance of Category, fields of type collection has size reduced to 1 and depth for objects tree is limited to 3                                                                                                                                                                                                                                                                                                        |
+|```Arranger.someObjects(Product.class, 7)```|```someObjects<Product>(7)```| a stream of size 7 of instances of Product                                                                                                                                                                                                                                                                                                                                                                                 |
+|```Arranger.someEmail()```|```someEmail()```| a string containing email address                                                                                                                                                                                                                                                                                                                                                                                          |
+|```Arranger.someLong()```|```someLong()```| a pseudo random number of type long                                                                                                                                                                                                                                                                                                                                                                                        |
+|```Arranger.someFrom(listOfCategories)```|```someFrom(listOfCategories)```| an entry form the listOfCategories                                                                                                                                                                                                                                                                                                                                                                                         |
+|```Arranger.someText()```|```someText()```| a string generated from a Markov Chain; by default, it is a very simple chain, but it can be reconfigured by putting other 'enMarkovChain' file on the test classpath with alternative definition, you can find one trained on an english corpus [here](https://github.com/ocadotechnology/test-arranger/releases/download/v1.1/enMarkovChain.zip); consult the included in the project 'enMarkovChain' file for the file format |
+| - |```some<Product> {name = "not so random"}```| an instance of Product with all fields filled with random values except for `name` which is set to "not so random", this syntax can be used to set as many fields of the object as necessary, but each of the objects must be mutable                                                                                                                                                                                      |
+
+### Adjusting the arranged data
+
+Completely random data may be not suitable for every test case. 
+Often there is at least one field that is crucial for the test goal and needs a certain value. 
+When the arranged class is mutable, or it is a Kotlin data class, or there is a way to create an altered copy (e.g. [Lombok's @Builder(toBuilder = true)](https://projectlombok.org/features/Builder)) then just use what is available.
+Fortunately, even if it is unadjustable, you can use the Test Arranger. 
+There are dedicated versions of the ```some()``` and ```someObjects()``` methods that accept a parameter of type ```Map<String,Supplier>```.
+The keys in this map represent field names whilst the corresponding suppliers deliver values that Test Arranger will set for you on those fields, e.g.:
+```java
+Product product = Arranger.some(Product.class, Map.of("name", () -> value));
+```
 
 ### Custom Arrangers
 
