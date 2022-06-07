@@ -19,10 +19,8 @@ import com.ocadotechnology.gembus.test.CurrentEnhancedRandom;
 import org.jeasy.random.api.ObjectFactory;
 import org.jeasy.random.api.RandomizerContext;
 import org.jeasy.random.util.ReflectionUtils;
-import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.RecordComponent;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -41,32 +39,22 @@ public class RecordObjectFactory {
     public <T> T createRandomRecord(Class<T> recordType, RandomizerContext context) {
         try {
             increaseDepthCount(context);
-            Function<RecordComponent, Object> arrangeRandom = r -> getSome(r, context);
-            Function<RecordComponent, Object> arrangeEmpty = r -> {
-                Object value = DepthLimitationObjectFactory.produceEmptyValueForField(r.getType());
-                if (value == null && !r.getType().isRecord()) {
-                    value = getSome(r, context);
-                }
-                return value;
-            };
-
-            Object[] randomValues;
             if (DepthLimitationObjectFactory.isItDeepestRandomizationDepth(context, DEPTH_COUNT.get())) {
-                randomValues = arrangeConstructorParams(recordType, arrangeEmpty);
+                Function<RecordComponent, Object> arrangeEmpty = r -> {
+                    Object value = DepthLimitationObjectFactory.produceEmptyValueForField(r.getType());
+                    if (value == null && !r.getType().isRecord()) {
+                        value = getSome(r, context);
+                    }
+                    return value;
+                };
+                return RecordReflectionUtils.generateRecord(recordType, arrangeEmpty);
             } else {
-                randomValues = arrangeConstructorParams(recordType, arrangeRandom);
+                Function<RecordComponent, Object> arrangeRandom = r -> getSome(r, context);
+                return RecordReflectionUtils.generateRecord(recordType, arrangeRandom);
             }
-            return RecordReflectionUtils.instantiateRecord(recordType, randomValues);
         } finally {
             decreaseDepthCount();
         }
-    }
-
-    @NotNull
-    private <T> Object[] arrangeConstructorParams(Class<T> recordType, Function<RecordComponent, Object> arrangeRandom) {
-        return Arrays.stream(recordType.getRecordComponents())
-                .map(arrangeRandom)
-                .toArray(Object[]::new);
     }
 
     private void decreaseDepthCount() {

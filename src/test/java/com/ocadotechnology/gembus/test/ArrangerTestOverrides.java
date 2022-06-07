@@ -121,9 +121,44 @@ public class ArrangerTestOverrides {
         });
     }
 
+    @Test
+    void should_useValueFromOverrides_when_generatingRecord() {
+        //given
+        Integer override = someInteger();
+        overrides.put("number", () -> override);
+
+        //when
+        RecordToOverride actual = some(RecordToOverride.class, overrides);
+
+        //then
+        assertThat(actual.text).isNotNull();
+        assertThat(actual.number).isEqualTo(override);
+    }
+
+    @Test
+    void should_useValueFromOverrides_when_generatingStreamOfRecord() {
+        //given
+        String override = someText();
+        overrides.put("text", () -> override);
+        int size = somePositiveInt(4);
+
+        //when
+        Stream<RecordToOverride> actual = someObjects(RecordToOverride.class, size, overrides);
+
+        //then
+        assertThat(actual).allSatisfy(r -> {
+            assertThat(r.text()).isEqualTo(override);
+            assertThat(r.number()).isNotEqualTo(0);
+        }).hasSize(size);
+    }
+
+
     static class ToOverride {
         String text;
         long primitiveNumber;
         Integer number;
+    }
+
+    record RecordToOverride(String text, Integer number) {
     }
 }

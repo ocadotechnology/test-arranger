@@ -18,10 +18,13 @@ package com.ocadotechnology.gembus.test;
 import org.jeasy.random.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.RecordComponent;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class OverridesHelper {
+
     static <T> void applyOverrides(T result, Map<String, Supplier<?>> overrides) {
         Class type = result.getClass();
         overrides.forEach((key, value) -> {
@@ -34,5 +37,15 @@ public class OverridesHelper {
                 System.err.println("Access rejected when trying to override " + key + " field in class " + type.getName() + ": " + e.getMessage());
             }
         });
+    }
+
+    static Function<RecordComponent, Object> recordParamsCreatorWithOverrides(Map<String, Supplier<?>> overrides) {
+        return param -> {
+            if (overrides.containsKey(param.getName())) {
+                return overrides.get(param.getName()).get();
+            } else {
+                return Arranger.random.nextObject(param.getType());
+            }
+        };
     }
 }

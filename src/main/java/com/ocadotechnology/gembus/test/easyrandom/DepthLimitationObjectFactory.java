@@ -20,7 +20,6 @@ import org.jeasy.random.util.ReflectionUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
-import java.util.Arrays;
 
 public class DepthLimitationObjectFactory {
     @Nullable
@@ -45,7 +44,6 @@ public class DepthLimitationObjectFactory {
     }
 
     private static Object avoidNullRecordsToPreventEasyRandomFromFailingOnInitializingThem(Class<?> recordType) {
-        Object[] params = Arrays.stream(recordType.getRecordComponents()).map(it -> null).toArray(Object[]::new);
-        return RecordReflectionUtils.instantiateRecord(recordType, params);
+        return RecordReflectionUtils.generateRecord(recordType, it -> null);
     }
 }
