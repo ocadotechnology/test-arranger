@@ -18,8 +18,10 @@ package com.ocado.gembus.test
 import com.ocadotechnology.gembus.test.some
 import com.ocadotechnology.gembus.test.someInt
 import com.ocadotechnology.gembus.test.someSimplified
+import com.ocadotechnology.gembus.test.someText
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import java.util.function.Supplier
 
 class KotlinArrangerTest {
 
@@ -48,6 +50,20 @@ class KotlinArrangerTest {
         //then
         assertThat(notSoRandom.number).isEqualTo(someNumber)
         assertThat(notSoRandom.txt).isEqualTo(someString)
+    }
+
+    @Test
+    fun shouldSupportOverrides() {
+        //given
+        val fixedText = someText()
+        val overrides: Map<String, () -> Any> = mapOf("txt" to { fixedText })
+
+        //when
+        val actual = some<BB>(overrides)
+
+        //then
+        assertThat(actual.number).isNotEqualTo(0)
+        assertThat(actual.txt).isEqualTo(fixedText);
     }
 }
 

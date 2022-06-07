@@ -64,6 +64,9 @@ public class Arranger {
 
     /**
      * @see org.jeasy.random.EasyRandom#nextObject
+     * @deprecated
+     * This methods creates a lot of complexity resulting in lesser performance and increased memory consumption.
+     * Use {@link Arranger#some(Class, String...)} instead.
      */
     public static <T> T someSimplified(final Class<T> type, final String... excludedFields) {
         return simplifiedRandom.nextObject(type, excludedFields);
