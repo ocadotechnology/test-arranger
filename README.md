@@ -38,7 +38,7 @@ product.setBrand("Ocado");
 ### Gradle
 
 ```groovy
-compile group: 'com.ocadotechnology.gembus', name: 'test-arranger', version: '1.4'
+compile group: 'com.ocadotechnology.gembus', name: 'test-arranger', version: '1.4.3'
 ```
 
 ## Features
