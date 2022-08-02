@@ -298,6 +298,8 @@ class ShopFixture {
 
 * [Start the new year with test-arranger](https://www.linkedin.com/pulse/start-new-year-test-arranger-marian-jureczko/)
 * [On testing in DDD](https://medium.com/p/f250482b5717)
+* [Test Arranger and the Second Law of Thermodynamics (pl)](https://www.youtube.com/watch?v=ulW0aRmDIuE)
+* [Arranging Java Records](https://medium.com/@marian.jureczko/arranging-java-records-d11ec9141fde)
 
 ## Versioning
 
