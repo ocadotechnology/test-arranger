@@ -160,6 +160,18 @@ public class ArrangerTest {
     }
 
     @Test
+    void someFromSetOfSizeOne(){
+        //given
+        final Set<Integer> listOfSizeOne = Collections.singleton(Arranger.someInteger());
+
+        //when
+        Integer selected = Arranger.someFrom(listOfSizeOne);
+
+        //then
+        assertThat(selected).isEqualTo(listOfSizeOne.iterator().next());
+    }
+
+    @Test
     void someFromCollection() {
         //given
         final Set<Integer> someNumbers = new HashSet<>(Arrays.asList(Arranger.someInteger(), Arranger.someInteger(), Arranger.someInteger()));
