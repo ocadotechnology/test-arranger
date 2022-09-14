@@ -64,8 +64,7 @@ public class Arranger {
 
     /**
      * @see org.jeasy.random.EasyRandom#nextObject
-     * @deprecated
-     * This methods creates a lot of complexity resulting in lesser performance and increased memory consumption.
+     * @deprecated This methods creates a lot of complexity resulting in lesser performance and increased memory consumption.
      * Use {@link Arranger#some(Class, String...)} instead.
      */
     public static <T> T someSimplified(final Class<T> type, final String... excludedFields) {
@@ -245,7 +244,8 @@ public class Arranger {
         if (source instanceof List) {
             return ((List<T>) source).get(new Random().nextInt(source.size()));
         } else {
-            return source.stream().skip(new Random().nextInt(source.size() - 1)).findFirst().get();
+            int index = Math.max(source.size() - 1, new Random().nextInt(source.size()));
+            return source.stream().skip(index).findFirst().get();
         }
     }
 
