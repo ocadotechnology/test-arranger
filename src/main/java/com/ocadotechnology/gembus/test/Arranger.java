@@ -267,7 +267,7 @@ public class Arranger {
         }
         final BigDecimal centsRatio = BigDecimal.valueOf(100);
         Integer valueInCents = somePositiveInt(max.add(new BigDecimal("0.01")).subtract(min).multiply(centsRatio).intValue());
-        return new BigDecimal(valueInCents).divide(centsRatio).add(min);
+        return new BigDecimal(valueInCents).divide(centsRatio).add(min).setScale(2, RoundingMode.HALF_UP);
     }
 
     public static String someFirstName() {
