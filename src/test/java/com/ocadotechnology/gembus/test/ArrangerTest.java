@@ -55,26 +55,32 @@ public class ArrangerTest {
 
     @Test
     void priceLike() {
-        //when
-        final BigDecimal price = Arranger.somePriceLikeBigDecimal();
 
-        //then
-        assertTrue(price.compareTo(BigDecimal.ZERO) >= 0);
-        assertEquals(2, price.scale());
+
+            //when
+            final BigDecimal price = Arranger.somePriceLikeBigDecimal();
+
+            //then
+            assertTrue(price.compareTo(BigDecimal.ZERO) >= 0);
+            assertEquals(2, price.scale());
+
     }
 
     @Test
     void priceLikeFromGivenRange() {
-        //given
-        final BigDecimal min = new BigDecimal("100.01");
-        final BigDecimal max = new BigDecimal("100.05");
+        for (int i = 0; i < 999; i++) {
+            //given
+            final BigDecimal min = new BigDecimal("64");
+            final BigDecimal max = new BigDecimal("65");
 
-        //when
-        final BigDecimal actual = Arranger.somePriceLikeBigDecimal(min, max);
+            //when
+            final BigDecimal actual = Arranger.somePriceLikeBigDecimal(min, max);
 
-        //then
-        assertThat(actual).isGreaterThanOrEqualTo(min);
-        assertThat(actual).isLessThanOrEqualTo(max);
+            //then
+            assertThat(actual).isGreaterThanOrEqualTo(min);
+            assertThat(actual).isLessThanOrEqualTo(max);
+            assertEquals(2, actual.scale());
+        }
     }
 
     @Test

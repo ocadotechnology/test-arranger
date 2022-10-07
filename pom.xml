@@ -59,7 +59,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>17</java.version>
-        <kotlin.version>1.5.31</kotlin.version>
+        <kotlin.version>1.7.20</kotlin.version>
         <easy-random.version>5.0.0</easy-random.version>
     </properties>
 
@@ -83,12 +83,12 @@
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
-            <version>1.30</version>
+            <version>1.33</version>
         </dependency>
         <dependency>
             <groupId>io.github.classgraph</groupId>
             <artifactId>classgraph</artifactId>
-            <version>4.8.129</version>
+            <version>4.8.149</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
