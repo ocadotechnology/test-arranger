@@ -38,7 +38,7 @@ product.setBrand("Ocado");
 ### Gradle
 
 ```groovy
-compile group: 'com.ocadotechnology.gembus', name: 'test-arranger', version: '1.5.5'
+testImplementation 'com.ocadotechnology.gembus:test-arranger:1.5.5'
 ```
 
 ## Features
@@ -298,7 +298,7 @@ class ShopFixture {
 
 * [Start the new year with test-arranger](https://www.linkedin.com/pulse/start-new-year-test-arranger-marian-jureczko/)
 * [On testing in DDD](https://medium.com/p/f250482b5717)
-* [Test Arranger and the Second Law of Thermodynamics (pl)](https://www.youtube.com/watch?v=ulW0aRmDIuE)
+* Test Arranger and the Second Law of Thermodynamics ([EN](https://www.youtube.com/watch?v=rAi2t05Om3Y#t=43s), [PL](https://www.youtube.com/watch?v=ulW0aRmDIuE))
 * [Arranging Java Records](https://medium.com/@marian.jureczko/arranging-java-records-d11ec9141fde)
 
 ## Versioning
