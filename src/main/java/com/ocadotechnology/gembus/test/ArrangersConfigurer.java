@@ -83,7 +83,8 @@ class ArrangersConfigurer {
                 .objectPoolSize(calculateObjectPoolSize())
                 .objectFactory(new DecoratedObjectFactory(PropertiesWrapper.getCacheEnable()))
                 .excludeField(Field::isSynthetic)
-                .seed(SeedHelper.calculateSeed());
+                .seed(SeedHelper.calculateSeed())
+                .overrideDefaultInitialization(PropertiesWrapper.getOverrideDefaults());
     }
 
     private static int calculateObjectPoolSize() {

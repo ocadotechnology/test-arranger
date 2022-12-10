@@ -24,11 +24,13 @@ public class PropertiesWrapperTest {
 
     private final String rootKey = "arranger.root";
     private final String cacheKey = "arranger.cache.enable";
+    final static String overrideKey = "arranger.overridedefaults";
 
     @AfterEach
     public void cleanupProperties() {
         System.getProperties().remove(rootKey);
         System.getProperties().remove(cacheKey);
+        System.getProperties().remove(overrideKey);
     }
 
     @Test
@@ -84,5 +86,26 @@ public class PropertiesWrapperTest {
 
         //then
         assertFalse(actual);
+    }
+
+    @Test
+    public void shouldReturnFalseWhenOverrideDefaultsIsNotSet() {
+        //when
+        boolean actual = PropertiesWrapper.getOverrideDefaults();
+
+        //then
+        assertFalse(actual);
+    }
+
+    @Test
+    public void shouldReturnTrueWhenOverrideDefaultsIsSetToTrue() {
+        //given
+        System.setProperty(overrideKey, "true");
+
+        //when
+        boolean actual = PropertiesWrapper.getOverrideDefaults();
+
+        //then
+        assertTrue(actual);
     }
 }

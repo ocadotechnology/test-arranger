@@ -31,14 +31,14 @@ product.setBrand("Ocado");
 <dependency>
     <groupId>com.ocadotechnology.gembus</groupId>
     <artifactId>test-arranger</artifactId>
-    <version>1.4.3</version>
+    <version>1.4.6</version>
 </dependency>
 ```
 
 ### Gradle
 
 ```groovy
-compile group: 'com.ocadotechnology.gembus', name: 'test-arranger', version: '1.4.3'
+compile group: 'com.ocadotechnology.gembus', name: 'test-arranger', version: '1.4.6'
 ```
 
 ## Features
@@ -109,12 +109,22 @@ If you create `arranger.properties` file and save it in the root of classpath (u
   All classes extending ```CustomArranger``` are considered to be custom arrangers.
   The reflection is focused on a certain package which by default is `com.ocado`.
   That not necessarily is convenient for you.
-  However, with `arranger.root=your_package` it can be changed to `you_package`.
+  However, with `arranger.root=your_package` it can be changed to `your_package`.
   Try to have the package as specific as possible as having something to generic (e.g. just `com` which is root package in many libraries) will result in scanning hundreds of classes which will take noticeable time.
 * `arranger.randomseed`
   By default, always the same seed is used to initialize the underlying pseudorandom values generator.
   As a consequence, the subsequent executions will generate the same values.
   To achieve randomness across runs, i.e. to always start with other random values, setting `arranger.randomseed=true` is necessary.
+* `arranger.cache.enable`
+  The process of arranging random instances requires some time. 
+  If you create a large number of instances and you do not need them to be completely random, enabling the cache may be the way to go.
+  When enabled, the cache stores reference to each random instance and at some point the test-arranger stops creating new ones and instead reuses the cached instances.
+  By default the cache is disabled.
+* `arranger.overridedefaults`
+  Test-arranger respects the default field initialization, i.e. when there is a field initialized with an empty string, the instance returned by test-arranger has the empty string in this field.
+  Not always it is what you need in the tests, especially, when there is a convention in the project to initialize fields with empty values.
+  Fortunately, you can force test-arranger to overwrite the defaults with random values.
+  Set `arranger.overridedefaults` to true to override the default initialization.
 
 ## The challenges it solves
 
