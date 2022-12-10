@@ -23,6 +23,8 @@ public class PropertiesWrapper {
     private static final String defaultCache = "false";
     private static final String randomSeedKey = "arranger.randomseed";
     private static final String defaultRandomSeed = "false";
+    private static final String overrideDefaults = "arranger.overridedefaults";
+    private static final String defaultOverrideDefaults = "false";
     private static final PropertiesFromFile propertiesFromFile = new PropertiesFromFile();
 
     public static String getRootPackage() {
@@ -35,6 +37,10 @@ public class PropertiesWrapper {
 
     public static boolean getRandomSeedEnabled() {
         return Boolean.parseBoolean(getPropertyValue(randomSeedKey, defaultRandomSeed));
+    }
+
+    public static boolean getOverrideDefaults() {
+        return Boolean.parseBoolean(getPropertyValue(overrideDefaults, defaultOverrideDefaults));
     }
 
     private static String getPropertyValue(String key, String defaultValue) {
