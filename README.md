@@ -1,5 +1,9 @@
 ***
 
+<p align="center">
+  <img src="./logo.png">
+</p>
+
 <div align="center">
     <b><em>Test Arranger</em></b><br>
 
@@ -310,6 +314,7 @@ class ShopFixture {
 * [On testing in DDD](https://medium.com/p/f250482b5717)
 * Test Arranger and the Second Law of Thermodynamics ([EN](https://www.youtube.com/watch?v=rAi2t05Om3Y#t=43s), [PL](https://www.youtube.com/watch?v=ulW0aRmDIuE))
 * [Arranging Java Records](https://medium.com/@marian.jureczko/arranging-java-records-d11ec9141fde)
+* [FAQ](https://medium.com/@marian.jureczko/test-arranger-the-asked-questions-a4ec99a0f742)
 
 ## Versioning
 
