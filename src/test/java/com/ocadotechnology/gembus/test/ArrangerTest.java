@@ -274,34 +274,6 @@ public class ArrangerTest {
     }
 
     @Test
-    public void respectExcludedFieldsInCustomArrangers() {
-        //when
-        ClassWithLong number = Arranger.some(ClassWithLong.class, "number");
-
-        //then
-        assertThat(number.number).isEqualTo(0);
-    }
-
-    @Test
-    public void respectExcludedFieldsInCustomArrangersInSimplifiedMode() {
-        //when
-        ClassWithLong number = Arranger.someSimplified(ClassWithLong.class, "number");
-
-        //then
-        assertThat(number.number).isEqualTo(0);
-    }
-
-    @Test
-    @Timeout(2)
-    public void respectExcludedFieldsInNestedObjectsWithCustomArrangers() {
-        //when
-        NestedStructure actual = Arranger.some(NestedStructure.class, "id");
-
-        //then
-        assertThat(actual.id).isNull();
-    }
-
-    @Test
     public void shouldSupportPackagePrivateArrangers() {
         //when
         ToTestNonPublic actual = Arranger.some(ToTestNonPublic.class);
@@ -431,17 +403,5 @@ class AnotherClassWithLong {
 class AnotherClassWithLongArranger extends CustomArranger<AnotherClassWithLong> {
     protected AnotherClassWithLong instance() {
         return enhancedRandom.nextObject(type);
-    }
-}
-
-class NestedStructure {
-    Long id;
-    List<NestedStructure> children;
-}
-
-class NestedStructureArranger extends CustomArranger<NestedStructure> {
-    @Override
-    protected NestedStructure instance() {
-        return enhancedRandom.nextObject(NestedStructure.class, "id");
     }
 }

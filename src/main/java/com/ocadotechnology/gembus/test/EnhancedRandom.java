@@ -58,15 +58,15 @@ public class EnhancedRandom extends Random {
      * Generate a random instance of the given type.
      *
      * @param type           the type for which an instance will be generated
-     * @param excludedFields the name of fields to exclude
+     * @param excludedFields the names of the fields that will be ignored during instance initialization, this param is not automatically propagated to custom arrangers
      * @param <T>            the actual type of the target object
      * @return a random instance of the given type
      */
     public <T> T nextObject(final Class<T> type, final String... excludedFields) {
-        if (excludedFields.length == 0) {
-            return easyRandom.nextObject(type);
-        } else {
+        if (newEasyRandomWithFieldExclusionConfigIsRequired(type, excludedFields)) {
             return createEasyRandomWithExclusions(excludedFields, type).nextObject(type);
+        } else {
+            return easyRandom.nextObject(type);
         }
     }
 
@@ -75,23 +75,30 @@ public class EnhancedRandom extends Random {
      *
      * @param type           the type for which instances will be generated
      * @param amount         the number of instances to generate
-     * @param excludedFields the name of fields to exclude
+     * @param excludedFields the names of the fields that will be ignored during instance initialization, this param is not automatically propagated to custom arrangers
      * @param <T>            the actual type of the target objects
      * @return a stream of random instances of the given type
      */
     public <T> Stream<T> objects(final Class<T> type, final int amount, final String... excludedFields) {
-        if (excludedFields.length == 0) {
-            return easyRandom.objects(type, amount);
-        } else {
+        if (newEasyRandomWithFieldExclusionConfigIsRequired(type, excludedFields)) {
             return createEasyRandomWithExclusions(excludedFields, type).objects(type, amount);
+        } else {
+            return easyRandom.objects(type, amount);
         }
+    }
+
+    private <T> boolean newEasyRandomWithFieldExclusionConfigIsRequired(Class<T> type, String[] excludedFields) {
+        /* There is a logical inconsistency in using a custom arranger and field exclusion for the same type - the
+        * exclusion can be configured in the custom arranger. Technically, creating an arranger with exclusion disables
+        * the custom arranger for the type that is being instantiated. */
+        return !arrangers.containsKey(type) && excludedFields.length != 0;
     }
 
     private EasyRandom createEasyRandomWithExclusions(String[] excludedFields, Class type) {
         Set<String> fields = new HashSet<>(Arrays.asList(excludedFields));
         cache.computeIfAbsent(fields, key -> {
-            EnhancedRandom enhancedRandom = ArrangersConfigurer.instance().randomForGivenConfiguration(type, arrangers, () -> addExclusionToParameters(fields));
-            return enhancedRandom.easyRandom;
+            EnhancedRandom er = ArrangersConfigurer.instance().randomForGivenConfiguration(type, arrangers, () -> addExclusionToParameters(fields));
+            return er.easyRandom;
         });
         return cache.get(fields);
     }
