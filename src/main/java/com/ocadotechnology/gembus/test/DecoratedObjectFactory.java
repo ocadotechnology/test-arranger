@@ -19,10 +19,7 @@ import org.jeasy.random.ObjectCreationException;
 import org.jeasy.random.ObjenesisObjectFactory;
 import org.jeasy.random.api.ObjectFactory;
 import org.jeasy.random.api.RandomizerContext;
-import org.jeasy.random.util.ReflectionUtils;
-import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
@@ -44,23 +41,12 @@ public class DecoratedObjectFactory implements ObjectFactory {
     @Override
     public <T> T createInstance(Class<T> type, RandomizerContext context) throws ObjectCreationException {
         try {
-            T result = originalFactory.createInstance(type, context);
+            T result = InstanceProducerHelper.createLeafInstance(originalFactory, type, context);
             if (!cacheEnable) {
                 disableCache(type, context);
             }
             if (isItDeepestRandomizationDepth(context)) {
-                ReflectionUtils.getDeclaredFields(result).stream()
-                        .filter(field -> !field.isSynthetic())
-                        .forEach(field -> {
-                            try {
-                                Object emptyOne = produceEmptyValueForField(field.getType());
-                                if (emptyOne != null) {
-                                    ReflectionUtils.setProperty(result, field, emptyOne);
-                                }
-                            } catch (Exception e) {
-                                System.err.println("Unable to set " + type.getName() + "." + field.getName() + ". " + e.getMessage());
-                            }
-                        });
+                InstanceProducerHelper.initializeLeafInstance(type, result);
             }
             return result;
         } catch (Exception e) {
@@ -77,20 +63,6 @@ public class DecoratedObjectFactory implements ObjectFactory {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    @Nullable
-    private Object produceEmptyValueForField(Class<?> fieldType) {
-        if (ReflectionUtils.isArrayType(fieldType)) {
-            return Array.newInstance(fieldType.getComponentType(), 0);
-        }
-        if (ReflectionUtils.isCollectionType(fieldType)) {
-            return ReflectionUtils.getEmptyImplementationForCollectionInterface(fieldType);
-        }
-        if (ReflectionUtils.isMapType(fieldType)) {
-            return ReflectionUtils.getEmptyImplementationForMapInterface(fieldType);
-        }
-        return null;
     }
 
     private boolean isItDeepestRandomizationDepth(RandomizerContext context) {

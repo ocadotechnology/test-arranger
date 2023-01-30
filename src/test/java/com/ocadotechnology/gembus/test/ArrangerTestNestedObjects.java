@@ -18,11 +18,13 @@ package com.ocadotechnology.gembus.test;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
 public class ArrangerTestNestedObjects {
 
@@ -82,6 +84,24 @@ public class ArrangerTestNestedObjects {
         assertThat(actual.id2).isNull();
         assertThat(actual.nestedStructure.text).isEqualTo(FIXED_TEXT);
         assertThat(actual.nestedStructure.id2).isNotNull();
+    }
+
+    @Test
+    void shouldAvoidInfiniteNestingWhenGoingThroughCustomArranger() {
+        //when
+        ISubZone subZone = assertTimeoutPreemptively(Duration.ofSeconds(100000), () -> Arranger.some(ISubZone.class));
+
+        //then
+        assertThat(subZone).isNotNull();
+    }
+
+    @Test
+    void shouldAvoidInfiniteNestingWhenGoingThroughCustomArrangerAndSomeObjects() {
+        //when
+        Stream<ISubZone> subZone = assertTimeoutPreemptively(Duration.ofSeconds(100000), () -> Arranger.someObjects(ISubZone.class, 2));
+
+        //then
+        assertThat(subZone.collect(Collectors.toList())).isNotEmpty();
     }
 }
 
@@ -166,5 +186,47 @@ class RecursiveObject {
     private List<RecursiveObject> flattenRecursively(Stream<RecursiveObject> stream) {
         return stream.flatMap(it -> it.flatten().stream())
                 .collect(Collectors.toList());
+    }
+}
+
+
+interface ISubZone {
+    String getName();
+}
+
+interface IZone {
+    String getName();
+}
+
+class SubZone implements  ISubZone {
+    String name;
+    IZone zone;
+    @Override
+    public String getName() {
+        return name;
+    }
+}
+
+class Zone implements IZone {
+    String name;
+//    SortedSet
+            List<ISubZone> subZones;
+    @Override
+    public String getName() {
+        return name;
+    }
+}
+
+class ISubZoneArranger extends CustomArranger<ISubZone> {
+    @Override
+    protected ISubZone instance() {
+        return enhancedRandom.nextObject(SubZone.class);
+    }
+}
+
+class IZoneArranger extends CustomArranger<IZone> {
+    @Override
+    protected IZone instance() {
+        return enhancedRandom.nextObject(Zone.class);
     }
 }

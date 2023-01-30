@@ -33,6 +33,7 @@ public class EnhancedRandom extends Random {
     private final HashMap<Set<String>, EasyRandom> cache = new HashMap<>();
     private final Supplier<EasyRandomParameters> parametersSupplier;
 
+
     static class Builder {
         private final Supplier<EasyRandomParameters> parametersSupplier;
 
@@ -63,11 +64,8 @@ public class EnhancedRandom extends Random {
      * @return a random instance of the given type
      */
     public <T> T nextObject(final Class<T> type, final String... excludedFields) {
-        if (newEasyRandomWithFieldExclusionConfigIsRequired(type, excludedFields)) {
-            return createEasyRandomWithExclusions(excludedFields, type).nextObject(type);
-        } else {
-            return easyRandom.nextObject(type);
-        }
+        final EasyRandom selectedEasyRandom = selectEasyRandomWithRespectToExclusion(type, excludedFields);
+        return NestingSafeExecutor.execute(type, () -> selectedEasyRandom.nextObject(type));
     }
 
     /**
@@ -80,21 +78,25 @@ public class EnhancedRandom extends Random {
      * @return a stream of random instances of the given type
      */
     public <T> Stream<T> objects(final Class<T> type, final int amount, final String... excludedFields) {
+        final EasyRandom selectedEasyRandom = selectEasyRandomWithRespectToExclusion(type, excludedFields);
+        return selectedEasyRandom.objects(type, amount);
+    }
+
+    private <T> EasyRandom selectEasyRandomWithRespectToExclusion(Class<T> type, String[] excludedFields) {
         if (newEasyRandomWithFieldExclusionConfigIsRequired(type, excludedFields)) {
-            return createEasyRandomWithExclusions(excludedFields, type).objects(type, amount);
-        } else {
-            return easyRandom.objects(type, amount);
+            return createEasyRandomWithExclusions(type, excludedFields);
         }
+        return easyRandom;
     }
 
     private <T> boolean newEasyRandomWithFieldExclusionConfigIsRequired(Class<T> type, String[] excludedFields) {
         /* There is a logical inconsistency in using a custom arranger and field exclusion for the same type - the
-        * exclusion can be configured in the custom arranger. Technically, creating an arranger with exclusion disables
-        * the custom arranger for the type that is being instantiated. */
+         * exclusion can be configured in the custom arranger. Technically, creating an arranger with exclusion disables
+         * the custom arranger for the type that is being instantiated. */
         return !arrangers.containsKey(type) && excludedFields.length != 0;
     }
 
-    private EasyRandom createEasyRandomWithExclusions(String[] excludedFields, Class type) {
+    private <T> EasyRandom createEasyRandomWithExclusions(Class<T> type, String[] excludedFields) {
         Set<String> fields = new HashSet<>(Arrays.asList(excludedFields));
         cache.computeIfAbsent(fields, key -> {
             EnhancedRandom er = ArrangersConfigurer.instance().randomForGivenConfiguration(type, arrangers, () -> addExclusionToParameters(fields));
@@ -126,6 +128,5 @@ public class EnhancedRandom extends Random {
     private Randomizer<?> customArrangerToRandomizer(CustomArranger arranger) {
         return arranger::instance;
     }
-
 
 }
