@@ -63,12 +63,39 @@ public class EnhancedRandom extends Random {
      * @return a random instance of the given type
      */
     public <T> T nextObject(final Class<T> type, final String... excludedFields) {
-        if (excludedFields.length == 0) {
-            return easyRandom.nextObject(type);
-        } else {
-            return createEasyRandomWithExclusions(excludedFields, type).nextObject(type);
+        EasyRandom selectedEasyRandom = easyRandom;
+        if (excludedFields.length > 0) {
+            selectedEasyRandom = createEasyRandomWithExclusions(excludedFields, type);
         }
+        Integer nestingDepth = licznik.get();
+        if (nestingDepth < ArrangersConfigurer.MAX_RANDOMIZATION_DEPTH) {
+            try {
+                licznik.set(++nestingDepth);
+                return easyRandom.nextObject(type);
+            } finally {
+                licznik.set(--nestingDepth);
+            }
+        } else {
+            T emptyInstance = InstanceProducerHelper.createEmptyInstance(type);
+            InstanceProducerHelper.initializeLeafInstance(type, emptyInstance);
+            return emptyInstance;
+        }
+//        if (excludedFields.length == 0) {
+//            Integer i = licznik.get();
+//            if(i < 2) {
+//                licznik.set(++i);
+//                T result = easyRandom.nextObject(type);
+//                licznik.set(--i);
+//                return result;
+//            } else {
+//                return null;
+//            }
+//        } else {
+//            return createEasyRandomWithExclusions(excludedFields, type).nextObject(type);
+//        }
     }
+
+    static final ThreadLocal<Integer> licznik = ThreadLocal.withInitial(() -> 0);
 
     /**
      * Generate a stream of random instances of the given type.
