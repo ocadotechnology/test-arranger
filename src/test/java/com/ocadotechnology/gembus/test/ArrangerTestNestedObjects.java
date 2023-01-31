@@ -209,8 +209,7 @@ class SubZone implements  ISubZone {
 
 class Zone implements IZone {
     String name;
-//    SortedSet
-            List<ISubZone> subZones;
+    SortedSet subZones;
     @Override
     public String getName() {
         return name;
