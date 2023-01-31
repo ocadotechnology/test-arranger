@@ -41,7 +41,7 @@ public class Arranger {
     private static final LastNameRandomizer lastNameRandomizer = new LastNameRandomizer();
 
     /**
-     * @see org.jeasy.random.EasyRandom#nextObject
+     * @see com.ocadotechnology.gembus.test.EnhancedRandom#nextObject
      */
     public static <T> T some(final Class<T> type, final String... excludedFields) {
         return random.nextObject(type, excludedFields);
@@ -64,7 +64,7 @@ public class Arranger {
 
     /**
      * @see org.jeasy.random.EasyRandom#nextObject
-     * @deprecated This methods creates a lot of complexity resulting in lesser performance and increased memory consumption.
+     * @deprecated This method creates a lot of complexity resulting in lesser performance and increased memory consumption.
      * Use {@link Arranger#some(Class, String...)} instead.
      */
     public static <T> T someSimplified(final Class<T> type, final String... excludedFields) {
