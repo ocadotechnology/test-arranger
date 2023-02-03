@@ -20,6 +20,7 @@ import org.jeasy.random.EasyRandomParameters;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 class ArrangersConfigurer {
@@ -28,6 +29,7 @@ class ArrangersConfigurer {
     static final int STRING_MAX_LENGTH = 16;
     static final int CACHE_SIZE = 15;
     static final int MAX_RANDOMIZATION_DEPTH = 4;
+    static final AtomicBoolean defaultInitialized = new AtomicBoolean(false);
     private static ArrangersConfigurer instance;
 
     private final Map<Class<?>, CustomArranger<?>> defaultArrangers;
@@ -62,7 +64,11 @@ class ArrangersConfigurer {
     }
 
     EnhancedRandom defaultRandom() {
-        return randomWithArrangers(defaultArrangers, new EnhancedRandom.Builder(ArrangersConfigurer::getEasyRandomDefaultParameters));
+        try {
+            return randomWithArrangers(defaultArrangers, new EnhancedRandom.Builder(ArrangersConfigurer::getEasyRandomDefaultParameters));
+        } finally {
+            defaultInitialized.set(true);
+        }
     }
 
     EnhancedRandom simplifiedRandom() {

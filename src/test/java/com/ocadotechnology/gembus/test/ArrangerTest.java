@@ -17,7 +17,6 @@ package com.ocadotechnology.gembus.test;
 
 import com.ocadotechnology.gembus.ToTestNonPublic;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Timeout;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
