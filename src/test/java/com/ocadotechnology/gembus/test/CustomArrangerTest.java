@@ -18,6 +18,8 @@ package com.ocadotechnology.gembus.test;
 import org.jeasy.random.ObjectCreationException;
 import org.junit.jupiter.api.Test;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -85,7 +87,21 @@ public class CustomArrangerTest {
         final ForRecursion actual = Arranger.some(ForRecursion.class);
 
         //then
-        assertThat(actual.text).isNotBlank();
+        assertThat(actual.text.string).isEqualTo(StringWrapperArranger.TEXT);
+        assertThat(actual.recursion.get().text.string).isEqualTo(StringWrapperArranger.TEXT);
+    }
+
+    @Test
+    void shouldUseCustomArrangersWhenStartingFromManuallyCreatedCustomArranger() {
+        //given
+        ForRecursionArranger forRecursionArranger = new ForRecursionArranger();
+
+        //when
+        final ForRecursion actual = forRecursionArranger.create();
+
+        //then
+        assertThat(actual.text.string).isEqualTo(StringWrapperArranger.TEXT);
+        assertThat(actual.recursion.get().text.string).isEqualTo(StringWrapperArranger.TEXT);
     }
 }
 
@@ -135,12 +151,30 @@ class ChildArranger extends CustomArranger<Child> {
 }
 
 class ForRecursion {
-    String text;
+    StringWrapper text;
+    Optional<ForRecursion> recursion;
 }
 
 class ForRecursionArranger extends CustomArranger<ForRecursion> {
     @Override
     protected ForRecursion instance() {
         return enhancedRandom.nextObject(ForRecursion.class);
+    }
+    ForRecursion create(){
+        return instance();
+    }
+}
+
+class StringWrapper {
+    String string;
+}
+
+class StringWrapperArranger extends CustomArranger<StringWrapper> {
+    static final String TEXT = "created using custom arranger";
+    @Override
+    protected StringWrapper instance() {
+        StringWrapper result = enhancedRandom.nextObject(StringWrapper.class);
+        result.string = TEXT;
+        return result;
     }
 }
