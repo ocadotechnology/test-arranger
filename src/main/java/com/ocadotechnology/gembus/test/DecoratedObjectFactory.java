@@ -72,7 +72,4 @@ public class DecoratedObjectFactory implements ObjectFactory {
         }
     }
 
-    private boolean isItDeepestRandomizationDepth(RandomizerContext context) {
-        return context.getCurrentRandomizationDepth() == context.getParameters().getRandomizationDepth() - 1;
-    }
 }
