@@ -20,6 +20,7 @@ import org.jeasy.random.EasyRandomParameters;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 class ArrangersConfigurer {
@@ -27,6 +28,8 @@ class ArrangersConfigurer {
     static final int STRING_MIN_LENGTH = 10;
     static final int STRING_MAX_LENGTH = 16;
     static final int CACHE_SIZE = 15;
+    static final int MAX_RANDOMIZATION_DEPTH = 4;
+    static final AtomicBoolean defaultInitialized = new AtomicBoolean(false);
     private static ArrangersConfigurer instance;
 
     private final Map<Class<?>, CustomArranger<?>> defaultArrangers;
@@ -49,7 +52,7 @@ class ArrangersConfigurer {
     static EasyRandomParameters getEasyRandomDefaultParameters() {
         return sharedParameters()
                 .collectionSizeRange(1, 4)
-                .randomizationDepth(4)
+                .randomizationDepth(MAX_RANDOMIZATION_DEPTH)
                 .stringLengthRange(STRING_MIN_LENGTH, STRING_MAX_LENGTH);
     }
 
@@ -61,7 +64,11 @@ class ArrangersConfigurer {
     }
 
     EnhancedRandom defaultRandom() {
-        return randomWithArrangers(defaultArrangers, new EnhancedRandom.Builder(ArrangersConfigurer::getEasyRandomDefaultParameters));
+        try {
+            return randomWithArrangers(defaultArrangers, new EnhancedRandom.Builder(ArrangersConfigurer::getEasyRandomDefaultParameters));
+        } finally {
+            defaultInitialized.set(true);
+        }
     }
 
     EnhancedRandom simplifiedRandom() {
@@ -70,12 +77,13 @@ class ArrangersConfigurer {
 
     EnhancedRandom randomForGivenConfiguration(Class<?> type, Map<Class<?>, CustomArranger<?>> arrangers, Supplier<EasyRandomParameters> parametersSupplier) {
         EnhancedRandom.Builder randomBuilder = new EnhancedRandom.Builder(parametersSupplier);
+        long seed = SeedHelper.calculateSeed();
         CustomArranger<?> arrangerToUpdate = arrangers.get(type);
-        if (arrangerToUpdate == null) {
-            return randomBuilder.build(arrangers, SeedHelper.calculateSeed());
-        } else {
-            return randomWithoutSelfReferenceThroughArranger(arrangers, randomBuilder, type);
+        if (arrangerToUpdate != null) {
+            seed = SeedHelper.customArrangerTypeSpecificSeedRespectingRandomSeedSetting(type);
+            arrangers = withoutGivenType(arrangers, type);
         }
+        return randomBuilder.build(arrangers, seed);
     }
 
     private static EasyRandomParameters sharedParameters() {
@@ -97,15 +105,17 @@ class ArrangersConfigurer {
 
     private EnhancedRandom randomWithArrangers(Map<Class<?>, CustomArranger<?>> arrangers, EnhancedRandom.Builder randomBuilder) {
         arrangers.forEach((clazz, customArranger) -> {
-            EnhancedRandom random = randomWithoutSelfReferenceThroughArranger(arrangers, randomBuilder, clazz);
+            EnhancedRandom random = randomBuilder.build(
+                    withoutGivenType(arrangers, clazz),
+                    SeedHelper.customArrangerTypeSpecificSeedRespectingRandomSeedSetting(clazz));
             customArranger.setEnhancedRandom(random);
         });
         return randomBuilder.build(arrangers, SeedHelper.calculateSeed());
     }
 
-    private EnhancedRandom randomWithoutSelfReferenceThroughArranger(Map<Class<?>, CustomArranger<?>> arrangers, EnhancedRandom.Builder enhancedRandomBuilder, Class<?> type) {
+    private Map<Class<?>, CustomArranger<?>> withoutGivenType(Map<Class<?>, CustomArranger<?>> arrangers, Class<?> type) {
         final HashMap<Class<?>, CustomArranger<?>> forCustomArranger = new HashMap<>(arrangers);
         forCustomArranger.remove(type);
-        return enhancedRandomBuilder.build(forCustomArranger, SeedHelper.customArrangerTypeSpecificSeedRespectingRandomSeedSetting(type));
+        return forCustomArranger;
     }
 }

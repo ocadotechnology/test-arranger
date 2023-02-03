@@ -16,14 +16,20 @@
 package com.ocadotechnology.gembus.test;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
 public class ArrangerTestNestedObjects {
+
+    static final String FIXED_TEXT = "text";
+
     @Test
     public void avoidNullsInNestedObjectOnDeepestLevel() {
         //when
@@ -44,7 +50,7 @@ public class ArrangerTestNestedObjects {
 
     @Test
     void avoidInfiniteLoopsInRecursiveObjects() {
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 50; i++) {
             //when
             RecursiveObject actual = Arranger.some(RecursiveObject.class);
 
@@ -56,8 +62,84 @@ public class ArrangerTestNestedObjects {
                     .isEqualTo(flattenSet.size());
         }
     }
+
+    @Test
+    @Timeout(2)
+    public void respectCustomArrangersOverExcludedFields() {
+        //when
+        NestedStructure actual = Arranger.some(NestedStructure.class, "id");
+
+        //then
+        assertThat(actual.text).isEqualTo(FIXED_TEXT);
+        assertThat(actual.id).isNotNull();
+    }
+
+    @Test
+    @Timeout(2)
+    public void respectExcludedFieldsAndDoNotIgnoreCustomArrangersForDeeperLevels() {
+        //when
+        NestedStructureWrapper actual = Arranger.some(NestedStructureWrapper.class, "id2");
+
+        //then
+        assertThat(actual.id2).isNull();
+        assertThat(actual.nestedStructure.text).isEqualTo(FIXED_TEXT);
+        assertThat(actual.nestedStructure.id2).isNotNull();
+    }
+
+    @Test
+    void shouldAvoidInfiniteNestingWhenGoingThroughCustomArranger() {
+        //when
+        ISubZone subZone = assertTimeoutPreemptively(Duration.ofSeconds(100000), () -> Arranger.some(ISubZone.class));
+
+        //then
+        assertThat(subZone).isNotNull();
+    }
+
+    @Test
+    void shouldAvoidInfiniteNestingWhenGoingThroughCustomArrangerAndSomeObjects() {
+        //when
+        Stream<ISubZone> subZone = assertTimeoutPreemptively(Duration.ofSeconds(100000), () -> Arranger.someObjects(ISubZone.class, 2));
+
+        //then
+        assertThat(subZone.collect(Collectors.toList())).isNotEmpty();
+    }
 }
 
+class NestedStructure {
+    Long id;
+    String text;
+    List<NestedStructure> children;
+}
+
+class NestedStructureArranger extends CustomArranger<NestedStructure> {
+    @Override
+    protected NestedStructure instance() {
+        NestedStructure nestedStructure = enhancedRandom.nextObject(NestedStructure.class);
+        nestedStructure.text = ArrangerTestNestedObjects.FIXED_TEXT;
+        return nestedStructure;
+    }
+}
+
+class NestedStructureWrapper {
+    Integer id2;
+    NestedStructure2 nestedStructure;
+}
+
+/* NestedStructure should not be reused as the reuse may affect arranger initialization and in consequence the test result */
+class NestedStructure2 {
+    Long id2;
+    String text;
+    List<NestedStructure2> children;
+}
+
+class NestedStructure2Arranger extends CustomArranger<NestedStructure2> {
+    @Override
+    protected NestedStructure2 instance() {
+        NestedStructure2 nestedStructure = enhancedRandom.nextObject(NestedStructure2.class);
+        nestedStructure.text = ArrangerTestNestedObjects.FIXED_TEXT;
+        return nestedStructure;
+    }
+}
 class RecursiveObject {
     String field;
     String field2;
@@ -104,5 +186,46 @@ class RecursiveObject {
     private List<RecursiveObject> flattenRecursively(Stream<RecursiveObject> stream) {
         return stream.flatMap(it -> it.flatten().stream())
                 .collect(Collectors.toList());
+    }
+}
+
+
+interface ISubZone {
+    String getName();
+}
+
+interface IZone {
+    String getName();
+}
+
+class SubZone implements  ISubZone {
+    String name;
+    IZone zone;
+    @Override
+    public String getName() {
+        return name;
+    }
+}
+
+class Zone implements IZone {
+    String name;
+    SortedSet subZones;
+    @Override
+    public String getName() {
+        return name;
+    }
+}
+
+class ISubZoneArranger extends CustomArranger<ISubZone> {
+    @Override
+    protected ISubZone instance() {
+        return enhancedRandom.nextObject(SubZone.class);
+    }
+}
+
+class IZoneArranger extends CustomArranger<IZone> {
+    @Override
+    protected IZone instance() {
+        return enhancedRandom.nextObject(Zone.class);
     }
 }

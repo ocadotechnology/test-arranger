@@ -45,7 +45,7 @@ public class DecoratedObjectFactory implements ObjectFactory {
     @Override
     public <T> T createInstance(Class<T> type, RandomizerContext context) throws ObjectCreationException {
         try {
-            T result = originalFactory.createInstance(type, context);
+            T result = InstanceProducerHelper.createLeafInstance(originalFactory, type, context);
             if (!cacheEnable) {
                 disableCache(type, context);
             }
@@ -53,18 +53,7 @@ public class DecoratedObjectFactory implements ObjectFactory {
                 return recordFactory.createRandomRecord(type, context);
             }
             if (DepthLimitationObjectFactory.isItDeepestRandomizationDepth(context, context.getCurrentRandomizationDepth())) {
-                ReflectionUtils.getDeclaredFields(result).stream()
-                        .filter(field -> !field.isSynthetic())
-                        .forEach(field -> {
-                            try {
-                                Object emptyOne = DepthLimitationObjectFactory.produceEmptyValueForField(field.getType());
-                                if (emptyOne != null) {
-                                    ReflectionUtils.setProperty(result, field, emptyOne);
-                                }
-                            } catch (Exception e) {
-                                System.err.println("Unable to set " + type.getName() + "." + field.getName() + ". " + e.getMessage());
-                            }
-                        });
+                InstanceProducerHelper.initializeLeafInstance(type, result);
             }
             return result;
         } catch (Exception e) {
@@ -81,5 +70,9 @@ public class DecoratedObjectFactory implements ObjectFactory {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private boolean isItDeepestRandomizationDepth(RandomizerContext context) {
+        return context.getCurrentRandomizationDepth() == context.getParameters().getRandomizationDepth() - 1;
     }
 }
