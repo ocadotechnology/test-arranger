@@ -21,7 +21,6 @@ import org.jeasy.random.ObjectCreationException;
 import org.jeasy.random.ObjenesisObjectFactory;
 import org.jeasy.random.api.ObjectFactory;
 import org.jeasy.random.api.RandomizerContext;
-import org.jeasy.random.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.util.Collections;

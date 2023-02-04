@@ -15,13 +15,11 @@
  */
 package com.ocadotechnology.gembus.test;
 
+import com.ocadotechnology.gembus.test.easyrandom.DepthLimitationObjectFactory;
 import org.jeasy.random.EasyRandomParameters;
 import org.jeasy.random.ObjenesisObjectFactory;
 import org.jeasy.random.api.RandomizerContext;
 import org.jeasy.random.util.ReflectionUtils;
-import org.jetbrains.annotations.Nullable;
-
-import java.lang.reflect.Array;
 
 public class InstanceProducerHelper {
 
@@ -74,7 +72,7 @@ public class InstanceProducerHelper {
                 .filter(field -> !field.isSynthetic())
                 .forEach(field -> {
                     try {
-                        Object emptyOne = produceEmptyValueForField(field.getType());
+                        Object emptyOne = DepthLimitationObjectFactory.produceEmptyValueForField(field.getType());
                         if (emptyOne != null) {
                             ReflectionUtils.setProperty(result, field, emptyOne);
                         }
@@ -82,19 +80,5 @@ public class InstanceProducerHelper {
                         System.err.println("Unable to set " + type.getName() + "." + field.getName() + ". " + e.getMessage());
                     }
                 });
-    }
-
-    @Nullable
-    private static Object produceEmptyValueForField(Class<?> fieldType) {
-        if (ReflectionUtils.isArrayType(fieldType)) {
-            return Array.newInstance(fieldType.getComponentType(), 0);
-        }
-        if (ReflectionUtils.isCollectionType(fieldType)) {
-            return ReflectionUtils.getEmptyImplementationForCollectionInterface(fieldType);
-        }
-        if (ReflectionUtils.isMapType(fieldType)) {
-            return ReflectionUtils.getEmptyImplementationForMapInterface(fieldType);
-        }
-        return null;
     }
 }

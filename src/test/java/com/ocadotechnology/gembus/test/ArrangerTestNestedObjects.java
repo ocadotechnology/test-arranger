@@ -108,13 +108,14 @@ public class ArrangerTestNestedObjects {
 class NestedStructure {
     Long id;
     String text;
+    Long dummyId;
     List<NestedStructure> children;
 }
 
 class NestedStructureArranger extends CustomArranger<NestedStructure> {
     @Override
     protected NestedStructure instance() {
-        NestedStructure nestedStructure = enhancedRandom.nextObject(NestedStructure.class);
+        NestedStructure nestedStructure = enhancedRandom.nextObject(NestedStructure.class, "dummyId");
         nestedStructure.text = ArrangerTestNestedObjects.FIXED_TEXT;
         return nestedStructure;
     }

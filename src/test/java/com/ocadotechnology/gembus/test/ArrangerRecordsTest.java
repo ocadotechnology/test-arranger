@@ -47,7 +47,7 @@ public class ArrangerRecordsTest {
         assertThat(actual.tags().size()).isGreaterThan(0);
         assertThat(actual.tags().iterator().next().length()).isGreaterThanOrEqualTo(ArrangersConfigurer.STRING_MIN_LENGTH);
         assertThat(actual.classWithCustomArranger().size()).isGreaterThan(0);
-        assertThat(actual.classWithCustomArranger().get(0).id).isNull();
+        assertThat(actual.classWithCustomArranger().get(0).dummyId).isNull();
         assertThat(actual.classWithCustomArranger().get(0).children.size()).isGreaterThan(0);
     }
 
