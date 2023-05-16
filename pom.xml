@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.ocadotechnology.gembus</groupId>
     <artifactId>test-arranger</artifactId>
-    <version>1.5.7.1</version>
+    <version>1.5.8-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>test-arranger</name>
     <description>A tool for arranging test data with pseudo-random values.</description>
@@ -60,12 +60,12 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>17</java.version>
         <kotlin.version>1.7.20</kotlin.version>
-        <easy-random.version>5.0.0</easy-random.version>
+        <easy-random.version>6.1.7</easy-random.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>org.jeasy</groupId>
+            <groupId>io.github.dvgaba</groupId>
             <artifactId>easy-random-core</artifactId>
             <version>${easy-random.version}</version>
             <exclusions>
@@ -76,7 +76,7 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.jeasy</groupId>
+            <groupId>io.github.dvgaba</groupId>
             <artifactId>easy-random-randomizers</artifactId>
             <version>${easy-random.version}</version>
             <exclusions>
@@ -85,6 +85,17 @@
                     <artifactId>snakeyaml</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.github.dvgaba</groupId>
+            <artifactId>easy-random-bean-validation</artifactId>
+            <version>${easy-random.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.12.0</version>
         </dependency>
         <dependency>
             <groupId>org.yaml</groupId>
@@ -120,12 +131,6 @@
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
             <version>3.23.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jeasy</groupId>
-            <artifactId>easy-random-bean-validation</artifactId>
-            <version>${easy-random.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

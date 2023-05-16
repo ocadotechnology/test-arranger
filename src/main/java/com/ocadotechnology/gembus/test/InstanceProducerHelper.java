@@ -54,6 +54,11 @@ public class InstanceProducerHelper {
         public EasyRandomParameters getParameters() {
             return new EasyRandomParameters();
         }
+
+        @Override
+        public boolean hasExceededRandomizationDepth() {
+            return false;
+        }
     };
 
     public static <T> T createLeafInstance(ObjenesisObjectFactory factory, Class<T> type, RandomizerContext context) {

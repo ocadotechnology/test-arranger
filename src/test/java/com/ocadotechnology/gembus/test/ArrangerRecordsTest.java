@@ -83,7 +83,7 @@ public class ArrangerRecordsTest {
 
         //then
         assertThat(actual.children()).isNotEmpty();
-        assertThat(actual.children().get(0).children().get(0).children()).isEmpty();
+        assertThat(actual.children().get(0).children().get(0).children().get(0).children().get(0).children().get(0).children()).isEmpty();
     }
 
     @Test
@@ -103,7 +103,7 @@ public class ArrangerRecordsTest {
 
         //then
         assertThat(actual.value()).isNotNull();
-        assertThat(actual.child().child().child()).isEqualTo(new DirectlyNested(null,null));
+        assertThat(actual.child().child().child().child().child()).isEqualTo(new DirectlyNested(null,null));
         assertThat(actual.child().child().value()).isNotNull();
     }
 }
