@@ -17,5 +17,5 @@ package com.ocadotechnology.gembus.bugfix;
 
 import javax.validation.constraints.NotBlank;
 
-public record DescriptionDto(String locale, @NotBlank String value) {
+public record Description(String locale, @NotBlank String value) {
 }

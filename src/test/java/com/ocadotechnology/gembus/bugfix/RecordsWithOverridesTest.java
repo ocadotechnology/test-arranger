@@ -15,7 +15,6 @@
  */
 package com.ocadotechnology.gembus.bugfix;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -25,12 +24,11 @@ import static com.ocadotechnology.gembus.test.Arranger.some;
 import static com.ocadotechnology.gembus.test.Arranger.someString;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SkuSaveUpdateRequestTest {
+public class RecordsWithOverridesTest {
 
     @Test
-    @Disabled
-    void nameOk() {
-        var saveUpdateRequest = some(SkuSaveUpdateRequest.class);
+    void shouldGenerateComplexRecords() {
+        var saveUpdateRequest = some(ComplexRecord.class);
         assertThat(saveUpdateRequest.descriptions()).isNotEmpty();
         assertThat(saveUpdateRequest.descriptions().iterator().next().value()).isNotEmpty();
         assertThat(saveUpdateRequest.productCodes()).isNotEmpty();
@@ -38,16 +36,13 @@ public class SkuSaveUpdateRequestTest {
     }
 
     @Test
-    @Disabled
-    void nameFail() {
+    void shouldGenerateComplexRecordsWithOverrides() {
         var saveUpdateRequest =
                 some(
-                        SkuSaveUpdateRequest.class,
-                        Map.of("descriptions", () -> Set.of(new DescriptionDto("en-GB", someString())),
-                                "productCodes", () -> someString())
+                        ComplexRecord.class,
+                        Map.of("descriptions", () -> Set.of(new Description("en-GB", someString())),
+                                "someString", () -> someString())
                                 );
-        assertThat(saveUpdateRequest.descriptions2()).isNotEmpty();
-        assertThat(saveUpdateRequest.descriptions2().iterator().next().value()).isNotEmpty();
         assertThat(saveUpdateRequest.productCodes()).isNotEmpty();
         assertThat(saveUpdateRequest.productCodes().iterator().next()).isNotEmpty();
     }

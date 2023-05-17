@@ -18,10 +18,10 @@ package com.ocadotechnology.gembus.test.experimental;
 import com.ocadotechnology.gembus.test.easyrandom.RecordReflectionUtils;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.RecordComponent;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -42,7 +42,7 @@ public class Data {
         Class<T> recordClass = (Class<T>) record.getClass();
         if (recordClass.isRecord()) {
             Object[] constructorParams = Arrays.stream(recordClass.getRecordComponents())
-                    .map(recordParamsCopyWithOverrides(record, overrides))
+                    .map(param -> getComponentValue(record, overrides, param))
                     .toArray(Object[]::new);
             return RecordReflectionUtils.instantiateRecord(recordClass, constructorParams);
         } else {
@@ -50,17 +50,18 @@ public class Data {
         }
     }
 
-    private static Function<RecordComponent, Object> recordParamsCopyWithOverrides(Object source, Map<String, Supplier<?>> overrides) {
-        return param -> {
-            if (overrides.containsKey(param.getName())) {
-                return overrides.get(param.getName()).get();
-            } else {
-                try {
-                    return param.getAccessor().invoke(source);
-                } catch (IllegalAccessException | InvocationTargetException e) {
-                    throw new RuntimeException(e);
-                }
+    private static <T> Object getComponentValue(T record, Map<String, Supplier<?>> overrides, RecordComponent param) {
+        if (overrides.containsKey(param.getName())) {
+            return overrides.get(param.getName()).get();
+        } else {
+            try {
+                Method accessor = param.getAccessor();
+                accessor.setAccessible(true);
+                return accessor.invoke(record);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException(e);
             }
-        };
+        }
     }
+
 }

@@ -21,17 +21,14 @@ import javax.validation.constraints.NotEmpty;
 import java.util.List;
 import java.util.Set;
 
-public record SkuSaveUpdateRequest(
-        String retailerSkuId,
+public record ComplexRecord(
+        String someString,
         @NotEmpty Set<String> productCodes,
-        @NotEmpty @Valid Set<DescriptionDto> descriptions,
-        @NotEmpty @Valid List<DescriptionDto> descriptions2,
+        @NotEmpty @Valid Set<Description> descriptions,
         @NotBlank String imageUrl) {
-}
-
-
-record MyRecod(
-        String is,
-        Set<String> strings,
-        List<String> stringsWithOverride) {
+    public ComplexRecord {
+        if (someString == null || descriptions == null) {
+            throw new IllegalArgumentException("Invalid arguments");
+        }
+    }
 }
