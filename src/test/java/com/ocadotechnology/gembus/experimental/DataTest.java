@@ -15,7 +15,7 @@
  */
 package com.ocadotechnology.gembus.experimental;
 
-import com.ocadotechnology.gembus.bugfix.DescriptionDto;
+import com.ocadotechnology.gembus.bugfix.Description;
 import com.ocadotechnology.gembus.test.experimental.Data;
 import org.junit.jupiter.api.Test;
 
@@ -29,11 +29,11 @@ class DataTest {
     @Test
     void shouldCopyRecordButOverrideFieldsWithGivenSupplier() {
         //given
-        DescriptionDto original = some(DescriptionDto.class);
+        Description original = some(Description.class);
         String overrider = some(String.class);
 
         //when
-        DescriptionDto copy = Data.copy(original, Map.of("value", () -> overrider));
+        Description copy = Data.copy(original, Map.of("value", () -> overrider));
 
         //then
         assertThat(overrider).as("The test is meaningless when the condition is not met").isNotEqualTo(original.value());
