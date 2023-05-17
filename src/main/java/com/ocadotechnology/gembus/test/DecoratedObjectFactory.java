@@ -16,7 +16,6 @@
 package com.ocadotechnology.gembus.test;
 
 import com.ocadotechnology.gembus.test.easyrandom.DepthLimitationObjectFactory;
-import com.ocadotechnology.gembus.test.easyrandom.RecordObjectFactory;
 import org.jeasy.random.ObjectCreationException;
 import org.jeasy.random.ObjenesisObjectFactory;
 import org.jeasy.random.api.ObjectFactory;
@@ -34,7 +33,6 @@ import java.util.Map;
  */
 public class DecoratedObjectFactory implements ObjectFactory {
     private final ObjenesisObjectFactory originalFactory = new ObjenesisObjectFactory();
-    private final RecordObjectFactory recordFactory = new RecordObjectFactory(this);
     private final boolean cacheEnable;
 
     public DecoratedObjectFactory(boolean cacheEnable) {
@@ -47,9 +45,6 @@ public class DecoratedObjectFactory implements ObjectFactory {
             T result = InstanceProducerHelper.createLeafInstance(originalFactory, type, context);
             if (!cacheEnable) {
                 disableCache(type, context);
-            }
-            if (type.isRecord()) {
-                return recordFactory.createRandomRecord(type, context);
             }
             if (DepthLimitationObjectFactory.isItDeepestRandomizationDepth(context, context.getCurrentRandomizationDepth())) {
                 InstanceProducerHelper.initializeLeafInstance(type, result);

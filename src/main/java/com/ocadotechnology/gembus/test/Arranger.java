@@ -15,7 +15,7 @@
  */
 package com.ocadotechnology.gembus.test;
 
-import com.ocadotechnology.gembus.test.easyrandom.RecordReflectionUtils;
+import com.ocadotechnology.gembus.test.experimental.Data;
 import org.jeasy.random.randomizers.EmailRandomizer;
 import org.jeasy.random.randomizers.FirstNameRandomizer;
 import org.jeasy.random.randomizers.LastNameRandomizer;
@@ -60,10 +60,10 @@ public class Arranger {
      */
     public static <T> T some(final Class<T> type, final Map<String, Supplier<?>> overrides) {
         CurrentEnhancedRandom.set(random);
-        if(type.isRecord()) {
-            return RecordReflectionUtils.generateRecord(type, OverridesHelper.recordParamsCreatorWithOverrides(overrides));
+        T result = random.nextObject(type);
+        if (type.isRecord()) {
+            return Data.copy(result, overrides);
         } else {
-            T result = random.nextObject(type);
             OverridesHelper.applyOverrides(result, overrides);
             return result;
         }
@@ -91,13 +91,14 @@ public class Arranger {
      */
     public static <T> Stream<T> someObjects(final Class<T> type, final int amount, final Map<String, Supplier<?>> overrides) {
         CurrentEnhancedRandom.set(random);
-        if(type.isRecord()) {
-            return Stream.generate(() -> null).limit(amount)
-                    .map(i -> RecordReflectionUtils.generateRecord(type, OverridesHelper.recordParamsCreatorWithOverrides(overrides)));
-        } else {
-            return random.objects(type, amount)
-                    .peek(o -> OverridesHelper.applyOverrides(o, overrides));
-        }
+        return random.objects(type, amount).map(o -> {
+            if (type.isRecord()) {
+                return Data.copy(o, overrides);
+            } else {
+                OverridesHelper.applyOverrides(o, overrides);
+                return o;
+            }
+        });
     }
 
     /**

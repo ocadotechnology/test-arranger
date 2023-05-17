@@ -20,31 +20,25 @@ import org.jeasy.random.ObjectCreationException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.RecordComponent;
 import java.util.Arrays;
-import java.util.function.Function;
 
 public abstract class RecordReflectionUtils {
 
-    public static <T> T generateRecord(Class<T> type, Function<RecordComponent, Object> recordParamsCreator) {
-        Object[] constructorParams = arrangeRecordConstructorParams(type, recordParamsCreator);
-        return instantiateRecord(type, constructorParams);
-    }
-
     public static <T> T instantiateRecord(Class<T> recordType, Object[] constructorParameters) {
         try {
-            Class<?>[] componentTypes = Arrays.stream(recordType.getRecordComponents())
-                    .map(RecordComponent::getType)
-                    .toArray(Class[]::new);
-            Constructor<T> constructor = recordType.getDeclaredConstructor(componentTypes);
-            constructor.setAccessible(true);
+            Constructor<T> constructor = getRecordConstructor(recordType);
             return constructor.newInstance(constructorParameters);
         } catch (Exception e) {
             throw new ObjectCreationException("Unable to create a random instance of recordType " + recordType + ". You may need to cover it with a Custom Arranger.", e);
         }
     }
 
-    public static <T> Object[] arrangeRecordConstructorParams(Class<T> recordType, Function<RecordComponent, Object> arrangeRandom) {
-        return Arrays.stream(recordType.getRecordComponents())
-                .map(arrangeRandom)
-                .toArray(Object[]::new);
+    public static <T> Constructor<T> getRecordConstructor(Class<T> recordType) throws NoSuchMethodException {
+        Class<?>[] componentTypes = Arrays.stream(recordType.getRecordComponents())
+                .map(RecordComponent::getType)
+                .toArray(Class[]::new);
+        Constructor<T> constructor = recordType.getDeclaredConstructor(componentTypes);
+        constructor.setAccessible(true);
+        return constructor;
     }
+
 }

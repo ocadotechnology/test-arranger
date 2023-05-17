@@ -33,9 +33,6 @@ public class DepthLimitationObjectFactory {
         if (ReflectionUtils.isMapType(fieldType)) {
             return ReflectionUtils.getEmptyImplementationForMapInterface(fieldType);
         }
-        if (fieldType.isRecord()) {
-            return avoidNullRecordsToPreventEasyRandomFromFailingOnInitializingThem(fieldType);
-        }
         return null;
     }
 
@@ -43,7 +40,4 @@ public class DepthLimitationObjectFactory {
         return currentRandomizationDepth >= context.getParameters().getRandomizationDepth() - 1;
     }
 
-    private static Object avoidNullRecordsToPreventEasyRandomFromFailingOnInitializingThem(Class<?> recordType) {
-        return RecordReflectionUtils.generateRecord(recordType, it -> null);
-    }
 }

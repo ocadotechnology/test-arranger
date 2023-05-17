@@ -97,4 +97,9 @@ class DummyRandomizerContext implements RandomizerContext {
     public EasyRandomParameters getParameters() {
         return new EasyRandomParameters();
     }
+
+    @Override
+    public boolean hasExceededRandomizationDepth() {
+        return false;
+    }
 }
