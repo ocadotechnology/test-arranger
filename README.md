@@ -130,6 +130,22 @@ If you create `arranger.properties` file and save it in the root of classpath (u
   Fortunately, you can force test-arranger to overwrite the defaults with random values.
   Set `arranger.overridedefaults` to true to override the default initialization.
 
+### Data.copy
+
+When you have a Java record that could be used as test data, but you need to change one or two of its fields, the `Data` class with its copy method provides a solution.
+This is particularly useful when dealing with immutable records that don't have an obvious way to alter their fields directly.
+
+The `Data.copy` method allows you to create a shallow copy of a record while selectively modifying the desired fields.
+By providing a map of field overrides, you can specify the fields that need to be altered and their new values. 
+The copy method takes care of creating a new instance of the record with the updated field values.
+
+This approach saves you from manually creating a new record object and setting the fields individually, providing a convenient way to generate test data with slight variations from existing records.
+
+Overall, the Data class and its copy method rescue the situation by enabling the creation of shallow copies of records with selected fields altered, providing flexibility and convenience when working with immutable record types:
+```java
+Data.copy(myRecord, Map.of("recordFieldName", () -> "altered value"));
+```
+
 ## The challenges it solves
 
 When going through tests of a software project one seldom has the impression that it cannot be done better.
