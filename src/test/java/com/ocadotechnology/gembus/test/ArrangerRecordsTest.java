@@ -15,6 +15,7 @@
  */
 package com.ocadotechnology.gembus.test;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
@@ -77,6 +78,7 @@ public class ArrangerRecordsTest {
 
     @Test
     @Timeout(3)
+    @Disabled("Waiting for fix in easy-random")
     void should_limitTheNestingLevel_when_inRecursiveStructures() {
         //when
         NestedRecord actual = some(NestedRecord.class);
@@ -106,7 +108,21 @@ public class ArrangerRecordsTest {
         assertThat(actual.child().child().child().child().child()).isEqualTo(new DirectlyNested(null,null));
         assertThat(actual.child().child().value()).isNotNull();
     }
+
+    @Test
+    void should_notRepeatTheSameValues_when_generatingRecords() {
+        //when
+        PersonRecord actual1 = some(PersonRecord.class);
+        PersonRecord actual2 = some(PersonRecord.class);
+
+        //then
+        assertThat(actual1.name()).isNotEqualTo(actual2.name());
+        assertThat(actual1.surname()).isNotEqualTo(actual2.surname());
+        assertThat(actual1.age()).isNotEqualTo(actual2.age());
+    }
 }
+
+record PersonRecord(String name, String surname, Integer age) {}
 
 record Data(Integer value, String name, Set<String> tags, List<NestedStructure> classWithCustomArranger) {
     Data {
