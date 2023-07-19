@@ -21,6 +21,11 @@ import java.time.LocalDate
 import java.util.function.Predicate
 import java.util.function.Supplier
 
+/**
+ * some<Type>{
+ *  someTypeField = someValue
+ * }
+ */
 inline fun <reified T> some(adjustment: T.() -> Unit): T {
     val result = some<T>()
     result.adjustment()
