@@ -22,7 +22,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.RecordComponent;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * This solution was inspired by the Kotlin data class copy method.
@@ -41,6 +43,7 @@ public class Data {
     public static <T> T copy(T record, final Map<String, Supplier<?>> overrides) {
         Class<T> recordClass = (Class<T>) record.getClass();
         if (recordClass.isRecord()) {
+            validateOverrides(recordClass, overrides);
             Object[] constructorParams = Arrays.stream(recordClass.getRecordComponents())
                     .map(param -> getComponentValue(record, overrides, param))
                     .toArray(Object[]::new);
@@ -64,4 +67,17 @@ public class Data {
         }
     }
 
+    /**
+     * @throws IllegalArgumentException is thrown when the provided record does not contain field that is specified in the overrides map.
+     */
+    private static <T> void validateOverrides(Class<T> recordClass, final Map<String, Supplier<?>> overrides) throws IllegalArgumentException {
+        Set<String> recordFieldNames = Arrays.stream(recordClass.getRecordComponents())
+                .map(RecordComponent::getName)
+                .collect(Collectors.toSet());
+        overrides.keySet().forEach(key -> {
+            if (!recordFieldNames.contains(key)) {
+                throw new IllegalArgumentException("Failed to override field " + key + " in class " + recordClass.getName());
+            }
+        });
+    }
 }

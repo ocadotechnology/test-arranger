@@ -15,6 +15,7 @@
  */
 package com.ocadotechnology.gembus.test;
 
+import org.jeasy.random.ObjectCreationException;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -78,7 +79,7 @@ public class ArrangerTestOverrides {
     }
 
     @Test
-    void should_createInitializedObject_when_supplyingWrongTypeInOverrides() {
+    void should_throwException_when_supplyingWrongTypeInOverrides() {
         //given
         Long override = someLong();
         overrides.put("text", () -> override);
@@ -151,6 +152,31 @@ public class ArrangerTestOverrides {
         }).hasSize(size);
     }
 
+    @Test
+    void should_throwException_when_supplyingOverrideForNonExistingRecordField() {
+        //given
+        overrides.put("nonexisting", () -> someInteger());
+
+        //when
+        Throwable actual = catchThrowable(() -> some(RecordToOverride.class, overrides));
+
+        //then
+        assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Failed to override field nonexisting in class com.ocadotechnology.gembus.test.ArrangerTestOverrides$RecordToOverride");
+    }
+
+    @Test
+    void should_throwException_when_supplyingWrongTypeInOverridesForRecord() {
+        //given
+        Long override = someLong();
+        overrides.put("text", () -> override);
+
+        //when
+        Throwable actual = catchThrowable(() -> some(RecordToOverride.class, overrides));
+
+        //then
+        assertThat(actual).isInstanceOf(ObjectCreationException.class);
+    }
 
     static class ToOverride {
         String text;

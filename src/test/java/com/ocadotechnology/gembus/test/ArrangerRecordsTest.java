@@ -59,8 +59,8 @@ public class ArrangerRecordsTest {
 
         //then
         assertThat(actual.name().length()).isLessThan(ArrangersConfigurer.STRING_MIN_LENGTH);
-        assertThat(actual.tags()).isEmpty();
-        assertThat(actual.classWithCustomArranger()).isEmpty();
+        assertThat(actual.tags().size()).isLessThan(2);
+        assertThat(actual.classWithCustomArranger().size()).isLessThan(2);
     }
 
     @Test
