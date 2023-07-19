@@ -28,10 +28,8 @@ public class OverridesHelper {
             try {
                 Field field = result.getClass().getDeclaredField(key);
                 ReflectionUtils.setFieldValue(result, field, value.get());
-            } catch (NoSuchFieldException e) {
-                System.err.println("Field selected for an override i.e. " + key + " was not found in class " + type.getName());
-            } catch (IllegalArgumentException | IllegalAccessException e) {
-                System.err.println("Access rejected when trying to override " + key + " field in class " + type.getName() + ": " + e.getMessage());
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                throw new IllegalArgumentException("Failed to override field " + key + " in class " + type.getName(), e);
             }
         });
     }
