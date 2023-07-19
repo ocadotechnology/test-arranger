@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 
 import static com.ocadotechnology.gembus.test.Arranger.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 
 public class ArrangerTestOverrides {
     HashMap<String, Supplier<?>> overrides = new HashMap<>();
@@ -40,20 +41,6 @@ public class ArrangerTestOverrides {
         assertThat(actual.text).isNotNull();
         assertThat(actual.primitiveNumber).isNotEqualTo(0);
         assertThat(actual.number).isEqualTo(override);
-    }
-
-    @Test
-    void should_createInitializedObject_when_requestingOverrideOfNonExistingField() {
-        //given
-        overrides.put("nonexisting", () -> someInteger());
-
-        //when
-        ToOverride actual = some(ToOverride.class, overrides);
-
-        //then
-        assertThat(actual.text).isNotNull();
-        assertThat(actual.primitiveNumber).isNotEqualTo(0);
-        assertThat(actual.number).isNotEqualTo(0);
     }
 
     @Test
@@ -97,12 +84,24 @@ public class ArrangerTestOverrides {
         overrides.put("text", () -> override);
 
         //when
-        ToOverride actual = some(ToOverride.class, overrides);
+        Throwable actual = catchThrowable(() -> some(ToOverride.class, overrides));
 
         //then
-        assertThat(actual.text).isNotNull();
-        assertThat(actual.primitiveNumber).isNotEqualTo(0);
-        assertThat(actual.number).isNotEqualTo(0);
+        assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Can not set java.lang.String field com.ocadotechnology.gembus.test.ArrangerTestOverrides$ToOverride.text to java.lang.Long");
+    }
+
+    @Test
+    void should_throwException_when_supplyingOverrideForNonExistingField() {
+        //given
+        overrides.put("nonexisting", () -> someInteger());
+
+        //when
+        Throwable actual = catchThrowable(() -> some(ToOverride.class, overrides));
+
+        //then
+        assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Failed to override field nonexisting in class com.ocadotechnology.gembus.test.ArrangerTestOverrides$ToOverride");
     }
 
     @Test
