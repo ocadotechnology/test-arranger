@@ -133,13 +133,13 @@ record Data(Integer value, String name, Set<String> tags, List<NestedStructure> 
     }
 }
 
-record DataWithVariousTypes(Set<String> a, String[] b, Map<String, String> c, Optional<String> d, SomeEnum e) {
+record DataWithVariousTypes(Set<String> a, String[] b, Map<String, String> c, Optional<String> d, SomeEnum2 e) {
 }
 
 record NestedRecord(List<NestedRecord> children) {
 }
 
-enum SomeEnum {A, B, C, D, E}
+enum SomeEnum2 {A, B, C, D, E}
 
 class WithList {
     List<String> list;

@@ -26,9 +26,4 @@ public record ComplexRecord(
         @NotEmpty Set<String> productCodes,
         @NotEmpty @Valid Set<Description> descriptions,
         @NotBlank String imageUrl) {
-    public ComplexRecord {
-        if (someString == null || descriptions == null) {
-            throw new IllegalArgumentException("Invalid arguments");
-        }
-    }
 }

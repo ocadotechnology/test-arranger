@@ -37,13 +37,16 @@ public class RecordsWithOverridesTest {
 
     @Test
     void shouldGenerateComplexRecordsWithOverrides() {
+        Set<Description> descriptions = Set.of(new Description("en-GB", someString()));
         var saveUpdateRequest =
                 some(
                         ComplexRecord.class,
-                        Map.of("descriptions", () -> Set.of(new Description("en-GB", someString())),
+                        Map.of("descriptions", () -> descriptions,
                                 "someString", () -> someString())
                                 );
         assertThat(saveUpdateRequest.productCodes()).isNotEmpty();
         assertThat(saveUpdateRequest.productCodes().iterator().next()).isNotEmpty();
+        assertThat(saveUpdateRequest.someString()).isNotBlank();
+        assertThat(saveUpdateRequest.descriptions()).containsExactlyInAnyOrderElementsOf(descriptions);
     }
 }
