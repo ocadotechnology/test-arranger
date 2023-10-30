@@ -20,10 +20,13 @@ import org.junit.jupiter.api.Test;
 
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static com.ocadotechnology.gembus.test.Arranger.some;
+import static com.ocadotechnology.gembus.test.Arranger.someObjects;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ArrangerTestEnumSet {
@@ -31,15 +34,36 @@ public class ArrangerTestEnumSet {
     @Test
     @DisplayName("SHOULD not try to initialize file WHEN an override is delivered")
     void skipEnumSet() {
-        //when
+        //given
         Map<String, Supplier<?>> overrides = new HashMap<String, Supplier<?>>(){{
             put("enumeration", () -> null);
         }};
+
+        //when
         ClassWithEnumSetField some = some(ClassWithEnumSetField.class, overrides);
 
         //then
         assertThat(some.txt).isNotBlank();
         assertThat(some.enumeration).isNull();
+    }
+
+    @Test
+    @DisplayName("SHOULD not try to initialize file WHEN an override is delivered and using objects")
+    void skipEnumSetInObjects() {
+        //given
+        Map<String, Supplier<?>> overrides = new HashMap<String, Supplier<?>>(){{
+            put("enumeration", () -> null);
+        }};
+
+        //when
+        List<ClassWithEnumSetField> some = someObjects(ClassWithEnumSetField.class, 2, overrides)
+                .collect(Collectors.toList());
+
+        //then
+        assertThat(some).allSatisfy(s -> {
+            assertThat(s.txt).isNotBlank();
+            assertThat(s.enumeration).isNull();
+        });
     }
 }
 

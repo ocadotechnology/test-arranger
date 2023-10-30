@@ -92,7 +92,8 @@ public class Arranger {
      */
     public static <T> Stream<T> someObjects(final Class<T> type, final int amount, final Map<String, Supplier<?>> overrides) {
         CurrentEnhancedRandom.set(random);
-        return random.objects(type, amount).map(o -> {
+        String[] toIgnore = overrides.keySet().toArray(new String[overrides.size()]);
+        return random.objects(type, amount, toIgnore).map(o -> {
             if (type.isRecord()) {
                 return Data.copy(o, overrides);
             } else {
