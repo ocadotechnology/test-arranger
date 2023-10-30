@@ -57,7 +57,8 @@ public class Arranger {
      * @return a random instance of the given type
      */
     public static <T> T some(final Class<T> type, final Map<String, Supplier<?>> overrides) {
-        T result = random.nextObject(type);
+        String[] toIgnore = overrides.keySet().toArray(new String[overrides.size()]);
+        T result = random.nextObject(type, toIgnore);
         OverridesHelper.applyOverrides(result, overrides);
         return result;
     }
