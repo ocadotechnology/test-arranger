@@ -60,7 +60,8 @@ public class Arranger {
      */
     public static <T> T some(final Class<T> type, final Map<String, Supplier<?>> overrides) {
         CurrentEnhancedRandom.set(random);
-        T result = random.nextObject(type);
+        String[] toIgnore = overrides.keySet().toArray(new String[overrides.size()]);
+        T result = random.nextObject(type, toIgnore);
         if (type.isRecord()) {
             return Data.copy(result, overrides);
         } else {
