@@ -83,7 +83,8 @@ public class Arranger {
      * @return a random instance of the given type
      */
     public static <T> Stream<T> someObjects(final Class<T> type, final int amount, final Map<String, Supplier<?>> overrides) {
-        return random.objects(type, amount)
+        String[] toIgnore = overrides.keySet().toArray(new String[overrides.size()]);
+        return random.objects(type, amount, toIgnore)
                 .peek(o -> OverridesHelper.applyOverrides(o, overrides));
     }
 
