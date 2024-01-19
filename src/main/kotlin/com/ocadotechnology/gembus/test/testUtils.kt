@@ -33,28 +33,28 @@ inline fun <reified T> some(adjustment: T.() -> Unit): T {
 }
 
 inline fun <reified T> some(vararg excludedFields: String) =
-    Arranger.some(T::class.java, *excludedFields)!!
+        Arranger.some(T::class.java, *excludedFields)!!
 
 inline fun <reified T> some(overrides: Map<String, () -> Any>): T =
-    Arranger.some(T::class.java, overrides.mapValues { Supplier { it.value.invoke() } })
+        Arranger.some(T::class.java, overrides.mapValues { Supplier { it.value.invoke() } })
 
 @Deprecated(
-    message = "This methods creates a lot of complexity resulting in lesser performance and increased memory consumption.",
-    replaceWith = ReplaceWith("some<T>(excludedFields)"),
-    level = DeprecationLevel.WARNING
+        message = "This methods creates a lot of complexity resulting in lesser performance and increased memory consumption.",
+        replaceWith = ReplaceWith("some<T>(excludedFields)"),
+        level = DeprecationLevel.WARNING
 )
 inline fun <reified T> someSimplified(vararg excludedFields: String): T =
-    Arranger.someSimplified(T::class.java, *excludedFields)!!
+        Arranger.someSimplified(T::class.java, *excludedFields)!!
 
 inline fun <reified T> someObjects(numberOfObjects: Int, vararg excludedFields: String) =
-    Arranger.someObjects(T::class.java, numberOfObjects, *excludedFields).iterator().asSequence<T>()
+        Arranger.someObjects(T::class.java, numberOfObjects, *excludedFields).iterator().asSequence<T>()
 
 inline fun <reified T> someObjects(numberOfObjects: Int, overrides: Map<String, () -> Any>) =
-    Arranger.someObjects(T::class.java, numberOfObjects, overrides.mapValues { Supplier { it.value.invoke() } })
-        .iterator().asSequence<T>()
+        Arranger.someObjects(T::class.java, numberOfObjects, overrides.mapValues { Supplier { it.value.invoke() } })
+                .iterator().asSequence<T>()
 
 inline fun <reified T> someMatching(crossinline predicate: (T) -> Boolean, vararg excludedFields: String) =
-    Arranger.someMatching<T>(T::class.java, Predicate { predicate.invoke(it) }, *excludedFields)!!
+        Arranger.someMatching<T>(T::class.java, Predicate { predicate.invoke(it) }, *excludedFields)!!
 
 fun someInt(): Int = Arranger.someInteger()
 fun someInt(minValue: Int, maxValue: Int): Int = Arranger.someInteger(minValue, maxValue)
@@ -71,14 +71,18 @@ fun someBoolean(): Boolean = Arranger.someBoolean()
 fun someTwoDecimalPlacesBigDecimal(): BigDecimal = Arranger.somePriceLikeBigDecimal()
 fun somePositiveInt(boundInclusive: Int): Int = Arranger.somePositiveInt(boundInclusive)
 fun somePositiveLong(boundInclusive: Long): Long = Arranger.somePositiveLong(boundInclusive)
+fun someFloat(): Float = Arranger.someFloat()
+fun someFloat(min: Float, max: Float): Float = Arranger.someFloat(min, max)
+fun someDouble(): Double = Arranger.someDouble()
+fun someDouble(min: Double, max: Double): Double = Arranger.someDouble(min, max)
 
 fun someEmail(): String = Arranger.someEmail()
 
 fun <T> someMatchingOrNull(array: Array<T>, predicate: (T) -> Boolean): T? =
-    Arranger.someMatching(array, predicate)
+        Arranger.someMatching(array, predicate)
 
 fun <T> someMatching(array: Array<T>, predicate: (T) -> Boolean) =
-    someMatchingOrNull(array, predicate) ?: throw RuntimeException("No match found.")
+        someMatchingOrNull(array, predicate) ?: throw RuntimeException("No match found.")
 
 fun someGivenOrLater(given: LocalDate): LocalDate = Arranger.someGivenOrLater(given)
 fun someGivenOrEarlier(given: LocalDate): LocalDate = Arranger.someGivenOrEarlier(given)
