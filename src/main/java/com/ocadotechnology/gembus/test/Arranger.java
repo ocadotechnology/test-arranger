@@ -265,7 +265,7 @@ public class Arranger {
      * @param max exclusive
      */
     public static float someFloat(float min, float max) {
-        return (float) ThreadLocalRandom.current().nextDouble(min, max);
+        return random.easyRandom.nextFloat(min, max);
     }
 
     public static double someDouble() {
@@ -277,7 +277,7 @@ public class Arranger {
      * @param max exclusive
      */
     public static double someDouble(double min, double max) {
-        return ThreadLocalRandom.current().nextDouble(min, max);
+        return random.easyRandom.nextDouble(min, max);
     }
 
     public static <T> T someFrom(Collection<T> source) {
