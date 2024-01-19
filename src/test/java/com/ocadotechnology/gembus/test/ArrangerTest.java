@@ -16,6 +16,7 @@
 package com.ocadotechnology.gembus.test;
 
 import com.ocadotechnology.gembus.ToTestNonPublic;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -56,12 +57,12 @@ public class ArrangerTest {
     void priceLike() {
 
 
-            //when
-            final BigDecimal price = Arranger.somePriceLikeBigDecimal();
+        //when
+        final BigDecimal price = Arranger.somePriceLikeBigDecimal();
 
-            //then
-            assertTrue(price.compareTo(BigDecimal.ZERO) >= 0);
-            assertEquals(2, price.scale());
+        //then
+        assertTrue(price.compareTo(BigDecimal.ZERO) >= 0);
+        assertEquals(2, price.scale());
 
     }
 
@@ -165,7 +166,7 @@ public class ArrangerTest {
     }
 
     @Test
-    void someFromSetOfSizeOne(){
+    void someFromSetOfSizeOne() {
         //given
         final Set<Integer> listOfSizeOne = Collections.singleton(Arranger.someInteger());
 
@@ -376,6 +377,50 @@ public class ArrangerTest {
         //then
         assertThat(actual.length()).isGreaterThan(1);
         assertThat(actual.charAt(0)).isUpperCase();
+    }
+
+    @Test
+    void should_generateFloatFromTheRangeDefinedByMinAndMax() {
+        //given
+        float min = -999.99f;
+        float max = 999.99f;
+
+        //when
+        float actualMin = 0.0f;
+        float actualMax = 0.0f;
+        for (int i = 0; i < 999; i++) {
+            double actual = Arranger.someFloat(min, max);
+            actualMin = (float) Math.min(actualMin, actual);
+            actualMax = (float) Math.max(actualMax, actual);
+        }
+
+        //then
+        assertThat(actualMin).isGreaterThanOrEqualTo(min);
+        assertThat(actualMin).isLessThan(-1.0f);
+        assertThat(actualMax).isLessThan(max);
+        assertThat(actualMax).isGreaterThan(1.0f);
+    }
+
+    @Test
+    void should_generateDoubleFromTheRangeDefinedByMinAndMax() {
+        //given
+        double min = -999.99;
+        double max = 999.99;
+
+        //when
+        double actualMin = 0.0;
+        double actualMax = 0.0;
+        for (int i = 0; i < 999; i++) {
+            double actual = Arranger.someDouble(min, max);
+            actualMin = Math.min(actualMin, actual);
+            actualMax = Math.max(actualMax, actual);
+        }
+
+        //then
+        assertThat(actualMin).isGreaterThanOrEqualTo(min);
+        assertThat(actualMin).isLessThan(-1.0);
+        assertThat(actualMax).isLessThan(max);
+        assertThat(actualMax).isGreaterThan(1.0);
     }
 }
 

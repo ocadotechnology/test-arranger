@@ -26,6 +26,7 @@ import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -253,6 +254,30 @@ public class Arranger {
 
     public static boolean someBoolean() {
         return random.easyRandom.nextBoolean();
+    }
+
+    public static float someFloat() {
+        return random.easyRandom.nextFloat();
+    }
+
+    /**
+     * @param min inclusive
+     * @param max exclusive
+     */
+    public static float someFloat(float min, float max) {
+        return (float) ThreadLocalRandom.current().nextDouble(min, max);
+    }
+
+    public static double someDouble() {
+        return random.easyRandom.nextDouble();
+    }
+
+    /**
+     * @param min inclusive
+     * @param max exclusive
+     */
+    public static double someDouble(double min, double max) {
+        return ThreadLocalRandom.current().nextDouble(min, max);
     }
 
     public static <T> T someFrom(Collection<T> source) {
