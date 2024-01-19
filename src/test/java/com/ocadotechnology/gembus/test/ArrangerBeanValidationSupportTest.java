@@ -15,9 +15,9 @@
  */
 package com.ocadotechnology.gembus.test;
 
+import jakarta.validation.constraints.Positive;
 import org.junit.jupiter.api.Test;
 
-import javax.validation.constraints.Positive;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
