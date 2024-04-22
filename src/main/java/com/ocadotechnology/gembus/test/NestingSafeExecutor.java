@@ -23,7 +23,7 @@ public class NestingSafeExecutor {
 
     public static <T> T execute(Class<T> type, Supplier<T> supplier) {
         Integer nestingDepth = nestingLevel.get();
-        if (nestingDepth < ArrangersConfigurer.MAX_RANDOMIZATION_DEPTH) {
+        if (nestingDepth < PropertiesWrapper.getMaxRandomizationDepth()) {
             try {
                 nestingLevel.set(++nestingDepth);
                 return supplier.get();

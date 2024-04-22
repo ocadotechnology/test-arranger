@@ -28,7 +28,6 @@ class ArrangersConfigurer {
     static final int STRING_MIN_LENGTH = 9;
     static final int STRING_MAX_LENGTH = 16;
     static final int CACHE_SIZE = 15;
-    static final int MAX_RANDOMIZATION_DEPTH = 4;
     static final AtomicBoolean defaultInitialized = new AtomicBoolean(false);
     private static ArrangersConfigurer instance;
 
@@ -52,7 +51,7 @@ class ArrangersConfigurer {
     static EasyRandomParameters getEasyRandomDefaultParameters() {
         return sharedParameters()
                 .collectionSizeRange(1, 4)
-                .randomizationDepth(MAX_RANDOMIZATION_DEPTH)
+                .randomizationDepth(PropertiesWrapper.getMaxRandomizationDepth())
                 .stringLengthRange(STRING_MIN_LENGTH, STRING_MAX_LENGTH);
     }
 
