@@ -35,14 +35,14 @@ product.setBrand("Ocado");
 <dependency>
     <groupId>com.ocadotechnology.gembus</groupId>
   <artifactId>test-arranger</artifactId>
-  <version>1.6.0</version>
+  <version>1.6.1</version>
 </dependency>
 ```
 
 ### Gradle
 
 ```groovy
-testImplementation 'com.ocadotechnology.gembus:test-arranger:1.6.0'
+testImplementation 'com.ocadotechnology.gembus:test-arranger:1.6.1'
 ```
 
 ## Features
