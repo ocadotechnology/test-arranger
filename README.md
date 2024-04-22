@@ -129,6 +129,11 @@ If you create `arranger.properties` file and save it in the root of classpath (u
   Not always it is what you need in the tests, especially, when there is a convention in the project to initialize fields with empty values.
   Fortunately, you can force test-arranger to overwrite the defaults with random values.
   Set `arranger.overridedefaults` to true to override the default initialization.
+* `arranger.maxRandomizationDepth`
+  Some test data structures can generate any length chains of objects that reference each other. 
+  However, to effectively use them in a test case, it's crucial to control the length of these chains. 
+  By default, Test-arranger stops creating new objects at the 4th level of nesting depth. 
+  If this default setting does not suit your project test cases, it can be adjusted using this parameter.
 
 ### Data.copy
 

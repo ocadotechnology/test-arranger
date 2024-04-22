@@ -16,6 +16,7 @@
 package com.ocadotechnology.gembus.test;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -25,12 +26,36 @@ public class PropertiesWrapperTest {
     private final String rootKey = "arranger.root";
     private final String cacheKey = "arranger.cache.enable";
     final static String overrideKey = "arranger.overridedefaults";
+    private final String maxDepthKey = "arranger.maxRandomizationDepth";
 
     @AfterEach
     public void cleanupProperties() {
         System.getProperties().remove(rootKey);
         System.getProperties().remove(cacheKey);
         System.getProperties().remove(overrideKey);
+        System.getProperties().remove(maxDepthKey);
+    }
+
+    @Test
+    void shouldFindMaxDepthInSystemProperties() {
+        //given
+        int expected = Arranger.somePositiveInt(10);
+        System.setProperty(maxDepthKey, String.valueOf(expected));
+
+        //when
+        int actual = PropertiesWrapper.getMaxRandomizationDepth();
+
+        //then
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void shouldUseDefaultMaxDepth_whenNotSetInPropertiesFile() {
+        //when
+        int actual = PropertiesWrapper.getMaxRandomizationDepth();
+
+        //then
+        assertEquals(4, actual);
     }
 
     @Test

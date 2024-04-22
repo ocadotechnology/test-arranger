@@ -31,6 +31,17 @@ public class ArrangerTestNestedObjects {
     static final String FIXED_TEXT = "text";
 
     @Test
+    public void shouldRespectConfiguredRandomizationDepth() {
+        //when
+        RecursiveObject actual = Arranger.some(RecursiveObject.class);
+
+        //then
+        assertThat(actual.array[0].array[0].array[0].array.length)
+                .as("Default randomization depth is 4, so the 4th array should be empty")
+                .isEqualTo(0);
+    }
+
+    @Test
     public void avoidNullsInNestedObjectOnDeepestLevel() {
         //when
         RecursiveObject actual = Arranger.some(RecursiveObject.class);

@@ -25,6 +25,8 @@ public class PropertiesWrapper {
     private static final String defaultRandomSeed = "false";
     private static final String overrideDefaults = "arranger.overridedefaults";
     private static final String defaultOverrideDefaults = "false";
+    static final String maxRandomizationDepth = "arranger.maxRandomizationDepth";
+    private static final String defaultMaxRandomizationDepth = "4";
     private static final PropertiesFromFile propertiesFromFile = new PropertiesFromFile();
 
     public static String getRootPackage() {
@@ -41,6 +43,10 @@ public class PropertiesWrapper {
 
     public static boolean getOverrideDefaults() {
         return Boolean.parseBoolean(getPropertyValue(overrideDefaults, defaultOverrideDefaults));
+    }
+
+    public static int getMaxRandomizationDepth() {
+        return Integer.parseInt(getPropertyValue(maxRandomizationDepth, defaultMaxRandomizationDepth));
     }
 
     private static String getPropertyValue(String key, String defaultValue) {
