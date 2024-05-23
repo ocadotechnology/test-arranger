@@ -20,6 +20,7 @@ import org.jeasy.random.EasyRandomParameters;
 import org.jeasy.random.api.Randomizer;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -30,7 +31,7 @@ public class EnhancedRandom extends Random {
 
     final EasyRandom easyRandom;
     private final Map<Class<?>, CustomArranger<?>> arrangers;
-    private final HashMap<Set<String>, EasyRandom> cache = new HashMap<>();
+    private final Map<Set<String>, EasyRandom> cache = new ConcurrentHashMap<>();
     private final Supplier<EasyRandomParameters> parametersSupplier;
 
 
