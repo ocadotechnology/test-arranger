@@ -18,8 +18,10 @@ package com.ocadotechnology.gembus.bugfix.concurrency;
 import com.ocadotechnology.gembus.test.Arranger;
 import org.junit.jupiter.api.Test;
 
-import java.util.Map;
+import java.util.HashMap;
 import java.util.UUID;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -29,12 +31,16 @@ public class ConcurrencyTest {
     @Test
     void concurrentSomeWithOverridesDoesNotThrow() {
         assertDoesNotThrow(() -> {
-            IntStream.range(0, 10).parallel().mapToObj(i -> createCustomStruct()).toList();
+            IntStream.range(0, 10).parallel().mapToObj(i -> createCustomStruct()).collect(Collectors.toList());
         });
     }
 
     private CustomStruct createCustomStruct() {
-        return Arranger.some(CustomStruct.class, Map.of("id", () -> "id", "uuid", UUID::randomUUID));
+        return Arranger.some(CustomStruct.class, new HashMap<String, Supplier<?>>() {{
+                    put("id", () -> "id");
+                    put("uuid", UUID::randomUUID);
+                }}
+        );
     }
 }
 
