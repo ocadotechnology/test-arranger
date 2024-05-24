@@ -31,7 +31,7 @@ product.setBrand("Ocado");
 <dependency>
     <groupId>com.ocadotechnology.gembus</groupId>
   <artifactId>test-arranger</artifactId>
-  <version>1.4.10</version>
+  <version>1.4.13</version>
 </dependency>
 ```
 
