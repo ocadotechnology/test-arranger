@@ -18,19 +18,30 @@ package com.ocadotechnology.gembus.test;
 import org.jeasy.random.ObjectCreationException;
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
+
 import static com.ocadotechnology.gembus.test.Arranger.some;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class ArrangerAbstractDataTest {
+public class ArrangerSealedInterfacesTest {
 
     @Test
     void should_arrangeSealedInterface() {
         //when
-        AbstractData actual = some(AbstractData.class);
+        SealedInterfaceData actual = some(SealedInterfaceData.class);
 
         //then
         assertThat(actual).isInstanceOfAny(ConcreteData1.class, ConcreteData2.class);
+    }
+
+    @Test
+    void should_arrangeSealedInterfaceWithCustomArranger() {
+        //when
+        SealedInterfaceWithCustomArranger actual = some(SealedInterfaceWithCustomArranger.class);
+
+        //then
+        assertThat(actual).isEqualTo(new ConcreteDataWithCustomArranger("expected-test-string"));
     }
 
     @Test
@@ -39,7 +50,21 @@ public class ArrangerAbstractDataTest {
         DataWithAbstract actual = some(DataWithAbstract.class, "excludedSealedInterface", "nonSealedInterface");
 
         //then
-        assertThat(actual.abstractData()).isInstanceOfAny(ConcreteData1.class, ConcreteData2.class);
+        assertThat(actual.sealedInterfaceData()).isInstanceOfAny(ConcreteData1.class, ConcreteData2.class);
+        assertThat(actual.excludedSealedInterface()).isNull();
+    }
+
+    @Test
+    void should_arrangeDataWithSealedInterfaceFieldOverride() {
+        //when
+        ConcreteData1 expected = new ConcreteData1("expected-data");
+        DataWithAbstract actual = some(DataWithAbstract.class, Map.of(
+                "sealedInterfaceData", () -> expected,
+                "excludedSealedInterface", () -> null,
+                "nonSealedInterface", () -> null));
+
+        //then
+        assertThat(actual.sealedInterfaceData()).isEqualTo(expected);
         assertThat(actual.excludedSealedInterface()).isNull();
     }
 
@@ -69,7 +94,7 @@ public class ArrangerAbstractDataTest {
 }
 
 record DataWithAbstract(Integer value,
-                        AbstractData abstractData,
+                        SealedInterfaceData sealedInterfaceData,
                         ExcludedSealedInterface excludedSealedInterface,
                         NonSealedInterface nonSealedInterface) {
     DataWithAbstract {
@@ -81,13 +106,16 @@ record DataWithAbstract(Integer value,
     }
 }
 
-sealed interface AbstractData permits ConcreteData1, ConcreteData2 {
+sealed interface SealedInterfaceData permits ConcreteData1, ConcreteData2 {
 }
 
-record ConcreteData1(String value) implements AbstractData {
+record ConcreteData1(String value) implements SealedInterfaceData {
 }
 
-record ConcreteData2(Integer value) implements AbstractData {
+final class ConcreteData2 implements SealedInterfaceData {
+
+    Integer value;
+
 }
 
 sealed interface ExcludedSealedInterface permits ExcludedData1 {
@@ -103,4 +131,18 @@ sealed interface NestedSealedInterfaceData permits ConcreteNested1 {
 }
 
 record ConcreteNested1(ConcreteData1 concreteData1) implements NestedSealedInterfaceData {
+}
+
+sealed interface SealedInterfaceWithCustomArranger permits ConcreteDataWithCustomArranger {
+}
+
+record ConcreteDataWithCustomArranger(String test) implements SealedInterfaceWithCustomArranger {
+}
+
+class CustomSealedInterfaceArranger extends SealedInterfaceArranger<SealedInterfaceWithCustomArranger> {
+
+    @Override
+    protected SealedInterfaceWithCustomArranger instance() {
+        return new ConcreteDataWithCustomArranger("expected-test-string");
+    }
 }

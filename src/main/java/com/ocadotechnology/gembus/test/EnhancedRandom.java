@@ -131,7 +131,7 @@ public class EnhancedRandom extends Random {
                                                                                           Set<String> excludedFields) {
         HashMap<Class<?>, CustomArranger<?>> sealedInterfaceArrangers = new HashMap<>();
         if (isSealedInterface(type)) {
-            sealedInterfaceArrangers.put(type, new SealedInterfaceArranger(type));
+            sealedInterfaceArrangers.put(type, new SealedInterfaceArranger<T>(type));
         }
         sealedInterfaceArrangers.putAll(sealedInterfaceFields(type)
                 .entrySet()

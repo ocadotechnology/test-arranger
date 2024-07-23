@@ -1,16 +1,17 @@
 package com.ocadotechnology.gembus.test;
 
-public class SealedInterfaceArranger extends CustomArranger<Object> {
+public class SealedInterfaceArranger<T> extends CustomArranger<T> {
 
-    private final Class<?> clazz;
+    public SealedInterfaceArranger() {
+    }
 
-    public SealedInterfaceArranger(Class<?> clazz) {
-        this.clazz = clazz;
+    protected SealedInterfaceArranger(Class<T> clazz) {
+        super(clazz);
     }
 
     @Override
-    protected Object instance() {
-        Class<?>[] subclasses = clazz.getPermittedSubclasses();
-        return enhancedRandom.nextObject(subclasses[enhancedRandom.nextInt(subclasses.length)]);
+    protected T instance() {
+        Class<?>[] subclasses = type.getPermittedSubclasses();
+        return (T) enhancedRandom.nextObject(subclasses[enhancedRandom.nextInt(subclasses.length)]);
     }
 }
