@@ -74,11 +74,10 @@ class ArrangersConfigurer {
         return randomWithArrangers(simplifiedArrangers, new EnhancedRandom.Builder(ArrangersConfigurer::getEasyRandomSimplifiedParameters));
     }
 
-    EnhancedRandom randomForGivenConfiguration(Class<?> type, Map<Class<?>, CustomArranger<?>> arrangers, Supplier<EasyRandomParameters> parametersSupplier) {
+    EnhancedRandom randomForGivenConfiguration(Class<?> type, boolean excludeType, Map<Class<?>, CustomArranger<?>> arrangers, Supplier<EasyRandomParameters> parametersSupplier) {
         EnhancedRandom.Builder randomBuilder = new EnhancedRandom.Builder(parametersSupplier);
         long seed = SeedHelper.calculateSeed();
-        CustomArranger<?> arrangerToUpdate = arrangers.get(type);
-        if (arrangerToUpdate != null) {
+        if (excludeType && arrangers.get(type) != null) {
             seed = SeedHelper.customArrangerTypeSpecificSeedRespectingRandomSeedSetting(type);
             arrangers = withoutGivenType(arrangers, type);
         }

@@ -39,6 +39,7 @@ class ReflectionHelper {
                 .loadClasses(CustomArranger.class, true)
                 .stream()
                 .filter(clazz -> isNotAbstract(clazz))
+                .filter(clazz -> !SealedInterfaceArranger.class.equals(clazz))
                 .map(clazz -> extractConstructor(clazz))
                 .filter(constructor -> constructor.isPresent())
                 .map(constructor -> constructor.get())

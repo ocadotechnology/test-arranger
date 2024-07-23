@@ -19,10 +19,20 @@ import org.jeasy.random.EasyRandom;
 import org.jeasy.random.EasyRandomParameters;
 import org.jeasy.random.api.Randomizer;
 
-import java.util.*;
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.function.Function.identity;
 
 /**
  * Class for random object generator.
@@ -84,26 +94,54 @@ public class EnhancedRandom extends Random {
     }
 
     private <T> EasyRandom selectEasyRandomWithRespectToExclusion(Class<T> type, String[] excludedFields) {
-        if (newEasyRandomWithFieldExclusionConfigIsRequired(type, excludedFields)) {
-            return createEasyRandomWithExclusions(type, excludedFields);
+        if (newEasyRandomWithCustomRandomizersOrFieldExclusionConfigIsRequired(type, excludedFields)) {
+            return createEasyRandomWithCustomRandomizersAndExclusions(type, excludedFields);
         }
         return easyRandom;
     }
 
-    private <T> boolean newEasyRandomWithFieldExclusionConfigIsRequired(Class<T> type, String[] excludedFields) {
+    private <T> boolean newEasyRandomWithCustomRandomizersOrFieldExclusionConfigIsRequired(Class<T> type, String[] excludedFields) {
         /* There is a logical inconsistency in using a custom arranger and field exclusion for the same type - the
          * exclusion can be configured in the custom arranger. Technically, creating an arranger with exclusion disables
          * the custom arranger for the type that is being instantiated. */
-        return !arrangers.containsKey(type) && excludedFields.length != 0;
+        return !arrangers.containsKey(type) && (excludedFields.length != 0 || isSealedInterface(type) || !sealedInterfaceFields(type).isEmpty());
     }
 
-    private <T> EasyRandom createEasyRandomWithExclusions(Class<T> type, String[] excludedFields) {
+    private <T> EasyRandom createEasyRandomWithCustomRandomizersAndExclusions(Class<T> type, String[] excludedFields) {
         Set<String> fields = new HashSet<>(Arrays.asList(excludedFields));
         cache.computeIfAbsent(fields, key -> {
-            EnhancedRandom er = ArrangersConfigurer.instance().randomForGivenConfiguration(type, arrangers, () -> addExclusionToParameters(fields));
+            HashMap<Class<?>, CustomArranger<?>> enhancedArrangers = new HashMap<>(arrangers);
+            enhancedArrangers.putAll(createCustomArrangersForSealedInterfaces(type, fields));
+            EnhancedRandom er = ArrangersConfigurer.instance()
+                    .randomForGivenConfiguration(type, !isSealedInterface(type), enhancedArrangers, () -> addExclusionToParameters(fields));
             return er.easyRandom;
         });
         return cache.get(fields);
+    }
+
+    private <T> Map<Class<?>, CustomArranger<?>> createCustomArrangersForSealedInterfaces(Class<T> type,
+                                                                                          Set<String> excludedFields) {
+        HashMap<Class<?>, CustomArranger<?>> sealedInterfaceArrangers = new HashMap<>();
+        if (isSealedInterface(type)) {
+            sealedInterfaceArrangers.put(type, new SealedInterfaceArranger(type));
+        }
+        sealedInterfaceArrangers.putAll(sealedInterfaceFields(type)
+                .entrySet()
+                .stream()
+                .filter(entry -> !excludedFields.contains(entry.getKey()))
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toMap(identity(), SealedInterfaceArranger::new)));
+        return sealedInterfaceArrangers;
+    }
+
+    private <T> Map<String, Class<?>> sealedInterfaceFields(Class<T> type) {
+        return Arrays.stream(type.getDeclaredFields())
+                .filter(field -> isSealedInterface(field.getType()))
+                .collect(Collectors.toMap(Field::getName, Field::getType));
+    }
+
+    private static boolean isSealedInterface(Class<?> type) {
+        return type.isSealed() && type.isInterface();
     }
 
     private EasyRandomParameters addExclusionToParameters(Set<String> fields) {
