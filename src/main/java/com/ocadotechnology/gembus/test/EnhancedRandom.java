@@ -109,9 +109,8 @@ public class EnhancedRandom extends Random {
 
     private <T> EasyRandom createEasyRandomWithCustomRandomizersAndExclusions(Class<T> type, String[] excludedFields) {
         Set<String> fields = new HashSet<>(Arrays.asList(excludedFields));
-        Map<Class<?>, CustomArranger<?>> forSealedInterfaces = createCustomArrangersForSealedInterfaces(type, fields);
-        Set<String> cacheKey = new HashSet<>(fields);
-        cacheKey.addAll(forSealedInterfaces.keySet().stream().map(Class::getName).toList());
+        var forSealedInterfaces = createCustomArrangersForSealedInterfaces(type, fields);
+        Set<String> cacheKey = getCacheKey(fields, forSealedInterfaces.keySet());
         cache.computeIfAbsent(cacheKey, key -> {
             HashMap<Class<?>, CustomArranger<?>> enhancedArrangers = new HashMap<>(arrangers);
             enhancedArrangers.putAll(forSealedInterfaces);
@@ -120,6 +119,12 @@ public class EnhancedRandom extends Random {
             return er.easyRandom;
         });
         return cache.get(cacheKey);
+    }
+
+    private Set<String> getCacheKey(Set<String> fields, Set<Class<?>> sealedInterfaces) {
+        Set<String> cacheKey = new HashSet<>(fields);
+        cacheKey.addAll(sealedInterfaces.stream().map(Class::getName).toList());
+        return cacheKey;
     }
 
     private <T> Map<Class<?>, CustomArranger<?>> createCustomArrangersForSealedInterfaces(Class<T> type,
