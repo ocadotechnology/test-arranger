@@ -23,6 +23,7 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
@@ -127,25 +128,23 @@ public class EnhancedRandom extends Random {
         return cacheKey;
     }
 
-    private <T> Map<Class<?>, CustomArranger<?>> createCustomArrangersForSealedInterfaces(Class<T> type,
-                                                                                          Set<String> excludedFields) {
-        HashMap<Class<?>, CustomArranger<?>> sealedInterfaceArrangers = new HashMap<>();
+    private <T> Map<Class<?>, CustomArranger<?>> createCustomArrangersForSealedInterfaces(Class<T> type, Set<String> excludedFields) {
+        Map<Class<?>, CustomArranger<?>> sealedInterfaceArrangers = new HashMap<>();
         if (isSealedInterface(type)) {
             sealedInterfaceArrangers.put(type, new SealedInterfaceArranger<T>(type));
         }
         sealedInterfaceArrangers.putAll(sealedInterfaceFields(type)
-                .entrySet()
                 .stream()
-                .filter(entry -> !excludedFields.contains(entry.getKey()))
-                .map(Map.Entry::getValue)
+                .filter(field -> !excludedFields.contains(field.getName()))
+                .map(Field::getType)
                 .collect(Collectors.toMap(identity(), SealedInterfaceArranger::new)));
         return sealedInterfaceArrangers;
     }
 
-    private <T> Map<String, Class<?>> sealedInterfaceFields(Class<T> type) {
+    private <T> List<Field> sealedInterfaceFields(Class<T> type) {
         return Arrays.stream(type.getDeclaredFields())
                 .filter(field -> isSealedInterface(field.getType()))
-                .collect(Collectors.toMap(Field::getName, Field::getType));
+                .toList();
     }
 
     private static boolean isSealedInterface(Class<?> type) {
