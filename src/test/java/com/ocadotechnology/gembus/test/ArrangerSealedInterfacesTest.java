@@ -18,6 +18,7 @@ package com.ocadotechnology.gembus.test;
 import org.jeasy.random.ObjectCreationException;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Map;
 
 import static com.ocadotechnology.gembus.test.Arranger.some;
@@ -76,9 +77,20 @@ public class ArrangerSealedInterfacesTest {
         //then
         assertThat(actual).isInstanceOf(ConcreteNested1.class);
         assertThat((ConcreteNested1) actual)
-                .extracting(ConcreteNested1::concreteData1)
+                .extracting(ConcreteNested1::sealedInterfaceData)
                 .isInstanceOfAny(ConcreteData1.class, ConcreteData2.class);
 
+    }
+
+    @Test
+    void should_arrangeRecordWithListWithSealedInterfaceField() {
+        //when
+        RootRecordWithNestedList actual = some(RootRecordWithNestedList.class);
+
+        //then
+        assertThat(actual.nestedRecordWithSealedInterfaces().get(0))
+                .extracting(NestedRecordWithSealedInterface::sealedInterfaceData)
+                .isInstanceOfAny(ConcreteData1.class, ConcreteData2.class);
     }
 
     @Test
@@ -130,7 +142,7 @@ interface NonSealedInterface {
 sealed interface NestedSealedInterfaceData permits ConcreteNested1 {
 }
 
-record ConcreteNested1(ConcreteData1 concreteData1) implements NestedSealedInterfaceData {
+record ConcreteNested1(SealedInterfaceData sealedInterfaceData) implements NestedSealedInterfaceData {
 }
 
 sealed interface SealedInterfaceWithCustomArranger permits ConcreteDataWithCustomArranger {
@@ -145,4 +157,10 @@ class CustomSealedInterfaceArranger extends SealedInterfaceArranger<SealedInterf
     protected SealedInterfaceWithCustomArranger instance() {
         return new ConcreteDataWithCustomArranger("expected-test-string");
     }
+}
+
+record RootRecordWithNestedList(List<NestedRecordWithSealedInterface> nestedRecordWithSealedInterfaces) {
+}
+
+record NestedRecordWithSealedInterface(SealedInterfaceData sealedInterfaceData) {
 }

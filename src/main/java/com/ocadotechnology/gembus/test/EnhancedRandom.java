@@ -20,10 +20,10 @@ import org.jeasy.random.EasyRandomParameters;
 import org.jeasy.random.api.Randomizer;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
@@ -105,7 +105,7 @@ public class EnhancedRandom extends Random {
         /* There is a logical inconsistency in using a custom arranger and field exclusion for the same type - the
          * exclusion can be configured in the custom arranger. Technically, creating an arranger with exclusion disables
          * the custom arranger for the type that is being instantiated. */
-        return !arrangers.containsKey(type) && (excludedFields.length != 0 || isSealedInterface(type) || !sealedInterfaceFields(type).isEmpty());
+        return !arrangers.containsKey(type) && (excludedFields.length != 0 || isSealedInterface(type) || !nestedSealedInterfaceFields(type).isEmpty());
     }
 
     private <T> EasyRandom createEasyRandomWithCustomRandomizersAndExclusions(Class<T> type, String[] excludedFields) {
@@ -133,18 +133,48 @@ public class EnhancedRandom extends Random {
         if (isSealedInterface(type)) {
             sealedInterfaceArrangers.put(type, new SealedInterfaceArranger<T>(type));
         }
-        sealedInterfaceArrangers.putAll(sealedInterfaceFields(type)
+        sealedInterfaceArrangers.putAll(nestedSealedInterfaceFields(type)
+                .entrySet()
                 .stream()
-                .filter(field -> !excludedFields.contains(field.getName()))
-                .map(Field::getType)
+                .filter(entry -> !excludedFields.contains(entry.getKey()))
+                .map(Map.Entry::getValue)
                 .collect(Collectors.toMap(identity(), SealedInterfaceArranger::new)));
         return sealedInterfaceArrangers;
     }
 
-    private <T> List<Field> sealedInterfaceFields(Class<T> type) {
-        return Arrays.stream(type.getDeclaredFields())
-                .filter(field -> isSealedInterface(field.getType()))
-                .toList();
+    private <T> Map<String, Class<?>> nestedSealedInterfaceFields(Class<T> type) {
+        return allNestedFields(new HashMap<>(), type)
+                .entrySet()
+                .stream()
+                .filter(entry -> isSealedInterface(entry.getValue()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    private Map<String, Class<?>> allNestedFields(Map<String, Class<?>> acc, Class<?> clazz) {
+        if (clazz == null || clazz.isPrimitive()) {
+            return Map.of();
+        }
+        if (isSealedInterface(clazz)) {
+            for (Class<?> permittedSubclasses : clazz.getPermittedSubclasses()) {
+                acc.putAll(allNestedFields(acc, permittedSubclasses));
+            }
+        }
+        for (Field field : clazz.getDeclaredFields()) {
+            if (!acc.containsKey(field.getName())) {
+                if (field.getGenericType() instanceof ParameterizedType parameterizedType) {
+                    for (var genericType : parameterizedType.getActualTypeArguments()) {
+                        if(genericType instanceof Class<?> genericTypeClass) {
+                            acc.put(field.getName(), genericTypeClass);
+                            acc.putAll(allNestedFields(acc, genericTypeClass));
+                        }
+                    }
+                } else {
+                    acc.put(field.getName(), field.getType());
+                    acc.putAll(allNestedFields(acc, field.getType()));
+                }
+            }
+        }
+        return acc;
     }
 
     private static boolean isSealedInterface(Class<?> type) {
