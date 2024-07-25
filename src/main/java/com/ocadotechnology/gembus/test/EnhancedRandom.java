@@ -15,6 +15,7 @@
  */
 package com.ocadotechnology.gembus.test;
 
+import com.ocadotechnology.gembus.test.experimental.SealedInterfaceArranger;
 import org.jeasy.random.EasyRandom;
 import org.jeasy.random.EasyRandomParameters;
 import org.jeasy.random.api.Randomizer;

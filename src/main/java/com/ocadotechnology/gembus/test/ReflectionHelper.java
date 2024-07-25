@@ -15,6 +15,7 @@
  */
 package com.ocadotechnology.gembus.test;
 
+import com.ocadotechnology.gembus.test.experimental.SealedInterfaceArranger;
 import io.github.classgraph.ClassGraph;
 
 import java.lang.reflect.Constructor;

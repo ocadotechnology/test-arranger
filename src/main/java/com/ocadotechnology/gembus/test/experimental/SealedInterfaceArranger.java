@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.ocadotechnology.gembus.test;
+package com.ocadotechnology.gembus.test.experimental;
+
+import com.ocadotechnology.gembus.test.CustomArranger;
 
 public class SealedInterfaceArranger<T> extends CustomArranger<T> {
 
     public SealedInterfaceArranger() {
     }
 
-    protected SealedInterfaceArranger(Class<T> clazz) {
+    public SealedInterfaceArranger(Class<T> clazz) {
         super(clazz);
     }
 
