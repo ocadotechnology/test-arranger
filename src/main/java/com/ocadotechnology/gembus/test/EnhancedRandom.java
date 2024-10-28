@@ -15,14 +15,26 @@
  */
 package com.ocadotechnology.gembus.test;
 
+import com.ocadotechnology.gembus.test.experimental.SealedInterfaceArranger;
 import org.jeasy.random.EasyRandom;
 import org.jeasy.random.EasyRandomParameters;
 import org.jeasy.random.api.Randomizer;
 
-import java.util.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.function.Function.identity;
 
 /**
  * Class for random object generator.
@@ -84,26 +96,90 @@ public class EnhancedRandom extends Random {
     }
 
     private <T> EasyRandom selectEasyRandomWithRespectToExclusion(Class<T> type, String[] excludedFields) {
-        if (newEasyRandomWithFieldExclusionConfigIsRequired(type, excludedFields)) {
-            return createEasyRandomWithExclusions(type, excludedFields);
+        if (newEasyRandomWithCustomRandomizersOrFieldExclusionConfigIsRequired(type, excludedFields)) {
+            return createEasyRandomWithCustomRandomizersAndExclusions(type, excludedFields);
         }
         return easyRandom;
     }
 
-    private <T> boolean newEasyRandomWithFieldExclusionConfigIsRequired(Class<T> type, String[] excludedFields) {
+    private <T> boolean newEasyRandomWithCustomRandomizersOrFieldExclusionConfigIsRequired(Class<T> type, String[] excludedFields) {
         /* There is a logical inconsistency in using a custom arranger and field exclusion for the same type - the
          * exclusion can be configured in the custom arranger. Technically, creating an arranger with exclusion disables
          * the custom arranger for the type that is being instantiated. */
-        return !arrangers.containsKey(type) && excludedFields.length != 0;
+        return !arrangers.containsKey(type) && (excludedFields.length != 0 || isSealedInterface(type) || !nestedSealedInterfaceFields(type).isEmpty());
     }
 
-    private <T> EasyRandom createEasyRandomWithExclusions(Class<T> type, String[] excludedFields) {
+    private <T> EasyRandom createEasyRandomWithCustomRandomizersAndExclusions(Class<T> type, String[] excludedFields) {
         Set<String> fields = new HashSet<>(Arrays.asList(excludedFields));
-        cache.computeIfAbsent(fields, key -> {
-            EnhancedRandom er = ArrangersConfigurer.instance().randomForGivenConfiguration(type, arrangers, () -> addExclusionToParameters(fields));
+        var forSealedInterfaces = createCustomArrangersForSealedInterfaces(type, fields);
+        Set<String> cacheKey = getCacheKey(fields, forSealedInterfaces.keySet());
+        cache.computeIfAbsent(cacheKey, key -> {
+            HashMap<Class<?>, CustomArranger<?>> enhancedArrangers = new HashMap<>(arrangers);
+            enhancedArrangers.putAll(forSealedInterfaces);
+            EnhancedRandom er = ArrangersConfigurer.instance()
+                    .randomForGivenConfiguration(type, !forSealedInterfaces.containsKey(type), enhancedArrangers, () -> addExclusionToParameters(fields));
             return er.easyRandom;
         });
-        return cache.get(fields);
+        return cache.get(cacheKey);
+    }
+
+    private Set<String> getCacheKey(Set<String> fields, Set<Class<?>> sealedInterfaces) {
+        Set<String> cacheKey = new HashSet<>(fields);
+        cacheKey.addAll(sealedInterfaces.stream().map(Class::getName).toList());
+        return cacheKey;
+    }
+
+    private <T> Map<Class<?>, CustomArranger<?>> createCustomArrangersForSealedInterfaces(Class<T> type, Set<String> excludedFields) {
+        Map<Class<?>, CustomArranger<?>> sealedInterfaceArrangers = new HashMap<>();
+        if (isSealedInterface(type)) {
+            sealedInterfaceArrangers.put(type, new SealedInterfaceArranger<T>(type));
+        }
+        sealedInterfaceArrangers.putAll(nestedSealedInterfaceFields(type)
+                .entrySet()
+                .stream()
+                .filter(entry -> !excludedFields.contains(entry.getKey()))
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toMap(identity(), SealedInterfaceArranger::new)));
+        return sealedInterfaceArrangers;
+    }
+
+    private <T> Map<String, Class<?>> nestedSealedInterfaceFields(Class<T> type) {
+        return allNestedFields(new HashMap<>(), type)
+                .entrySet()
+                .stream()
+                .filter(entry -> isSealedInterface(entry.getValue()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    private Map<String, Class<?>> allNestedFields(Map<String, Class<?>> acc, Class<?> clazz) {
+        if (clazz == null || clazz.isPrimitive()) {
+            return Map.of();
+        }
+        if (isSealedInterface(clazz)) {
+            for (Class<?> permittedSubclasses : clazz.getPermittedSubclasses()) {
+                acc.putAll(allNestedFields(acc, permittedSubclasses));
+            }
+        }
+        for (Field field : clazz.getDeclaredFields()) {
+            if (!acc.containsKey(field.getName())) {
+                if (field.getGenericType() instanceof ParameterizedType parameterizedType) {
+                    for (var genericType : parameterizedType.getActualTypeArguments()) {
+                        if(genericType instanceof Class<?> genericTypeClass) {
+                            acc.put(field.getName(), genericTypeClass);
+                            acc.putAll(allNestedFields(acc, genericTypeClass));
+                        }
+                    }
+                } else {
+                    acc.put(field.getName(), field.getType());
+                    acc.putAll(allNestedFields(acc, field.getType()));
+                }
+            }
+        }
+        return acc;
+    }
+
+    private static boolean isSealedInterface(Class<?> type) {
+        return type.isSealed() && type.isInterface();
     }
 
     private EasyRandomParameters addExclusionToParameters(Set<String> fields) {

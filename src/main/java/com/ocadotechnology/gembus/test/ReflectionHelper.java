@@ -15,6 +15,7 @@
  */
 package com.ocadotechnology.gembus.test;
 
+import com.ocadotechnology.gembus.test.experimental.SealedInterfaceArranger;
 import io.github.classgraph.ClassGraph;
 
 import java.lang.reflect.Constructor;
@@ -39,6 +40,7 @@ class ReflectionHelper {
                 .loadClasses(CustomArranger.class, true)
                 .stream()
                 .filter(clazz -> isNotAbstract(clazz))
+                .filter(clazz -> !SealedInterfaceArranger.class.equals(clazz))
                 .map(clazz -> extractConstructor(clazz))
                 .filter(constructor -> constructor.isPresent())
                 .map(constructor -> constructor.get())
