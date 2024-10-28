@@ -33,19 +33,9 @@ import java.util.HashMap;
 public abstract class CustomArranger<T> {
 
     protected EnhancedRandom enhancedRandom = null;
-    protected final Class<T> type;
+    protected final Class<T> type = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
 
     protected CustomArranger() {
-        this.type = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
-        initEnhancedRandom();
-    }
-
-    protected CustomArranger(Class<T> type) {
-        this.type = type;
-        initEnhancedRandom();
-    }
-
-    private void initEnhancedRandom() {
         if (ArrangersConfigurer.defaultInitialized.get()) {
             enhancedRandom = ArrangersConfigurer.instance().defaultRandom();
         } else {
