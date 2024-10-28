@@ -35,14 +35,14 @@ product.setBrand("Ocado");
 <dependency>
     <groupId>com.ocadotechnology.gembus</groupId>
   <artifactId>test-arranger</artifactId>
-  <version>1.6.2</version>
+  <version>1.6.3</version>
 </dependency>
 ```
 
 ### Gradle
 
 ```groovy
-testImplementation 'com.ocadotechnology.gembus:test-arranger:1.6.2'
+testImplementation 'com.ocadotechnology.gembus:test-arranger:1.6.3'
 ```
 
 ## Features
@@ -318,13 +318,11 @@ Eventually, we may end up with something like this:
 class ShopFixture {
     Repository repo;
     public void shopWithNineProductsAndFourCustomers() {
-        Stream.generate(() -> Arranger.some(Product.class))
-                .limit(9)
-                .forEach(p -> repo.save(p));
+      Arranger.someObjects(Product.class, 9)
+              .forEach(p -> repo.save(p));
 
-        Stream.generate(() -> Arranger.some(Customer.class))
-                .limit(4)
-                .forEach(p -> repo.save(p));
+      Arranger.someObjects(Customer.class, 4)
+              .forEach(p -> repo.save(p));
     }
 }
 ```

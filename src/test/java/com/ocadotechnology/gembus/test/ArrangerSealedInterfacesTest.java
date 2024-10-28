@@ -15,7 +15,6 @@
  */
 package com.ocadotechnology.gembus.test;
 
-import com.ocadotechnology.gembus.test.experimental.SealedInterfaceArranger;
 import org.jeasy.random.ObjectCreationException;
 import org.junit.jupiter.api.Test;
 
@@ -152,7 +151,7 @@ sealed interface SealedInterfaceWithCustomArranger permits ConcreteDataWithCusto
 record ConcreteDataWithCustomArranger(String test) implements SealedInterfaceWithCustomArranger {
 }
 
-class CustomSealedInterfaceArranger extends SealedInterfaceArranger<SealedInterfaceWithCustomArranger> {
+class CustomSealedInterfaceArranger extends CustomArranger<SealedInterfaceWithCustomArranger> {
 
     @Override
     protected SealedInterfaceWithCustomArranger instance() {
