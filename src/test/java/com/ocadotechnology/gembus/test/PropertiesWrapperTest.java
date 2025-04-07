@@ -16,9 +16,11 @@
 package com.ocadotechnology.gembus.test;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
+import static com.ocadotechnology.gembus.test.Arranger.someString;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class PropertiesWrapperTest {
@@ -27,6 +29,7 @@ public class PropertiesWrapperTest {
     private final String cacheKey = "arranger.cache.enable";
     final static String overrideKey = "arranger.overridedefaults";
     private final String maxDepthKey = "arranger.maxRandomizationDepth";
+    final static String androidCustomArrangers = "arranger.android.customArrangers";
 
     @AfterEach
     public void cleanupProperties() {
@@ -34,6 +37,32 @@ public class PropertiesWrapperTest {
         System.getProperties().remove(cacheKey);
         System.getProperties().remove(overrideKey);
         System.getProperties().remove(maxDepthKey);
+        System.getProperties().remove(androidCustomArrangers);
+    }
+
+    @Test
+    void shouldReturnListOfAllAndroidCustomArranger_whenSeveralAreConfigured() {
+        //given
+        String customArranger1 = someString();
+        String customArranger2 = someString();
+        System.setProperty(androidCustomArrangers, customArranger1 + " , " + customArranger2);
+
+        //when
+        List<String> actual = PropertiesWrapper.getAndroidCustomArrangers();
+
+        //then
+        assertEquals(2, actual.size());
+        assertTrue(actual.contains(customArranger1));
+        assertTrue(actual.contains(customArranger2));
+    }
+
+    @Test
+    void shouldReturnEmptyList_whenNoAndroidCustomArrangersConfigured() {
+        //when
+        List<String> actual = PropertiesWrapper.getAndroidCustomArrangers();
+
+        //then
+        assertTrue(actual.isEmpty());
     }
 
     @Test
