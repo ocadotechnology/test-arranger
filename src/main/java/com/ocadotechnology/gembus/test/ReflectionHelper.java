@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 class ReflectionHelper {
 
@@ -31,13 +32,14 @@ class ReflectionHelper {
     private final List<Constructor<?>> arrangerConstructors;
 
     ReflectionHelper() {
-        arrangerConstructors = new ClassGraph()
-                .acceptPackages(PropertiesWrapper.getRootPackage())
-                .enableAllInfo()
-                .scan()
-                .getSubclasses(CustomArranger.class.getName())
-                .loadClasses(CustomArranger.class, true)
-                .stream()
+        Stream<Class<CustomArranger>> customArrangerClasses;
+        String vmName = System.getProperty("java.vm.name");
+        if ("Dalvik".equals(vmName)) {
+            customArrangerClasses = AndroidReflectionHelper.findCustomArrangerClasses();
+        } else {
+            customArrangerClasses = getCustomArrangerClasses();
+        }
+        arrangerConstructors = customArrangerClasses
                 .filter(clazz -> isNotAbstract(clazz))
                 .map(clazz -> extractConstructor(clazz))
                 .filter(constructor -> constructor.isPresent())
@@ -56,6 +58,16 @@ class ReflectionHelper {
                             throw new IllegalArgumentException("There are two arrangers registered for " + arrangerA.type.getName()
                                                                        + ", those are " + arrangerA.getClass().getName() + " and " + arrangerB.getClass().getName());
                         }));
+    }
+
+    private static Stream<Class<CustomArranger>> getCustomArrangerClasses() {
+        return new ClassGraph()
+                .acceptPackages(PropertiesWrapper.getRootPackage())
+                .enableAllInfo()
+                .scan()
+                .getSubclasses(CustomArranger.class.getName())
+                .loadClasses(CustomArranger.class, true)
+                .stream();
     }
 
     private CustomArranger<?> createCustomArranger(Constructor<?> constructor) {

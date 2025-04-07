@@ -134,6 +134,11 @@ If you create `arranger.properties` file and save it in the root of classpath (u
   However, to effectively use them in a test case, it's crucial to control the length of these chains. 
   By default, Test-arranger stops creating new objects at the 4th level of nesting depth. 
   If this default setting does not suit your project test cases, it can be adjusted using this parameter.
+* `arranger.android.customArrangers`
+  In Android Tests, the JVM has certain limitations - specifically, it may not automatically detect custom arrangers.
+  In such cases, this property comes to the rescue: you can list all your custom arrangers there.
+  It should be a comma-separated list of their canonical class names.
+  This ensures that test-arranger registers them regardless of any reflection related limitations.
 
 ### Data.copy
 

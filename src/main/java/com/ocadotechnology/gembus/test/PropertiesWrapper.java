@@ -15,6 +15,10 @@
  */
 package com.ocadotechnology.gembus.test;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class PropertiesWrapper {
 
     private static final String rootKey = "arranger.root";
@@ -26,6 +30,8 @@ public class PropertiesWrapper {
     private static final String overrideDefaults = "arranger.overridedefaults";
     private static final String defaultOverrideDefaults = "false";
     static final String maxRandomizationDepth = "arranger.maxRandomizationDepth";
+    private static final String androidCustomArrangers = "arranger.android.customArrangers";
+    private static final String defaultAndroidCustomArrangers = "";
     private static final String defaultMaxRandomizationDepth = "4";
     private static final PropertiesFromFile propertiesFromFile = new PropertiesFromFile();
 
@@ -47,6 +53,14 @@ public class PropertiesWrapper {
 
     public static int getMaxRandomizationDepth() {
         return Integer.parseInt(getPropertyValue(maxRandomizationDepth, defaultMaxRandomizationDepth));
+    }
+
+    public static List<String> getAndroidCustomArrangers() {
+        String values = getPropertyValue(androidCustomArrangers, defaultAndroidCustomArrangers);
+        return Arrays.stream(values.split(","))
+                .map(String::trim)
+                .filter(it -> !it.isEmpty())
+                .collect(Collectors.toList());
     }
 
     private static String getPropertyValue(String key, String defaultValue) {
