@@ -1,0 +1,252 @@
+/*
+ * Copyright © 2020 Ocado (marian.jureczko@ocado.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.ocadotechnology.gembus.test.rearranger
+
+import com.ocadotechnology.gembus.test.Rearranger
+import com.ocadotechnology.gembus.test.some
+import com.ocadotechnology.gembus.test.someString
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
+
+class RearrangerTest {
+
+    @Test
+    fun `SHOULD copy instance with overridden properties WHEN working with data class`() {
+        //given
+        val original = some<DataClass>()
+        val unchanged = original.other
+        assertThat(unchanged).isNotNull()
+
+        //when
+        val copy = Rearranger.copy(original) {
+            DataClass::name set "overridden"
+            DataClass::number set 2
+        }
+
+        //then
+        assertThat(copy.name).isEqualTo("overridden")
+        assertThat(copy.number).isEqualTo(2)
+        assertThat(copy.other).isEqualTo(unchanged)
+    }
+
+    @Test
+    fun `SHOULD copy instance with overridden properties WHEN working with plain class`() {
+        //given
+        val original = some<PojoClass>()
+        val unchanged = original.other
+        assertThat(unchanged).isNotNull()
+
+        //when
+        val copy = Rearranger.copy(original) {
+            PojoClass::name set "overridden"
+            PojoClass::number set 2
+        }
+
+        //then
+        assertThat(copy.name).isEqualTo("overridden")
+        assertThat(copy.number).isEqualTo(2)
+        assertThat(copy.other).isEqualTo(unchanged)
+    }
+
+    @Test
+    fun `SHOULD copy instance with overridden properties WHEN working with constructor less immutable class`() {
+        //given
+        val original = some<NoConstructorImmutable>()
+        val unchanged = original.other
+        assertThat(unchanged).isNotNull()
+
+        //when
+        val copy = Rearranger.copy(original) {
+            NoConstructorImmutable::name set "overridden"
+            NoConstructorImmutable::number set 2
+        }
+
+        //then
+        assertThat(copy.name).isEqualTo("overridden")
+        assertThat(copy.number).isEqualTo(2)
+        assertThat(copy.other).isEqualTo(unchanged)
+    }
+
+    @Test
+    fun `SHOULD copy instance with overridden properties WHEN working with constructor less mutable class`() {
+        //given
+        val original = some<NoConstructorMutable>()
+        val unchanged = original.other
+        assertThat(unchanged).isNotNull()
+
+        //when
+        val copy = Rearranger.copy(original) {
+            NoConstructorMutable::name set "overridden"
+            NoConstructorMutable::number set 2
+        }
+
+        //then
+        assertThat(copy.name).isEqualTo("overridden")
+        assertThat(copy.number).isEqualTo(2)
+        assertThat(copy.other).isEqualTo(unchanged)
+    }
+
+
+    @Test
+    fun `SHOULD copy instance with overridden properties WHEN working with properties with backing fields`() {
+        //given
+        val original = some<ClassWithBackingField>()
+        val unchanged = original.regularProperty
+        assertThat(unchanged).isNotNull()
+
+        //when
+        val copy = Rearranger.copy(original) {
+            ClassWithBackingField::customProperty set "overridden"
+        }
+
+        //then
+        assertThat(copy.customProperty).isEqualTo("overridden")
+        assertThat(copy.regularProperty).isEqualTo(unchanged)
+    }
+
+    @Test
+    fun `SHOULD copy instance with overridden properties WHEN working with collections`() {
+        //given
+        val original = some<ClassWithCollections>()
+        val unchangedMap = original.mapProperty
+        assertThat(unchangedMap).isNotEmpty()
+
+        //when
+        val newList = listOf(someString(), someString())
+        val copy = Rearranger.copy(original) {
+            ClassWithCollections::listProperty set newList
+        }
+
+        //then
+        assertThat(copy.listProperty).isEqualTo(newList)
+        assertThat(copy.mapProperty).isEqualTo(unchangedMap)
+    }
+
+    @Test
+    fun `SHOULD copy instance with overridden properties WHEN working with abstract types`() {
+        //given
+        val original = some<ConcreteClass>()
+        val unchanged = original.concreteProperty
+        assertThat(unchanged).isNotNull()
+
+        //when
+        val copy = Rearranger.copy(original) {
+            ConcreteClass::abstractProperty set "overridden"
+        }
+
+        //then
+        assertThat(copy.abstractProperty).isEqualTo("overridden")
+        assertThat(copy.concreteProperty).isEqualTo(unchanged)
+    }
+
+    @Test
+    fun `SHOULD copy instance with overridden properties WHEN working with not-null fields`() {
+        //given
+        val original = some<ClassWithNotNullField>()
+        val unchanged = original.nullableField
+        assertThat(unchanged).isNotNull()
+        val otherUnchanged = original.otherField
+        assertThat(otherUnchanged).isNotNull()
+
+        //when
+        val copy = Rearranger.copy(original) {
+            ClassWithNotNullField::notNullField set "overridden"
+        }
+
+        //then
+        assertThat(copy.notNullField).isEqualTo("overridden")
+        assertThat(copy.nullableField).isEqualTo(unchanged)
+        assertThat(copy.otherField).isEqualTo(otherUnchanged)
+    }
+
+    @Test
+    fun `SHOULD copy instance with overridden properties WHEN working with fields that cannot be instantiated out of the box`() {
+        //given
+        val original = ClassWithAbstractField(some<ConcreteClass>(), someString())
+        val unchanged = original.simpleField
+        assertThat(unchanged).isNotNull()
+
+        //when
+        val someObject = some<ConcreteClass>()
+        val anotherObject = some<ConcreteClass>()
+        val copy = Rearranger.copy(original) {
+            ClassWithAbstractField::abstractField set someObject
+            ClassWithAbstractField::anotherAbstractField set anotherObject
+        }
+
+        //then
+        assertThat(copy.abstractField).isEqualTo(someObject)
+        assertThat(copy.anotherAbstractField).isEqualTo(anotherObject)
+        assertThat(copy.simpleField).isEqualTo(unchanged)
+    }
+}
+
+// Classes needed for the tests
+data class DataClass(val name: String, val number: Int, val other: String)
+
+class PojoClass(val name: String, val number: Int, val other: String)
+
+class NoConstructorImmutable(val name: String? = null) {
+    val number: Int? = null
+    lateinit var other: String
+}
+
+class NoConstructorMutable {
+    var name: String? = null
+    var number: Int? = null
+    lateinit var other: String
+}
+
+class ClassWithBackingField {
+    var regularProperty: String? = null
+
+    var customProperty: String = ""
+        private set
+}
+
+class ClassWithCollections {
+    var listProperty: List<String>? = null
+    var mapProperty: Map<String, String>? = null
+}
+
+abstract class AbstractClass {
+    abstract val abstractProperty: String
+}
+
+class ConcreteClass : AbstractClass() {
+    override var abstractProperty: String = ""
+    var concreteProperty: String? = null
+}
+
+
+class ClassWithNotNullField {
+    var notNullField: String?
+    var nullableField: String? = null
+    var otherField: String? = null
+
+    constructor(notNullField: String?, nullableField: String?) {
+        require(notNullField != null) { "notNullField must not be null" }
+        this.notNullField = notNullField
+        this.nullableField = nullableField
+    }
+}
+
+class ClassWithAbstractField(
+    val anotherAbstractField: AbstractClass? = null,
+    var simpleField: String? = null
+) {
+    lateinit var abstractField: AbstractClass
+}
