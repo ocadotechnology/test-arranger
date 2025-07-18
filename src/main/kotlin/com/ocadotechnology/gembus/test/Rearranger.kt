@@ -63,44 +63,47 @@ object Rearranger {
         }
 
         fun build(): T {
-            val props = original::class.memberProperties
+            val propsFromOrginal = original::class.memberProperties
                 .filterIsInstance<KProperty1<T, Any?>>()
 
-            val matchingCtor = findMatchingConstructor(original::class, props)
+            val matchingConstructor = findMatchingConstructor(original::class, propsFromOrginal)
 
-            if (matchingCtor != null) {
-                return createCopyWithOverridesUsingContructor(matchingCtor, props)
+            if (matchingConstructor != null) {
+                return createCopyWithOverridesUsingConstructor(matchingConstructor, propsFromOrginal)
             } else {
                 val toFillWithValues = objenesis.newInstance(original::class.java)
-                setValuesInCopiedInstance(props, toFillWithValues)
+                setValuesInCopiedInstance(propsFromOrginal, toFillWithValues)
                 return toFillWithValues
             }
         }
 
         private fun findMatchingConstructor(
             kClass: KClass<out T>,
-            props: List<KProperty1<T, Any?>>
+            propsFromOriginal: List<KProperty1<T, Any?>>
         ) = kClass.constructors.firstOrNull { ctor ->
             val paramNames = ctor.parameters.mapNotNull { it.name }.toSet()
-            val propNames = props.map { it.name }.toSet()
+            val propNames = propsFromOriginal.map { it.name }.toSet()
             propNames.all { it in paramNames }
         }
 
-        private fun createCopyWithOverridesUsingContructor(
-            matchingCtor: KFunction<T>,
-            props: List<KProperty1<T, Any?>>
+        private fun createCopyWithOverridesUsingConstructor(
+            matchingConstructor: KFunction<T>,
+            propsFromOriginal: List<KProperty1<T, Any?>>
         ): T {
-            val args = matchingCtor.parameters.associateWith { param ->
-                val prop = props.first { it.name == param.name }
-                overrides[prop] ?: prop.get(original)
+            val args = matchingConstructor.parameters.associateWith { param ->
+                val prop = propsFromOriginal.first { it.name == param.name }
+                getDesiredValueForProperty(prop)
             }
             @Suppress("UNCHECKED_CAST")
-            return matchingCtor.callBy(args) as T
+            return matchingConstructor.callBy(args) as T
         }
 
-        private fun setValuesInCopiedInstance(props: List<KProperty1<T, Any?>>, toFillWithValues: T) {
-            props.forEach { prop ->
-                val value = overrides[prop] ?: prop.get(original)
+        private fun getDesiredValueForProperty(prop: KProperty1<T, Any?>): Any? =
+            if (overrides.containsKey(prop)) overrides[prop] else prop.get(original)
+
+        private fun setValuesInCopiedInstance(propsFromOrginal: List<KProperty1<T, Any?>>, toFillWithValues: T) {
+            propsFromOrginal.forEach { prop ->
+                val value = getDesiredValueForProperty(prop)
                 setFieldValue(prop, toFillWithValues, value)
             }
         }

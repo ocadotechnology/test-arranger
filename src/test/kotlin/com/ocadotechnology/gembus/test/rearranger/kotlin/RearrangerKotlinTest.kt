@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.ocadotechnology.gembus.test.rearranger
+package com.ocadotechnology.gembus.test.rearranger.kotlin
 
 import com.ocadotechnology.gembus.test.Rearranger
 import com.ocadotechnology.gembus.test.some
 import com.ocadotechnology.gembus.test.someString
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
+import java.lang.reflect.InvocationTargetException
 
-class RearrangerTest {
+class RearrangerKotlinTest {
 
     @Test
     fun `SHOULD copy instance with overridden properties WHEN working with data class`() {
@@ -62,7 +64,7 @@ class RearrangerTest {
     }
 
     @Test
-    fun `SHOULD copy instance with overridden properties WHEN working with constructor less immutable class`() {
+    fun `SHOULD copy instance with overridden properties WHEN working with constructorless immutable class`() {
         //given
         val original = some<NoConstructorImmutable>()
         val unchanged = original.other
@@ -81,7 +83,7 @@ class RearrangerTest {
     }
 
     @Test
-    fun `SHOULD copy instance with overridden properties WHEN working with constructor less mutable class`() {
+    fun `SHOULD copy instance with overridden properties WHEN working with constructorless mutable class`() {
         //given
         val original = some<NoConstructorMutable>()
         val unchanged = original.other
@@ -173,6 +175,23 @@ class RearrangerTest {
     }
 
     @Test
+    fun `SHOULD copy instance with overridden properties WHEN working with not-null fields and all args constructor`() {
+        //given
+        val original = some<ClassWithNotNullFieldAndAllArgsConstructor>()
+        val unchanged = original.nullableField
+        assertThat(unchanged).isNotNull()
+
+        //when
+        val copy = Rearranger.copy(original) {
+            ClassWithNotNullFieldAndAllArgsConstructor::notNullField set "overridden"
+        }
+
+        //then
+        assertThat(copy.notNullField).isEqualTo("overridden")
+        assertThat(copy.nullableField).isEqualTo(unchanged)
+    }
+
+    @Test
     fun `SHOULD copy instance with overridden properties WHEN working with fields that cannot be instantiated out of the box`() {
         //given
         val original = ClassWithAbstractField(some<ConcreteClass>(), someString())
@@ -192,12 +211,79 @@ class RearrangerTest {
         assertThat(copy.anotherAbstractField).isEqualTo(anotherObject)
         assertThat(copy.simpleField).isEqualTo(unchanged)
     }
+
+    @Test
+    fun `SHOULD override using null WHEN field in data class is nullable`() {
+        //given
+        val original = some<DataClass>()
+        val unchanged = original.other
+        assertThat(unchanged).isNotNull()
+
+        //when
+        val copy = Rearranger.copy(original) {
+            DataClass::other set null
+        }
+
+        //then
+        assertThat(copy.other).isNull()
+        assertThat(original.other).isEqualTo(unchanged)
+    }
+
+    @Test
+    fun `SHOULD override using null WHEN field in plain class is nullable`() {
+        //given
+        val original = some<PojoClass>()
+        val unchanged = original.other
+        assertThat(unchanged).isNotNull()
+
+        //when
+        val copy = Rearranger.copy(original) {
+            PojoClass::other set null
+        }
+
+        //then
+        assertThat(copy.other).isNull()
+        assertThat(original.other).isEqualTo(unchanged)
+    }
+
+    @Test
+    fun `SHOULD override using null WHEN field in constructorless class is nullable`() {
+        //given
+        val original = some<NoConstructorImmutable>()
+        val unchanged = original.name
+        assertThat(unchanged).isNotNull()
+
+        //when
+        val copy = Rearranger.copy(original) {
+            NoConstructorImmutable::name set null
+        }
+
+        //then
+        assertThat(copy.name).isNull()
+        assertThat(original.name).isEqualTo(unchanged)
+    }
+
+    @Test
+    fun `SHOULD throw exception WHEN trying to set null to a not null field`() {
+        //given
+        val original = some<DataClass>()
+
+        //when
+        assertThatThrownBy {
+            Rearranger.copy(original) {
+                DataClass::name set null
+            }
+        }
+            //then
+            .isInstanceOf(InvocationTargetException::class.java)
+            .hasRootCauseInstanceOf(NullPointerException::class.java)
+    }
 }
 
 // Classes needed for the tests
-data class DataClass(val name: String, val number: Int, val other: String)
+data class DataClass(val name: String, val number: Int, val other: String?)
 
-class PojoClass(val name: String, val number: Int, val other: String)
+class PojoClass(val name: String, val number: Int, val other: String?)
 
 class NoConstructorImmutable(val name: String? = null) {
     val number: Int? = null
@@ -231,6 +317,16 @@ class ConcreteClass : AbstractClass() {
     var concreteProperty: String? = null
 }
 
+class ClassWithNotNullFieldAndAllArgsConstructor {
+    var notNullField: String?
+    var nullableField: String? = null
+
+    constructor(notNullField: String?, nullableField: String?) {
+        require(notNullField != null) { "notNullField must not be null" }
+        this.notNullField = notNullField
+        this.nullableField = nullableField
+    }
+}
 
 class ClassWithNotNullField {
     var notNullField: String?

@@ -15,6 +15,12 @@
  */
 package com.ocadotechnology.gembus.test.rearranger;
 
+import java.util.Map;
+import java.util.function.Supplier;
+
 //TODO t: check rearaging objest with not-null fields (lombok annotation)
 public class Rearranger {
+    public static <T> T copy(T object, Map<String, Supplier<?>> overrides) {
+        return object;
+    }
 }
