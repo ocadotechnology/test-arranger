@@ -17,9 +17,9 @@ jobs:
           gpg_private_key: ${{ secrets.gpg_private_key }}
         run: |
           printf "%s" "$gpg_private_key" | gpg --import --batch --yes
-      - name: Release with nexus-staging-maven-plugin
+      - name: Release with central-publishing-maven-plugin
         env:
           gpg_passphrase: ${{ secrets.gpg_passphrase }}
-          ossrh_login: ${{ secrets.ossrh_login }}
-          ossrh_pass: ${{ secrets.ossrh_pass }}
+          maven_central_login: ${{ secrets.maven_central_login }}
+          maven_central_pass: ${{ secrets.maven_central_pass }}
         run: mvn -B -s .mvn/settings.xml -P release deploy --file pom.xml
