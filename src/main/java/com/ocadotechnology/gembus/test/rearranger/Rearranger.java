@@ -21,6 +21,11 @@ import java.util.function.Supplier;
 //TODO t: check rearaging objest with not-null fields (lombok annotation)
 public class Rearranger {
     public static <T> T copy(T object, Map<String, Supplier<?>> overrides) {
-        return object;
+        if (object.getClass().isRecord()) {
+            return RecordRearranger.copyRecord(object, overrides);
+        } else {
+            return ObjectRearranger.copyObject(object, overrides);
+        }
     }
 }
+
