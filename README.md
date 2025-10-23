@@ -114,7 +114,7 @@ It aims to express test intent succinctly: highlight only the fields that matter
 Two flavors are provided:
 
 * Java API: `com.ocadotechnology.gembus.test.rearranger.Rearranger.copy(source, Map<String, Supplier<?>> overrides)`
-* Kotlin DSL: `com.ocadotechnology.gembus.test.rearangerkt.Rearranger.copy(source) { PropertyRef set value }`
+* Kotlin DSL: `com.ocadotechnology.gembus.test.rearrangerkt.Rearranger.copy(source) { PropertyRef set value }`
 
 #### Key features
 * Works with Java records and ordinary POJOs (final, mutable, immutable, no default constructor, fields with private setters, etc.).

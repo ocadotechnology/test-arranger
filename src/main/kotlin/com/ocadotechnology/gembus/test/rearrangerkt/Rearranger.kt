@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.ocadotechnology.gembus.test.rearangerkt
+package com.ocadotechnology.gembus.test.rearrangerkt
 
 import org.objenesis.Objenesis
 import org.objenesis.ObjenesisStd

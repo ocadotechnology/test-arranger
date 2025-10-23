@@ -15,7 +15,6 @@
  */
 package com.ocadotechnology.gembus.test.rearrangerkt
 
-import com.ocadotechnology.gembus.test.rearangerkt.Rearranger
 import com.ocadotechnology.gembus.test.some
 import com.ocadotechnology.gembus.test.someInt
 import com.ocadotechnology.gembus.test.someString

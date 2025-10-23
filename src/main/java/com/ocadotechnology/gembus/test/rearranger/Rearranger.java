@@ -52,7 +52,7 @@ import java.util.function.Supplier;
  * </ul>
  * <p>
  *
- * @see com.ocadotechnology.gembus.test.rearangerkt.Rearranger Kotlin counterpart using property references
+ * @see com.ocadotechnology.gembus.test.rearrangerkt.Rearranger Kotlin counterpart using property references
  */
 public class Rearranger {
 
