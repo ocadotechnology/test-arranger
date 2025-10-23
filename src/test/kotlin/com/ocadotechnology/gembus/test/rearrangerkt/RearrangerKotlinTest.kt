@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.ocadotechnology.gembus.test.rearranger.kotlin
+package com.ocadotechnology.gembus.test.rearrangerkt
 
-import com.ocadotechnology.gembus.test.Rearranger
+import com.ocadotechnology.gembus.test.rearangerkt.Rearranger
 import com.ocadotechnology.gembus.test.some
+import com.ocadotechnology.gembus.test.someInt
 import com.ocadotechnology.gembus.test.someString
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -278,12 +279,32 @@ class RearrangerKotlinTest {
             .isInstanceOf(InvocationTargetException::class.java)
             .hasRootCauseInstanceOf(NullPointerException::class.java)
     }
+
+    @Test
+    fun `SHOULD override inherited fields WHEN overriden in child class`() {
+        //given
+        val original = some<PojoClassChild>()
+        val overriderString = "overridden"
+        val overriderInt = someInt()
+
+        //when
+        val copy = Rearranger.copy(original) {
+            PojoClassChild::name set overriderString
+            PojoClassChild::number set overriderInt
+        }
+
+        //then
+        assertThat(copy.name).isEqualTo(overriderString)
+        assertThat(copy.number).isEqualTo(overriderInt)
+    }
 }
 
 // Classes needed for the tests
 data class DataClass(val name: String, val number: Int, val other: String?)
 
-class PojoClass(val name: String, val number: Int, val other: String?)
+open class PojoClass(open val name: String, val number: Int, val other: String?)
+
+class PojoClassChild(override val name: String, number: Int, other: String?) : PojoClass(name, number, other)
 
 class NoConstructorImmutable(val name: String? = null) {
     val number: Int? = null

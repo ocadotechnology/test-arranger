@@ -15,52 +15,39 @@
  */
 package com.ocadotechnology.gembus.test.rearranger;
 
+import org.jeasy.random.util.ReflectionUtils;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ObjectRearranger {
     private static final Objenesis OBJENESIS = new ObjenesisStd();
 
-    static <T> T copyObject(T objectToCopy, final Map<String, Supplier<?>> overrides) {
+    static <T> T copyObject(T objectToCopy, final Map<String, Supplier<?>> overrides) throws ReflectiveOperationException {
         @SuppressWarnings("unchecked")
         Class<T> type = (Class<T>) objectToCopy.getClass();
         T clone = instantiateEmptyObject(type);
-        List<Field> fields = allInstanceFields(type);
+        List<Field> fields = allInstanceFields(objectToCopy);
 
-        assureOverridesAreValid(overrides, fields, type);
+        Rearranger.validateOverrides(overrides, fields.stream().map(Field::getName).collect(Collectors.toSet()), type.getName());
 
         for (Field f : fields) {
             if (Modifier.isStatic(f.getModifiers()) || f.isSynthetic()) {
                 continue;
             }
-            //TODO t: refactor get/set through reflection into single place
             f.setAccessible(true);
-            try {
-                Object fieldDesiredValue = getFieldDesiredValue(objectToCopy, overrides, f);
-                f.set(clone, fieldDesiredValue);
-            } catch (IllegalAccessException e) {
-                //TODO t: refactor exception handling into single place
-                throw new RuntimeException(e);
-            }
+            Object fieldDesiredValue = getFieldDesiredValue(objectToCopy, overrides, f);
+            f.set(clone, fieldDesiredValue);
         }
         return clone;
-    }
-
-    //TODO t: refactor, similar solution for records
-    private static <T> void assureOverridesAreValid(Map<String, Supplier<?>> overrides, List<Field> fields, Class<T> type) {
-        overrides.keySet().forEach(k -> {
-            if (fields.stream().noneMatch(f -> f.getName().equals(k))) {
-                throw new IllegalArgumentException("Failed to override field " + k + " in class " + type.getName() + ". Field not found.");
-            }
-        });
     }
 
     private static <T> Object getFieldDesiredValue(T objectToCopy, Map<String, Supplier<?>> overrides, Field field) throws IllegalAccessException {
@@ -81,16 +68,10 @@ public class ObjectRearranger {
         }
     }
 
-    //TODO t: ReflectionUtils candidate
-    private static List<Field> allInstanceFields(Class<?> type) {
-        List<Field> result = new ArrayList<>();
-        Class<?> current = type;
-        while (current != null && current != Object.class) {
-            for (Field f : current.getDeclaredFields()) {
-                result.add(f);
-            }
-            current = current.getSuperclass();
-        }
-        return result;
+    private static <T> List<Field> allInstanceFields(T type) {
+        return Stream.concat(
+                ReflectionUtils.getDeclaredFields(type).stream(),
+                ReflectionUtils.getInheritedFields(type.getClass()).stream()
+        ).toList();
     }
 }

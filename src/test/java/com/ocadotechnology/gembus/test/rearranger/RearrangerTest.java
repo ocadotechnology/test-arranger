@@ -16,6 +16,8 @@
 package com.ocadotechnology.gembus.test.rearranger;
 
 import com.ocadotechnology.gembus.test.CustomArranger;
+import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -90,6 +92,33 @@ public class RearrangerTest {
         )
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining(nonExistingField);
+    }
+
+    @Test
+    void SHOULD_throwException_WHEN_overrideIsOfWrongTypeInRecord() {
+        // given
+        DataClass original = some(DataClass.class);
+        String fieldToOverride = "number";
+
+        // when
+        assertThatThrownBy(() ->
+                Rearranger.copy(original, Map.of(fieldToOverride, () -> someString()))
+        )
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining(fieldToOverride);
+    }
+
+    @Test
+    void SHOULD_throwException_WHEN_requestingNullForLombokNotNullFieldInRecord() {
+        // given
+        NotNullFromLombokRecord original = some(NotNullFromLombokRecord.class);
+
+        // when // then
+        assertThatThrownBy(() ->
+                Rearranger.copy(original, Map.of(
+                        "notNullField", () -> null
+                ))
+        ).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -287,7 +316,38 @@ public class RearrangerTest {
                 .hasMessageContaining(nonExistingField);
     }
 
+    @Test
+    void SHOULD_overrideFieldWithNotNullLombokAnnotation_WHEN_requestingNullForIt() {
+        // given
+        NotNullFromLombok original = some(NotNullFromLombok.class);
+
+        // when
+        NotNullFromLombok copy = Rearranger.copy(original, Map.of(
+                "notNullField", () -> null
+        ));
+
+        //then
+        assertThat(copy.notNullField).isNull();
+    }
+
+    @Test
+    void SHOULD_throwException_WHEN_overrideIsOfWrongType() {
+        // given
+        PojoClass original = some(PojoClass.class);
+        String fieldToOverride = "number";
+
+        // when
+        assertThatThrownBy(() ->
+                Rearranger.copy(original, Map.of(fieldToOverride, () -> someString()))
+        )
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining(fieldToOverride);
+    }
+
     record DataClass(String name, int number, String other) {
+    }
+
+    record NotNullFromLombokRecord(@NonNull String notNullField) {
     }
 
     class PojoClass {
@@ -399,6 +459,12 @@ public class RearrangerTest {
     class ClassWithCollections {
         List<String> listProperty;
         Map<String, String> mapProperty;
+    }
+
+    @AllArgsConstructor
+    class NotNullFromLombok {
+        @NonNull
+        private String notNullField;
     }
 }
 

@@ -16,8 +16,8 @@
 package com.ocadotechnology.gembus.test.rearranger;
 
 import com.ocadotechnology.gembus.test.easyrandom.RecordReflectionUtils;
+import org.jeasy.random.ObjectCreationException;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.RecordComponent;
 import java.util.Arrays;
@@ -27,26 +27,31 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 class RecordRearranger {
-    static <T> T copyRecord(T record, final Map<String, Supplier<?>> overrides) {
+    static <T> T copyRecord(T record, final Map<String, Supplier<?>> overrides) throws ReflectiveOperationException {
+        @SuppressWarnings("unchecked")
         Class<T> recordClass = (Class<T>) record.getClass();
         validateOverrides(record.getClass(), overrides);
-        Object[] constructorParams = Arrays.stream(recordClass.getRecordComponents())
-                .map(param -> getComponentValue(record, overrides, param))
-                .toArray(Object[]::new);
-        return RecordReflectionUtils.instantiateRecord(recordClass, constructorParams);
+
+        RecordComponent[] components = recordClass.getRecordComponents();
+        Object[] constructorParams = new Object[components.length];
+        for (int i = 0; i < components.length; i++) {
+            constructorParams[i] = getComponentValue(record, overrides, components[i]);
+        }
+        try {
+            return RecordReflectionUtils.instantiateRecord(recordClass, constructorParams);
+        } catch (ObjectCreationException e) {
+            String message = "Failed rearranging record '" + recordClass.getName() + "' with overrides " + OverridesPrettyPrinter.describeOverrides(overrides);
+            throw new IllegalArgumentException(message, e);
+        }
     }
 
-    private static <T> Object getComponentValue(T record, Map<String, Supplier<?>> overrides, RecordComponent param) {
+    private static <T> Object getComponentValue(T record, Map<String, Supplier<?>> overrides, RecordComponent param) throws ReflectiveOperationException {
         if (overrides.containsKey(param.getName())) {
             return overrides.get(param.getName()).get();
         } else {
-            try {
-                Method accessor = param.getAccessor();
-                accessor.setAccessible(true);
-                return accessor.invoke(record);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
+            Method accessor = param.getAccessor();
+            accessor.setAccessible(true);
+            return accessor.invoke(record);
         }
     }
 
@@ -57,10 +62,6 @@ class RecordRearranger {
         Set<String> recordFieldNames = Arrays.stream(recordClass.getRecordComponents())
                 .map(RecordComponent::getName)
                 .collect(Collectors.toSet());
-        overrides.keySet().forEach(key -> {
-            if (!recordFieldNames.contains(key)) {
-                throw new IllegalArgumentException("Failed to override field " + key + " in class " + recordClass.getName());
-            }
-        });
+        Rearranger.validateOverrides(overrides, recordFieldNames, recordClass.getName());
     }
 }
