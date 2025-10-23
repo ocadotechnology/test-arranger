@@ -5,10 +5,11 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <servers>
         <server>
-            <id>ossrh</id>
-            <username>${env.ossrh_login}</username>
-            <password>${env.ossrh_pass}</password>
+            <id>central</id>
+            <username>${env.maven_central_login}</username>
+            <password>${env.maven_central_pass}</password>
         </server>
+
     </servers>
 
     <profiles>
