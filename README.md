@@ -104,6 +104,74 @@ It not only regards direct calls like ```Arranger.some(Product.class)```, but al
 Assuming there is class ```Shop``` with field ```products``` of type ```List<Product>```.
 When calling ```Arranger.some(Shop.class)```, the arranger will use ```ProductArranger``` to create all the products stored in ```Shop.products```.
 
+
+### Rearranger (clone existing instance with selective overrides)
+
+Sometimes generating a completely new random instance is less convenient than starting from an already valid one and only tweaking a couple of fields/components. 
+The Rearranger lets you create a shallow copy of an existing object (record or class) while overriding just the parts that matter for a specific test scenario.
+It aims to express test intent succinctly: highlight only the fields that matter for a scenario while keeping the rest realistic and inexpensive to specify.
+
+Two flavors are provided:
+
+* Java API: `com.ocadotechnology.gembus.test.rearranger.Rearranger.copy(source, Map<String, Supplier<?>> overrides)`
+* Kotlin DSL: `com.ocadotechnology.gembus.test.rearrangerkt.Rearranger.copy(source) { PropertyRef set value }`
+
+#### Key features
+* Works with Java records and ordinary POJOs (final, mutable, immutable, no default constructor, fields with private setters, etc.).
+* Shallow copy: referenced mutable objects are reused (no deep cloning), keeping intent explicit.
+* Kotlin DSL uses property references – refactor‑safe and IDE friendly (rename-safe).
+* Inherited properties can be overridden through the most specific (child) property reference.
+* Transparent fallback for classes without a suitable all-args constructor: object is instantiated without running its constructor body (Objenesis) and then fields / mutable properties are populated reflectively.
+* Field / component name validation: unknown override keys fail fast with an `IllegalArgumentException` naming the offending key.
+* Enhanced error messages for record instantiation failures (Java) include inferred types and sample values of overrides.
+
+#### Java usage examples
+Copying a record, overriding one component:
+```java
+MyRecord alice = new MyRecord("Alice", 10);
+MyRecord bob = Rearranger.copy(alice, Map.of(
+        "name", () -> "Bob"
+));
+```
+Copying a POJO, overriding multiple fields:
+```java
+User original = Arranger.some(User.class);
+User elevated = Rearranger.copy(original, Map.of(
+        "role", () -> "ADMIN",
+        "active", () -> true
+));
+```
+
+#### Kotlin DSL examples
+Basic override:
+```kotlin
+val original = some<MyDataClass>()
+val copy = Rearranger.copy(original) {
+    MyDataClass::name set "Overridden"
+    MyDataClass::count set 42
+}
+```
+
+#### When to use Arranger vs Rearranger
+| Situation | Prefer |
+|-----------|--------|
+| Need a completely fresh random object | `Arranger.some(X.class)` / `some<X>()` |
+| Start from existing instance & tweak a few fields | `Rearranger.copy(...)` |
+| Need domain-valid variants systematically | CustomArranger (and optionally follow with `Rearranger.copy`) |
+
+Typical composition pattern:
+```java
+Order vipOrder = Arranger.vipOrderFor(expensiveSku); // partly random, corresponding with a domain concept
+Order expeditedVipOrder = Rearranger.copy(vipOrder, Map.of(
+        "priority", () -> Priority.EXPEDITED
+));
+```
+
+#### Gotchas & limitations
+* Shallow copy: if you mutate a nested mutable collection after copying, both instances see the change.
+* Objenesis path (for classes without a matching constructor) skips constructor logic; ensure invariants that rely on constructor code are either not critical for the test or manually restored via overrides.
+* Kotlin property reference for a parent type cannot directly override on a child; always use the child’s property or an explicit cast.
+
 ### Properties
 The behaviour of the test-arranger can be configured using properties.
 If you create `arranger.properties` file and save it in the root of classpath (usually that will be `src/test/resources/` directory), it will be picked up and the following properties will be applied:
@@ -140,28 +208,12 @@ If you create `arranger.properties` file and save it in the root of classpath (u
   It should be a comma-separated list of their canonical class names.
   This ensures that test-arranger registers them regardless of any reflection related limitations.
 
-### Data.copy
-
-When you have a Java record that could be used as test data, but you need to change one or two of its fields, the `Data` class with its copy method provides a solution.
-This is particularly useful when dealing with immutable records that don't have an obvious way to alter their fields directly.
-
-The `Data.copy` method allows you to create a shallow copy of a record while selectively modifying the desired fields.
-By providing a map of field overrides, you can specify the fields that need to be altered and their new values. 
-The copy method takes care of creating a new instance of the record with the updated field values.
-
-This approach saves you from manually creating a new record object and setting the fields individually, providing a convenient way to generate test data with slight variations from existing records.
-
-Overall, the Data class and its copy method rescue the situation by enabling the creation of shallow copies of records with selected fields altered, providing flexibility and convenience when working with immutable record types:
-```java
-Data.copy(myRecord, Map.of("recordFieldName", () -> "altered value"));
-```
-
-## The challenges it solves
+### The challenges it solves
 
 When going through tests of a software project one seldom has the impression that it cannot be done better.
 In the scope of arranging test data, there are two areas we are trying to improve with Test Arranger.
 
-### Tests readability
+#### Tests readability
 
 Tests are much easier to understand when knowing the intention of the creator, i.e why the test was written and what kind of issues it should detect.
 Unfortunately, it is not extraordinary to see tests having in the arrange (given) section statements like the following one:
@@ -213,7 +265,7 @@ The test will be longer, but the intention remains clear.
 
 It is noteworthy that what we have just done is an application of Generated Value and to some extent Creation Method patterns described in *xUnit Test Patterns: Refactoring Test Code* by Gerard Meszaros.
 
-### Shotgun surgery
+#### Shotgun surgery
 
 Have you ever changed a tiny thing in production code and end up with errors in dozen of tests?
 Some of them reporting failing assertion, some maybe even refusing to compile.

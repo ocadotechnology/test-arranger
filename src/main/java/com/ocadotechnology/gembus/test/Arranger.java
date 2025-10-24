@@ -15,7 +15,7 @@
  */
 package com.ocadotechnology.gembus.test;
 
-import com.ocadotechnology.gembus.test.experimental.Data;
+import com.ocadotechnology.gembus.test.rearranger.Rearranger;
 import org.jeasy.random.randomizers.EmailRandomizer;
 import org.jeasy.random.randomizers.FirstNameRandomizer;
 import org.jeasy.random.randomizers.LastNameRandomizer;
@@ -26,7 +26,6 @@ import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -64,7 +63,7 @@ public class Arranger {
         String[] toIgnore = overrides.keySet().toArray(new String[overrides.size()]);
         T result = random.nextObject(type, toIgnore);
         if (type.isRecord()) {
-            return Data.copy(result, overrides);
+            return Rearranger.copy(result, overrides);
         } else {
             OverridesHelper.applyOverrides(result, overrides);
             return result;
@@ -96,7 +95,7 @@ public class Arranger {
         String[] toIgnore = overrides.keySet().toArray(new String[overrides.size()]);
         return random.objects(type, amount, toIgnore).map(o -> {
             if (type.isRecord()) {
-                return Data.copy(o, overrides);
+                return Rearranger.copy(o, overrides);
             } else {
                 OverridesHelper.applyOverrides(o, overrides);
                 return o;
