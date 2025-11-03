@@ -388,8 +388,9 @@ class ShopFixture {
 
 * [On testing in DDD](https://medium.com/p/f250482b5717)
 * Test Arranger and the Second Law of Thermodynamics ([EN](https://www.youtube.com/watch?v=rAi2t05Om3Y#t=43s), [PL](https://www.youtube.com/watch?v=ulW0aRmDIuE))
-* [Arranging Java Records](https://medium.com/@marian.jureczko/arranging-java-records-d11ec9141fde)
+* [Simplify Android Tests with test-arranger: Write Less, Maintain Less](https://medium.com/towardsdev/simplify-android-tests-with-test-arranger-write-less-maintain-less-ceb4e00a2c3c)
 * [Flaky tests: the handy simplification](https://medium.com/@marian.jureczko/flaky-tests-the-handy-simplification-6e4296a0d71b)
+* [Rearranger: Make Your Tests Expressive, Not Exhaustive](https://towardsdev.com/rearranger-make-your-tests-expressive-not-exhaustive-7c60545ba11a)
 * [FAQ](https://medium.com/@marian.jureczko/test-arranger-the-asked-questions-a4ec99a0f742)
 
 ## Versioning
