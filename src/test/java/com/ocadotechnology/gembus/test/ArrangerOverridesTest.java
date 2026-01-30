@@ -26,7 +26,7 @@ import static com.ocadotechnology.gembus.test.Arranger.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 
-public class ArrangerTestOverrides {
+public class ArrangerOverridesTest {
     HashMap<String, Supplier<?>> overrides = new HashMap<>();
 
     @Test
@@ -89,7 +89,7 @@ public class ArrangerTestOverrides {
 
         //then
         assertThat(actual).isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Can not set java.lang.String field com.ocadotechnology.gembus.test.ArrangerTestOverrides$ToOverride.text to java.lang.Long");
+                .hasMessage("Can not set java.lang.String field com.ocadotechnology.gembus.test.ArrangerOverridesTest$ToOverride.text to java.lang.Long");
     }
 
     @Test
@@ -102,7 +102,7 @@ public class ArrangerTestOverrides {
 
         //then
         assertThat(actual).isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Failed to override field nonexisting in class com.ocadotechnology.gembus.test.ArrangerTestOverrides$ToOverride");
+                .hasMessage("Failed to override field nonexisting in class com.ocadotechnology.gembus.test.ArrangerOverridesTest$ToOverride");
     }
 
     @Test
@@ -162,7 +162,7 @@ public class ArrangerTestOverrides {
 
         //then
         assertThat(actual).isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Failed to override field nonexisting in class com.ocadotechnology.gembus.test.ArrangerTestOverrides$RecordToOverride");
+                .hasMessage("Failed to override field nonexisting in class com.ocadotechnology.gembus.test.ArrangerOverridesTest$RecordToOverride. Field not found.");
     }
 
     @Test
@@ -175,7 +175,9 @@ public class ArrangerTestOverrides {
         Throwable actual = catchThrowable(() -> some(RecordToOverride.class, overrides));
 
         //then
-        assertThat(actual).isInstanceOf(ObjectCreationException.class);
+        assertThat(actual)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasCauseInstanceOf(ObjectCreationException.class);
     }
 
     static class ToOverride {

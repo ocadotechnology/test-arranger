@@ -29,7 +29,7 @@ import static com.ocadotechnology.gembus.test.Arranger.some;
 import static com.ocadotechnology.gembus.test.Arranger.someObjects;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ArrangerTestEnumSet {
+public class ArrangerEnumSetTest {
 
     @Test
     @DisplayName("SHOULD not try to initialize file WHEN an override is delivered")
