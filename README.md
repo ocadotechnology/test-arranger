@@ -16,6 +16,23 @@
 
 ***
 
+This Java library automatically creates instances of classes needed for unit tests and populates them with random values.
+
+Instead of manually arranging test data like this:
+```java
+Product product = new Product(
+  2846329L,
+  "Some description",
+  "Some brand",
+  new Price(new BigDecimal(13.99)),   Currency.getInstance("GBP")),
+...
+);
+```
+you can simply write:
+```java
+Product product = some(Product.class);
+```
+
 In TDD there are 3 phases: arrange, act and assert (given, when, then in BDD).
 The assert phase has great tool support, you may be familiar with AssertJ, FEST-Assert or Hamcrest.
 It is in contrast to the arrange phase.
@@ -35,14 +52,14 @@ product.setBrand("Ocado");
 <dependency>
     <groupId>com.ocadotechnology.gembus</groupId>
   <artifactId>test-arranger</artifactId>
-  <version>1.7.0</version>
+  <version>1.7.1</version>
 </dependency>
 ```
 
 ### Gradle
 
 ```groovy
-testImplementation 'com.ocadotechnology.gembus:test-arranger:1.7.0'
+testImplementation 'com.ocadotechnology.gembus:test-arranger:1.7.1'
 ```
 
 ## Features
