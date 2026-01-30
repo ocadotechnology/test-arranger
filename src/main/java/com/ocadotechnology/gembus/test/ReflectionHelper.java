@@ -18,6 +18,7 @@ package com.ocadotechnology.gembus.test;
 import io.github.classgraph.ClassGraph;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
@@ -45,6 +46,22 @@ class ReflectionHelper {
                 .filter(constructor -> constructor.isPresent())
                 .map(constructor -> constructor.get())
                 .collect(Collectors.toList());
+    }
+
+    static boolean isPrimitiveField(Class<?> clazz, String fieldName) {
+        if (fieldName == null || fieldName.isEmpty()) {
+            return false;
+        }
+        Class<?> current = clazz;
+        while (current != null) {
+            try {
+                Field field = current.getDeclaredField(fieldName);
+                return field.getType().isPrimitive();
+            } catch (NoSuchFieldException e) {
+                current = current.getSuperclass();
+            }
+        }
+        return false;
     }
 
     Map<Class<?>, CustomArranger<?>> createAllCustomArrangers() {

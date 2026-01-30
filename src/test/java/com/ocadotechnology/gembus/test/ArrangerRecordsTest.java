@@ -24,8 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.ocadotechnology.gembus.test.Arranger.some;
-import static com.ocadotechnology.gembus.test.Arranger.someSimplified;
+import static com.ocadotechnology.gembus.test.Arranger.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ArrangerRecordsTest {
@@ -105,7 +104,7 @@ public class ArrangerRecordsTest {
 
         //then
         assertThat(actual.value()).isNotNull();
-        assertThat(actual.child().child().child().child()).isEqualTo(new DirectlyNested(null,null));
+        assertThat(actual.child().child().child().child()).isEqualTo(new DirectlyNested(null, null));
         assertThat(actual.child().child().value()).isNotNull();
     }
 
@@ -120,9 +119,39 @@ public class ArrangerRecordsTest {
         assertThat(actual1.surname()).isNotEqualTo(actual2.surname());
         assertThat(actual1.age()).isNotEqualTo(actual2.age());
     }
+
+    @Test
+    void should_overridePrimitivesInRecords() {
+        //given
+        long expectedLong = someLong();
+        int expectedInt = someInteger();
+
+        //when
+        RecordWithPrimitive actual = some(RecordWithPrimitive.class, Map.of(
+                "big", () -> expectedLong,
+                "small", () -> expectedInt
+        ));
+
+        //then
+        assertThat(actual.big()).isEqualTo(expectedLong);
+        assertThat(actual.small()).isEqualTo(expectedInt);
+    }
+
+    @Test
+    void should_overrideObjectsInRecords() {
+        //given
+        int expectedValue = someInteger();
+
+        //when
+        Data actual = some(Data.class, Map.of("value", () -> expectedValue));
+
+        //then
+        assertThat(actual.value()).isEqualTo(expectedValue);
+    }
 }
 
-record PersonRecord(String name, String surname, Integer age) {}
+record PersonRecord(String name, String surname, Integer age) {
+}
 
 record Data(Integer value, String name, Set<String> tags, List<NestedStructure> classWithCustomArranger) {
     Data {
@@ -159,4 +188,7 @@ class Always42Arranger extends CustomArranger<Always42> {
 }
 
 record DirectlyNested(DirectlyNested child, Integer value) {
+}
+
+record RecordWithPrimitive(long big, int small) {
 }

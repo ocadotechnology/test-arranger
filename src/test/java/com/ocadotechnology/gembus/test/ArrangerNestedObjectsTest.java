@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
-public class ArrangerTestNestedObjects {
+public class ArrangerNestedObjectsTest {
 
     static final String FIXED_TEXT = "text";
 
@@ -127,7 +127,7 @@ class NestedStructureArranger extends CustomArranger<NestedStructure> {
     @Override
     protected NestedStructure instance() {
         NestedStructure nestedStructure = enhancedRandom.nextObject(NestedStructure.class, "dummyId");
-        nestedStructure.text = ArrangerTestNestedObjects.FIXED_TEXT;
+        nestedStructure.text = ArrangerNestedObjectsTest.FIXED_TEXT;
         return nestedStructure;
     }
 }
@@ -148,7 +148,7 @@ class NestedStructure2Arranger extends CustomArranger<NestedStructure2> {
     @Override
     protected NestedStructure2 instance() {
         NestedStructure2 nestedStructure = enhancedRandom.nextObject(NestedStructure2.class);
-        nestedStructure.text = ArrangerTestNestedObjects.FIXED_TEXT;
+        nestedStructure.text = ArrangerNestedObjectsTest.FIXED_TEXT;
         return nestedStructure;
     }
 }

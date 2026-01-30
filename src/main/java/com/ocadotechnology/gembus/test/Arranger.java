@@ -60,7 +60,9 @@ public class Arranger {
      */
     public static <T> T some(final Class<T> type, final Map<String, Supplier<?>> overrides) {
         CurrentEnhancedRandom.set(random);
-        String[] toIgnore = overrides.keySet().toArray(new String[overrides.size()]);
+        String[] toIgnore = overrides.keySet().stream()
+                .filter(field -> !ReflectionHelper.isPrimitiveField(type, field))
+                .toArray(String[]::new);
         T result = random.nextObject(type, toIgnore);
         if (type.isRecord()) {
             return Rearranger.copy(result, overrides);
