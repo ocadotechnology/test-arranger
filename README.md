@@ -5,7 +5,7 @@
 </p>
 
 <div align="center">
-    <b><em>Test Arranger</em></b><br>
+    <h1><b><em>Test Arranger</em></b></h1><br>
 
 [![Apache 2 license](https://img.shields.io/badge/license-Apache%202-blue?style=flat)](http://www.apache.org/licenses/)
 [![Build Status](https://github.com/ocadotechnology/test-arranger/actions/workflows/maven-verify.yml/badge.svg)](https://github.com/ocadotechnology/test-arranger/actions)
@@ -15,6 +15,8 @@
 </div>
 
 ***
+
+## What is it?
 
 This Java library automatically creates instances of classes needed for unit tests and populates them with random values.
 
@@ -32,6 +34,8 @@ you can simply write:
 ```java
 Product product = some(Product.class);
 ```
+
+## Introduction
 
 In TDD there are 3 phases: arrange, act and assert (given, when, then in BDD).
 The assert phase has great tool support, you may be familiar with AssertJ, FEST-Assert or Hamcrest.
@@ -400,6 +404,22 @@ class ShopFixture {
     }
 }
 ```
+
+## GitHub Copilot integration
+
+If you use test-arranger and GitHub Copilot side by side, you have likely noticed that Copilot keeps generating verbose, hand-crafted test data setup — long builder chains, explicit constructors with hardcoded values — exactly the boilerplate that test-arranger was designed to eliminate.
+This happens because Copilot has no built-in knowledge of test-arranger: it does not know about `Arranger.some()`, `CustomArranger`, `Rearranger`, or Fixtures, so it falls back to whatever patterns it has seen most often in open-source code.
+
+Fortunately, GitHub Copilot supports [custom instructions](https://docs.github.com/en/copilot/customizing-copilot/adding-repository-custom-instructions-for-github-copilot) — a repository-level file that tells Copilot how code in that project should be written.
+And adding test-arranger instructions bridges this gap.
+
+To enable this in your project, copy [`ai/java/copilot-instructions.md`](ai/java/copilot-instructions.md) from this repository into your own repository at:
+
+```
+.github/copilot-instructions.md
+```
+
+The instructions are tailored for **Java projects**.
 
 ## Articles and blog posts
 
