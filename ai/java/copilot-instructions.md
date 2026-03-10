@@ -4,10 +4,11 @@
 
 - Always use the **given / when / then** pattern.
 - Use the exact section comments:
-    - `// given`
-    - `// when`
-    - `// then`
+  - `// given`
+  - `// when`
+  - `// then`
 - Keep the `given` section minimal: set only fields relevant to the scenario.
+- Use Arranger.some() to create the instances of test data, avoid mocks and hardcoded values.
 - Assertions should reflect **behavior and intent**, not incidental object details.
 
 Example:
@@ -32,6 +33,7 @@ void shouldCreateReportForProductBrand() {
 
 **By default, use test-arranger to generate test data.**
 Do not hand-build large objects with constructors/builders unless the test truly depends on specific values.
+Avoid using mocks, prefer instances filled with random data by the test-arranger.
 
 ### Basic usage (Java)
 
@@ -73,13 +75,9 @@ Product product = Arranger.some(Product.class, Map.of(
 ));
 ```
 
-Use this when: - The class is immutable - There is no with/toBuilder - direct mutation is not possible
+### Rearranger (copy + selective overrides)
 
-------------------------------------------------------------------------
-
-## Rearranger (copy + selective overrides)
-
-Use **Rearranger** when you already have a valid instance and want to tweak a few fields.
+Use **Rearranger** when you already have a valid instance and want to tweak a few fields and the class is immutable and there is no with/toBuilder.
 
 ``` java
 User original = Arranger.some(User.class);
@@ -91,25 +89,23 @@ User admin = Rearranger.copy(original, Map.of(
 ));
 ```
 
-### When to prefer Rearranger
+#### When to prefer Rearranger
 
 - You want to start from a valid domain object
 - Only a few fields differ
 - You want to keep the rest realistic and consistent
 
-### Important
+#### Important
 
 - Rearranger performs a **shallow copy**.
 - Nested mutable objects are shared between original and copy.
-- Constructor logic may be bypassed in fallback scenarios; restore
-  invariants via overrides if needed.
+- Constructor logic may be bypassed in fallback scenarios; restore invariants via overrides if needed.
 
 ------------------------------------------------------------------------
 
 ## Custom Arrangers (encode invariants once)
 
-If random-by-type generation violates domain rules, create a
-`CustomArranger<T>`.
+If random-by-type generation violates domain rules, create a `CustomArranger<T>`.
 
 ``` java
 class ProductArranger extends CustomArranger<Product> {
@@ -130,18 +126,6 @@ Rules:
 - Use custom arrangers when invariants must always hold.
 - Add well-named factory methods only when tests require specific variants.
 - `Arranger.some(X.class)` will automatically use `XArranger` if present.
-
-------------------------------------------------------------------------
-
-## When to use what
-
-Situation Prefer
-  -------------------------------------------- ------------------------------------
-Need a fresh random object                   `Arranger.some(X.class)`
-Need multiple objects                        `Arranger.someObjects(X.class, n)`
-Start from valid instance and tweak fields   `Rearranger.copy(...)`
-Enforce domain invariants globally           `CustomArranger<T>`
-Reuse complex multi-entity setup             `Fixture`
 
 ------------------------------------------------------------------------
 
@@ -187,6 +171,15 @@ Guidelines:
 - Avoid duplicating complex setup logic across tests.
 
 ------------------------------------------------------------------------
+## When to use what
+
+Situation Prefer
+
+Need a fresh random object                         `Arranger.some(X.class)`
+Need multiple objects                              `Arranger.someObjects(X.class, n)`
+Start from valid instance and tweak fields         `Rearranger.copy(...)`
+Domain invariants needs tyo be hold in test entity `CustomArranger<T>`
+Reuse complex multi-entity setup                   `Fixture`
 
 ## Practical rules for generated tests
 
