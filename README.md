@@ -405,21 +405,35 @@ class ShopFixture {
 }
 ```
 
-## GitHub Copilot integration
+## AI coding assistant integration
 
-If you use test-arranger and GitHub Copilot side by side, you have likely noticed that Copilot keeps generating verbose, hand-crafted test data setup — long builder chains, explicit constructors with hardcoded values — exactly the boilerplate that test-arranger was designed to eliminate.
-This happens because Copilot has no built-in knowledge of test-arranger: it does not know about `Arranger.some()`, `CustomArranger`, `Rearranger`, or Fixtures, so it falls back to whatever patterns it has seen most often in open-source code.
+If you use test-arranger alongside an AI coding assistant, you have likely noticed that the assistant keeps generating verbose, hand-crafted test data setup - long builder chains, explicit constructors with hardcoded values - exactly the boilerplate that test-arranger was designed to eliminate.
+This happens because AI assistants have no built-in knowledge of test-arranger: they do not know about `Arranger.some()`, `CustomArranger`, `Rearranger`, or Fixtures, so they fall back to whatever patterns they have seen most often in open-source code.
 
-Fortunately, GitHub Copilot supports [custom instructions](https://docs.github.com/en/copilot/customizing-copilot/adding-repository-custom-instructions-for-github-copilot) — a repository-level file that tells Copilot how code in that project should be written.
-And adding test-arranger instructions bridges this gap.
+Fortunately, most AI coding assistants support some form of custom instructions — a way to tell the tool how code in your project should be written.
+The `ai/java/` directory in this repository contains ready-made instruction that bridge this gap.
 
-To enable this in your project, copy [`ai/java/copilot-instructions.md`](ai/java/copilot-instructions.md) from this repository into your own repository at:
+### GitHub Copilot
+
+GitHub Copilot supports [custom instructions](https://docs.github.com/en/copilot/customizing-copilot/adding-repository-custom-instructions-for-github-copilot) via a repository-level file.
+Copy [`ai/java/copilot-instructions.md`](ai/java/copilot-instructions.md) into your own repository at:
 
 ```
 .github/copilot-instructions.md
 ```
 
-The instructions are tailored for **Java projects**.
+Copilot will automatically pick up this file and apply the guidelines whenever it generates or edits test code in your repository.
+
+### Claude
+
+Claude supports [custom slash commands and skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview) via `.claude/` project files.
+Copy [`ai/java/claude_tester_SKILL.md`](ai/java/claude_tester_SKILL.md) into your own repository at:
+
+```
+.claude/skills/tester.md
+```
+
+Claude will automatically apply this skill when asked to create or update tests, using the test-arranger guidelines defined in the skill file.
 
 ## Articles and blog posts
 
