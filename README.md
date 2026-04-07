@@ -430,7 +430,7 @@ Claude supports [custom slash commands and skills](https://platform.claude.com/d
 Copy [`ai/java/claude_tester_SKILL.md`](ai/java/claude_tester_SKILL.md) into your own repository at:
 
 ```
-.claude/skills/tester.md
+.claude/skills/tester/SKILL.md
 ```
 
 Claude will automatically apply this skill when asked to create or update tests, using the test-arranger guidelines defined in the skill file.
