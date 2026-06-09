@@ -411,12 +411,21 @@ If you use test-arranger alongside an AI coding assistant, you have likely notic
 This happens because AI assistants have no built-in knowledge of test-arranger: they do not know about `Arranger.some()`, `CustomArranger`, `Rearranger`, or Fixtures, so they fall back to whatever patterns they have seen most often in open-source code.
 
 Fortunately, most AI coding assistants support some form of custom instructions — a way to tell the tool how code in your project should be written.
-The `ai/java/` directory in this repository contains ready-made instruction that bridge this gap.
+The `ai` directory in this is repository contains ready-made instruction that bridge this gap.
 
 ### GitHub Copilot
 
 GitHub Copilot supports [custom instructions](https://docs.github.com/en/copilot/customizing-copilot/adding-repository-custom-instructions-for-github-copilot) via a repository-level file.
+
+**For Java projects:**
 Copy [`ai/java/copilot-instructions.md`](ai/java/copilot-instructions.md) into your own repository at:
+
+```
+.github/copilot-instructions.md
+```
+
+**For Kotlin projects:**
+Copy [`ai/kotlin/copilot-instructions.md`](ai/kotlin/copilot-instructions.md) into your own repository at:
 
 ```
 .github/copilot-instructions.md
@@ -427,7 +436,16 @@ Copilot will automatically pick up this file and apply the guidelines whenever i
 ### Claude
 
 Claude supports [custom slash commands and skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview) via `.claude/` project files.
+
+**For Java projects:**
 Copy [`ai/java/claude_tester_SKILL.md`](ai/java/claude_tester_SKILL.md) into your own repository at:
+
+```
+.claude/skills/tester/SKILL.md
+```
+
+**For Kotlin projects:**
+Copy [`ai/kotlin/claude_tester_SKILL.md`](ai/kotlin/claude_tester_SKILL.md) into your own repository at:
 
 ```
 .claude/skills/tester/SKILL.md
