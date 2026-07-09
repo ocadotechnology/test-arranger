@@ -5,7 +5,7 @@
 </p>
 
 <div align="center">
-    <b><em>Test Arranger</em></b><br>
+    <h1><b><em>Test Arranger</em></b></h1><br>
 
 [![Apache 2 license](https://img.shields.io/badge/license-Apache%202-blue?style=flat)](http://www.apache.org/licenses/)
 [![Build Status](https://github.com/ocadotechnology/test-arranger/actions/workflows/maven-verify.yml/badge.svg)](https://github.com/ocadotechnology/test-arranger/actions)
@@ -15,6 +15,8 @@
 </div>
 
 ***
+
+## What is it?
 
 This Java library automatically creates instances of classes needed for unit tests and populates them with random values.
 
@@ -32,6 +34,8 @@ you can simply write:
 ```java
 Product product = some(Product.class);
 ```
+
+## Introduction
 
 In TDD there are 3 phases: arrange, act and assert (given, when, then in BDD).
 The assert phase has great tool support, you may be familiar with AssertJ, FEST-Assert or Hamcrest.
@@ -400,6 +404,54 @@ class ShopFixture {
     }
 }
 ```
+
+## AI coding assistant integration
+
+If you use test-arranger alongside an AI coding assistant, you have likely noticed that the assistant keeps generating verbose, hand-crafted test data setup - long builder chains, explicit constructors with hardcoded values - exactly the boilerplate that test-arranger was designed to eliminate.
+This happens because AI assistants have no built-in knowledge of test-arranger: they do not know about `Arranger.some()`, `CustomArranger`, `Rearranger`, or Fixtures, so they fall back to whatever patterns they have seen most often in open-source code.
+
+Fortunately, most AI coding assistants support some form of custom instructions — a way to tell the tool how code in your project should be written.
+The `ai` directory in this is repository contains ready-made instruction that bridge this gap.
+
+### GitHub Copilot
+
+GitHub Copilot supports [custom instructions](https://docs.github.com/en/copilot/customizing-copilot/adding-repository-custom-instructions-for-github-copilot) via a repository-level file.
+
+**For Java projects:**
+Copy [`ai/java/copilot-instructions.md`](ai/java/copilot-instructions.md) into your own repository at:
+
+```
+.github/copilot-instructions.md
+```
+
+**For Kotlin projects:**
+Copy [`ai/kotlin/copilot-instructions.md`](ai/kotlin/copilot-instructions.md) into your own repository at:
+
+```
+.github/copilot-instructions.md
+```
+
+Copilot will automatically pick up this file and apply the guidelines whenever it generates or edits test code in your repository.
+
+### Claude
+
+Claude supports [custom slash commands and skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview) via `.claude/` project files.
+
+**For Java projects:**
+Copy [`ai/java/claude_tester_SKILL.md`](ai/java/claude_tester_SKILL.md) into your own repository at:
+
+```
+.claude/skills/tester/SKILL.md
+```
+
+**For Kotlin projects:**
+Copy [`ai/kotlin/claude_tester_SKILL.md`](ai/kotlin/claude_tester_SKILL.md) into your own repository at:
+
+```
+.claude/skills/tester/SKILL.md
+```
+
+Claude will automatically apply this skill when asked to create or update tests, using the test-arranger guidelines defined in the skill file.
 
 ## Articles and blog posts
 
