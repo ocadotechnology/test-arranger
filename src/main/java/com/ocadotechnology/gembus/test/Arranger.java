@@ -314,6 +314,18 @@ public class Arranger {
         return new BigDecimal(valueInCents).divide(centsRatio).add(min).setScale(2, RoundingMode.HALF_UP);
     }
 
+    public static BigDecimal someBigDecimal() {
+        return random.nextObject(BigDecimal.class);
+    }
+
+    /**
+     * @param min inclusive
+     * @param max exclusive
+     */
+    public static BigDecimal someBigDecimal(BigDecimal min, BigDecimal max) {
+        return BigDecimal.valueOf(random.easyRandom.nextDouble(min.doubleValue(), max.doubleValue()));
+    }
+
     public static String someFirstName() {
         return firstNameRandomizer.getRandomValue();
     }
