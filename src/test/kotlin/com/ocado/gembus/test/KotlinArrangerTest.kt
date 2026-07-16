@@ -65,6 +65,17 @@ class KotlinArrangerTest {
         assertThat(actual.number).isNotEqualTo(0)
         assertThat(actual.txt).isEqualTo(fixedText);
     }
+
+    @Test
+    fun shouldNotGenerateTheSameValues_when_usingDifferentMethodsForGeneratingTheSameTypes() {
+        //when
+        val fromSomeInt = listOf<Int>(someInt(), someInt(), someInt())
+        val fromClass = listOf<IntWrapper>(some<IntWrapper>(), some<IntWrapper>(), some<IntWrapper>())
+            .map { it.number }
+
+        //then
+        assertThat(fromSomeInt).isNotEqualTo(fromClass)
+    }
 }
 
 class A(var ts: List<A>) {
@@ -72,3 +83,5 @@ class A(var ts: List<A>) {
 }
 
 class BB(var number: Int, var txt: String)
+
+class IntWrapper(var number: Int)
