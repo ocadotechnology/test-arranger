@@ -97,6 +97,38 @@ public class ArrangerTest {
     }
 
     @Test
+    void someBigDecimal_shouldReturnRandomValues() {
+        //when
+        final Set<BigDecimal> values = new HashSet<>();
+        for (int i = 0; i < 100; i++) {
+            values.add(Arranger.someBigDecimal());
+        }
+
+        //then
+        assertThat(values.size()).isGreaterThan(90);
+    }
+
+    @Test
+    void should_generateBigDecimalFromTheRangeDefinedByMinAndMax() {
+        //given
+        BigDecimal min = new BigDecimal("-999.99");
+        BigDecimal max = new BigDecimal("999.99");
+
+        //when
+        BigDecimal actualMin = BigDecimal.ZERO;
+        BigDecimal actualMax = BigDecimal.ZERO;
+        for (int i = 0; i < 999; i++) {
+            BigDecimal actual = Arranger.someBigDecimal(min, max);
+            actualMin = actualMin.min(actual);
+            actualMax = actualMax.max(actual);
+        }
+
+        //then
+        assertThat(actualMin).isGreaterThanOrEqualTo(min);
+        assertThat(actualMax).isLessThan(max);
+    }
+
+    @Test
     void someString() {
         //when
         final String actual = Arranger.some(String.class);

@@ -75,6 +75,8 @@ fun someFloat(): Float = Arranger.someFloat()
 fun someFloat(min: Float, max: Float): Float = Arranger.someFloat(min, max)
 fun someDouble(): Double = Arranger.someDouble()
 fun someDouble(min: Double, max: Double): Double = Arranger.someDouble(min, max)
+fun someBigDecimal(): BigDecimal = Arranger.someBigDecimal()
+fun someBigDecimal(min: BigDecimal, max: BigDecimal): BigDecimal = Arranger.someBigDecimal(min, max)
 
 fun someEmail(): String = Arranger.someEmail()
 
