@@ -91,6 +91,7 @@ class ArrangersConfigurer {
                 .objectFactory(new DecoratedObjectFactory(PropertiesWrapper.getCacheEnable()))
                 .excludeField(Field::isSynthetic)
                 .seed(SeedHelper.calculateSeed())
+                .scanClasspathForConcreteTypes(PropertiesWrapper.getScanClasspathForConcreteTypes())
                 .overrideDefaultInitialization(PropertiesWrapper.getOverrideDefaults());
     }
 

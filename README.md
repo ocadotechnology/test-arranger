@@ -223,6 +223,10 @@ If you create `arranger.properties` file and save it in the root of classpath (u
   However, to effectively use them in a test case, it's crucial to control the length of these chains. 
   By default, Test-arranger stops creating new objects at the 4th level of nesting depth. 
   If this default setting does not suit your project test cases, it can be adjusted using this parameter.
+* `arranger.scanClasspathForConcreteTypes`
+  A field of an abstract class or interface type cannot be instantiated directly, hence by default arranging such a field fails.
+  Setting `arranger.scanClasspathForConcreteTypes=true` makes test-arranger scan the classpath for concrete subtypes of the abstract type and use a randomly picked one as the field value.
+  It is disabled by default as scanning the whole classpath takes noticeable time.
 * `arranger.android.customArrangers`
   In Android Tests, the JVM has certain limitations - specifically, it may not automatically detect custom arrangers.
   In such cases, this property comes to the rescue: you can list all your custom arrangers there.
