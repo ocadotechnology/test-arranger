@@ -17,21 +17,21 @@ package com.ocadotechnology.gembus.test;
 
 import org.jeasy.random.api.Randomizer;
 
-import java.util.stream.Stream;
-
 public class MarkovStringRandomizer implements Randomizer<String> {
+
+    private static final int ATTEMPTS_BEFORE_CHANGING_SOURCE = 100;
+    private static final int MAX_ATTEMPTS_TO_GET_TRIMMED = 10_000;
 
     private final int minLength;
     private final int maxLength;
-    private static MarkovChain markov = new MarkovChain("enMarkovChain");
+    private final MarkovChain markov;
 
     public MarkovStringRandomizer(int minLength, int maxLength) {
-        this.minLength = minLength;
-        this.maxLength = maxLength;
+        this(minLength, maxLength, MarkovChainProvider.forConfiguredLanguage());
     }
 
     MarkovStringRandomizer(int minLength, int maxLength, MarkovChain markov) {
-        MarkovStringRandomizer.markov = markov;
+        this.markov = markov;
         this.minLength = minLength;
         this.maxLength = maxLength;
     }
@@ -64,10 +64,22 @@ public class MarkovStringRandomizer implements Randomizer<String> {
         }
     }
 
+    /**
+     * A chain may have a node with no transition to a non blank value, e.g. a comma that is always followed by a space.
+     * Once such a node is reached, the search continues from a randomly selected node, which is what firing a
+     * transition from null does.
+     */
     private String getTrimmed(String from) {
-        return Stream.iterate("", i -> markov.fireTransition(from))
-                .filter(txt -> txt.length() > 0 && txt.trim().length() == txt.length())
-                .findFirst()
-                .get();
+        String source = from;
+        for (int attempt = 1; attempt <= MAX_ATTEMPTS_TO_GET_TRIMMED; attempt++) {
+            String candidate = markov.fireTransition(source);
+            if (candidate.length() > 0 && candidate.trim().length() == candidate.length()) {
+                return candidate;
+            }
+            if (attempt % ATTEMPTS_BEFORE_CHANGING_SOURCE == 0) {
+                source = null;
+            }
+        }
+        throw new IllegalStateException("The Markov chain generates blank values only, cannot produce a text with it.");
     }
 }

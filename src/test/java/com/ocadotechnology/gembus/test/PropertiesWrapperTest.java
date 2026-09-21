@@ -31,6 +31,7 @@ public class PropertiesWrapperTest {
     private final String maxDepthKey = "arranger.maxRandomizationDepth";
     final static String androidCustomArrangers = "arranger.android.customArrangers";
     final static String scanClasspathKey = "arranger.scanClasspathForConcreteTypes";
+    final static String textLanguageKey = "arranger.text.language";
 
     @AfterEach
     public void cleanupProperties() {
@@ -40,6 +41,7 @@ public class PropertiesWrapperTest {
         System.getProperties().remove(maxDepthKey);
         System.getProperties().remove(androidCustomArrangers);
         System.getProperties().remove(scanClasspathKey);
+        System.getProperties().remove(textLanguageKey);
     }
 
     @Test
@@ -163,6 +165,27 @@ public class PropertiesWrapperTest {
 
         //then
         assertTrue(actual);
+    }
+
+    @Test
+    public void shouldReturnEnglishWhenTextLanguageIsNotSet() {
+        //when
+        String actual = PropertiesWrapper.getTextLanguage();
+
+        //then
+        assertEquals("en", actual);
+    }
+
+    @Test
+    public void shouldFindTextLanguageInSystemProperties() {
+        //given
+        System.setProperty(textLanguageKey, "de");
+
+        //when
+        String actual = PropertiesWrapper.getTextLanguage();
+
+        //then
+        assertEquals("de", actual);
     }
 
     @Test

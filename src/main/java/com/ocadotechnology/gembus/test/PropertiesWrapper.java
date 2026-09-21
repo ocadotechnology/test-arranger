@@ -33,6 +33,8 @@ public class PropertiesWrapper {
     private static final String androidCustomArrangers = "arranger.android.customArrangers";
     private static final String defaultAndroidCustomArrangers = "";
     private static final String defaultMaxRandomizationDepth = "4";
+    private static final String textLanguageKey = "arranger.text.language";
+    private static final String defaultTextLanguage = "en";
     private static final String scanClasspathForConcreteTypes = "arranger.scanClasspathForConcreteTypes";
     private static final String defaultScanClasspathForConcreteTypes = "false";
     private static final PropertiesFromFile propertiesFromFile = new PropertiesFromFile();
@@ -55,6 +57,10 @@ public class PropertiesWrapper {
 
     public static int getMaxRandomizationDepth() {
         return Integer.parseInt(getPropertyValue(maxRandomizationDepth, defaultMaxRandomizationDepth));
+    }
+
+    public static String getTextLanguage() {
+        return getPropertyValue(textLanguageKey, defaultTextLanguage);
     }
 
     public static boolean getScanClasspathForConcreteTypes() {

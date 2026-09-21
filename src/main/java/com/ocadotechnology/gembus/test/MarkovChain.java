@@ -24,6 +24,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -40,8 +41,8 @@ class MarkovChain {
     private boolean hasWords = false;
 
     MarkovChain(String transitionsFile) {
-        try (InputStream in = getClass().getResourceAsStream("/" + transitionsFile);
-             BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+        try (InputStream in = openOnClasspath(transitionsFile);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 Pair<String, Transition[]> parsed = parser.parseLine(line);
@@ -53,6 +54,14 @@ class MarkovChain {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private InputStream openOnClasspath(String transitionsFile) {
+        InputStream in = getClass().getResourceAsStream("/" + transitionsFile);
+        if (in == null) {
+            throw new IllegalStateException("There is no '" + transitionsFile + "' file on the classpath.");
+        }
+        return in;
     }
 
     String fireTransition(String from) {

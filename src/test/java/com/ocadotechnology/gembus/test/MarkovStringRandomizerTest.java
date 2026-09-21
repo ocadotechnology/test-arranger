@@ -30,6 +30,7 @@ public class MarkovStringRandomizerTest {
 
     static MarkovChain charMarkov = new MarkovChain("enMarkovChain");
     static MarkovChain wordMarkov = new MarkovChain("wordMarkovChain");
+    static MarkovChain deadEndMarkov = new MarkovChain("deadEndMarkovChain");
 
     @Test
     public void getRandomValueOfRequestedSize() {
@@ -91,5 +92,22 @@ public class MarkovStringRandomizerTest {
         //then
         assertThat(actual)
                 .allMatch(a -> a.contains(" "));
+    }
+
+    @Test
+    public void getRandomValueWhenTheChainHasANodeWithNoTransitionToANonBlankValue() {
+        //given
+        final MarkovStringRandomizer markovStringRandomizer = new MarkovStringRandomizer(min, max, deadEndMarkov);
+
+        //when
+        final List<String> actual = IntStream.range(0, 100).boxed()
+                .map(i -> markovStringRandomizer.getRandomValue())
+                .collect(Collectors.toList());
+
+        //then
+        assertThat(actual)
+                .allMatch(a -> a.length() >= min)
+                .allMatch(a -> a.length() <= max)
+                .allMatch(a -> a.length() == a.trim().length());
     }
 }
