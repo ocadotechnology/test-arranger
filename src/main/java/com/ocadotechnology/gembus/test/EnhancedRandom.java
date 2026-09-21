@@ -124,6 +124,7 @@ public class EnhancedRandom extends Random {
         }
         long newSeed = parameters.getSeed() + SeedHelper.customArrangerTypeSpecificSeedRespectingRandomSeedSetting(typeToSkip.orElse(CustomArranger.class));
         parameters.randomizerRegistry(new CustomArrangerRandomizerRegistry(newSeed));
+        parameters.randomizerRegistry(new EnumSetRandomizerRegistry(newSeed));
     }
 
     private Randomizer<?> customArrangerToRandomizer(CustomArranger arranger) {
