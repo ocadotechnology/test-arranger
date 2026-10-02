@@ -30,6 +30,7 @@ public class PropertiesWrapperTest {
     final static String overrideKey = "arranger.overridedefaults";
     private final String maxDepthKey = "arranger.maxRandomizationDepth";
     final static String androidCustomArrangers = "arranger.android.customArrangers";
+    final static String scanClasspathKey = "arranger.scanClasspathForConcreteTypes";
 
     @AfterEach
     public void cleanupProperties() {
@@ -38,6 +39,7 @@ public class PropertiesWrapperTest {
         System.getProperties().remove(overrideKey);
         System.getProperties().remove(maxDepthKey);
         System.getProperties().remove(androidCustomArrangers);
+        System.getProperties().remove(scanClasspathKey);
     }
 
     @Test
@@ -158,6 +160,27 @@ public class PropertiesWrapperTest {
 
         //when
         boolean actual = PropertiesWrapper.getOverrideDefaults();
+
+        //then
+        assertTrue(actual);
+    }
+
+    @Test
+    public void shouldReturnFalseWhenScanClasspathForConcreteTypesIsNotSet() {
+        //when
+        boolean actual = PropertiesWrapper.getScanClasspathForConcreteTypes();
+
+        //then
+        assertFalse(actual);
+    }
+
+    @Test
+    public void shouldReturnTrueWhenScanClasspathForConcreteTypesIsSetToTrue() {
+        //given
+        System.setProperty(scanClasspathKey, "true");
+
+        //when
+        boolean actual = PropertiesWrapper.getScanClasspathForConcreteTypes();
 
         //then
         assertTrue(actual);
