@@ -306,7 +306,10 @@ public class Arranger {
     }
 
     public static BigDecimal somePriceLikeBigDecimal(BigDecimal min, BigDecimal max) {
-        if (min.compareTo(max) >= 0) {
+        if (min.compareTo(max) > 0) {
+            throw new IllegalArgumentException("min must not be greater than max, but min=" + min + ", max=" + max);
+        }
+        if (min.compareTo(max) == 0) {
             return min;
         }
         final BigDecimal centsRatio = BigDecimal.valueOf(100);
@@ -321,9 +324,16 @@ public class Arranger {
     /**
      * @param min inclusive
      * @param max exclusive
+     * @return a value from given bounds with the scale of the more precise of the two bounds
+     * @throws IllegalArgumentException when min is not lower than max
      */
     public static BigDecimal someBigDecimal(BigDecimal min, BigDecimal max) {
-        return BigDecimal.valueOf(random.easyRandom.nextDouble(min.doubleValue(), max.doubleValue()));
+        if (min.compareTo(max) >= 0) {
+            throw new IllegalArgumentException("min must be lower than max, but min=" + min + ", max=" + max);
+        }
+        final BigDecimal fraction = BigDecimal.valueOf(random.easyRandom.nextDouble());
+        final int scale = Math.max(min.scale(), max.scale());
+        return min.add(max.subtract(min).multiply(fraction)).setScale(scale, RoundingMode.FLOOR);
     }
 
     public static String someFirstName() {
