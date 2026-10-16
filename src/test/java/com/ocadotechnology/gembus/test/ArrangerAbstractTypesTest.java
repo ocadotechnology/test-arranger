@@ -15,9 +15,12 @@
  */
 package com.ocadotechnology.gembus.test;
 
+import org.jeasy.random.ObjectCreationException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -36,9 +39,7 @@ public class ArrangerAbstractTypesTest {
         System.setProperty(PropertiesWrapperTest.scanClasspathKey, "true");
 
         //when
-        //Arranger.some is initialized too early and the property won't affect it
-        EnhancedRandom enhancedRandom = ArrangersConfigurer.instance().defaultRandom();
-        WithAbstractField actual = enhancedRandom.nextObject(WithAbstractField.class);
+        WithAbstractField actual = randomRespectingCurrentProperties().nextObject(WithAbstractField.class);
 
         //then
         assertThat(actual.vehicle).isInstanceOfAny(Car.class, Bike.class);
@@ -52,8 +53,7 @@ public class ArrangerAbstractTypesTest {
         System.setProperty(PropertiesWrapperTest.scanClasspathKey, "true");
 
         //when
-        EnhancedRandom enhancedRandom = ArrangersConfigurer.instance().defaultRandom();
-        WithInterfaceField actual = enhancedRandom.nextObject(WithInterfaceField.class);
+        WithInterfaceField actual = randomRespectingCurrentProperties().nextObject(WithInterfaceField.class);
 
         //then
         assertThat(actual.engine).isInstanceOf(DieselEngine.class);
@@ -65,26 +65,51 @@ public class ArrangerAbstractTypesTest {
     void shouldNotInstantiateAbstractFieldByDefault() {
         //expect
         assertThatThrownBy(() -> Arranger.some(WithAbstractField.class))
-                .isInstanceOf(RuntimeException.class);
+                .isInstanceOf(ObjectCreationException.class)
+                .hasRootCauseInstanceOf(InstantiationError.class)
+                .hasMessageContaining(WithAbstractField.class.getName());
     }
 
     @Test
-    @DisplayName("SHOULD keep filling fields of concrete types WHEN classpath scanning is enabled")
-    void shouldNotAffectConcreteTypes() {
+    @DisplayName("SHOULD arrange an instance of a concrete subtype WHEN an abstract type is requested directly")
+    void shouldInstantiateRequestedAbstractType() {
         //given
         System.setProperty(PropertiesWrapperTest.scanClasspathKey, "true");
 
         //when
-        EnhancedRandom enhancedRandom = ArrangersConfigurer.instance().defaultRandom();
-        Car actual = enhancedRandom.nextObject(Car.class);
+        Vehicle actual = randomRespectingCurrentProperties().nextObject(Vehicle.class);
 
         //then
-        assertThat(actual.brand).isNotBlank();
-        assertThat(actual.wheels).isNotZero();
+        assertThat(actual).isInstanceOfAny(Car.class, Bike.class);
+    }
+
+    @Test
+    @DisplayName("SHOULD WHEN the abstract type has no concrete subtypes")
+    void shouldThrowOnMissingSubtype() {
+        //expect
+        assertThatThrownBy(() -> Arranger.some(UnknownVehicle.class))
+                .isInstanceOf(ObjectCreationException.class)
+                .hasRootCauseInstanceOf(InstantiationError.class)
+                .hasMessageContaining(UnknownVehicle.class.getName());
+    }
+
+    /**
+     * The properties are read when an EnhancedRandom is built, but the one used by Arranger.some is built when the
+     * Arranger class is loaded, i.e. too early for a test to influence it. A dedicated instance is needed and it is
+     * created without custom arrangers on purpose - ArrangersConfigurer.defaultRandom() would rebind the shared
+     * CustomArranger instances to a random configured for this test.
+     */
+    private EnhancedRandom randomRespectingCurrentProperties() {
+        return new EnhancedRandom.Builder(ArrangersConfigurer::getEasyRandomDefaultParameters)
+                .build(new HashMap<>(), SeedHelper.calculateSeed());
     }
 
     /* The types used for arranging abstract fields have to be public, easy-random takes into account only public
      * concrete subtypes when scanning the classpath. */
+
+    public static abstract class UnknownVehicle {
+        int wheels;
+    }
 
     public static abstract class Vehicle {
         int wheels;

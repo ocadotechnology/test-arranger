@@ -86,9 +86,6 @@ Some of the possible calls are listed below:
 |```Arranger.someText()```|```someText()```| a string generated from a Markov Chain; by default, it is a very simple chain, but it can be reconfigured by putting other 'enMarkovChain' file on the test classpath with alternative definition, you can find one trained on an english corpus [here](https://github.com/ocadotechnology/test-arranger/releases/download/v1.1/enMarkovChain.zip); consult the included in the project 'enMarkovChain' file for the file format; the language of the generated text can be switched with the `arranger.text.language` property |
 | - |```some<Product> {name = "not so random"}```| an instance of Product with all fields filled with random values except for `name` which is set to "not so random", this syntax can be used to set as many fields of the object as necessary, but each of the objects must be mutable                                                                                                                                                                                      |
 
-When arranging an instance, the fields are filled according to their types.
-A field of type `EnumSet` gets a random, non-empty subset of the constants of the enum it is declared with.
-
 ### Adjusting the arranged data
 
 Completely random data may be not suitable for every test case. 
@@ -232,7 +229,8 @@ If you create `arranger.properties` file and save it in the root of classpath (u
   Any other language can be used as well, it is enough to put a file named `{language}MarkovChain` on the test classpath.
 * `arranger.scanClasspathForConcreteTypes`
   A field of an abstract class or interface type cannot be instantiated directly, hence by default arranging such a field fails.
-  Setting `arranger.scanClasspathForConcreteTypes=true` makes test-arranger scan the classpath for concrete subtypes of the abstract type and use a randomly picked one as the field value.
+  Setting `arranger.scanClasspathForConcreteTypes=true` makes test-arranger scan the classpath for concrete subtypes of the abstract type and arrange an instance of one of them.
+  It works both for a field of abstract type and for an abstract type requested directly.
   It is disabled by default as scanning the whole classpath takes noticeable time.
 * `arranger.android.customArrangers`
   In Android Tests, the JVM has certain limitations - specifically, it may not automatically detect custom arrangers.

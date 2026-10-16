@@ -97,6 +97,17 @@ public class ArrangerTest {
     }
 
     @Test
+    void should_throwException_when_minGreaterThanMax() {
+        //given
+        final BigDecimal min = new BigDecimal("100.02");
+        final BigDecimal max = new BigDecimal("100.01");
+
+        //when
+        //then
+        assertThrows(IllegalArgumentException.class, () -> Arranger.somePriceLikeBigDecimal(min, max));
+    }
+
+    @Test
     void someBigDecimal_shouldReturnRandomValues() {
         //when
         final Set<BigDecimal> values = new HashSet<>();
@@ -126,6 +137,48 @@ public class ArrangerTest {
         //then
         assertThat(actualMin).isGreaterThanOrEqualTo(min);
         assertThat(actualMax).isLessThan(max);
+    }
+
+    @Test
+    void should_keepScaleOfTheMorePreciseBound() {
+        //given
+        BigDecimal min = new BigDecimal("-5");
+        BigDecimal max = new BigDecimal("0.001");
+
+        for (int i = 0; i < 999; i++) {
+            //when
+            BigDecimal actual = Arranger.someBigDecimal(min, max);
+
+            //then
+            assertEquals(3, actual.scale());
+            assertThat(actual)
+                    .isGreaterThanOrEqualTo(min)
+                    .isLessThan(max);
+        }
+    }
+
+    @Test
+    void should_generateFromNegativeRange() {
+        //given
+        BigDecimal min = new BigDecimal("-20.5");
+        BigDecimal max = new BigDecimal("-10.5");
+
+        for (int i = 0; i < 999; i++) {
+            //when
+            BigDecimal actual = Arranger.someBigDecimal(min, max);
+
+            //then
+            assertThat(actual)
+                    .isGreaterThanOrEqualTo(min)
+                    .isLessThan(max);
+        }
+    }
+
+    @Test
+    void should_throw_whenEmptyOrInvertedRange() {
+        BigDecimal ten = BigDecimal.TEN;
+        assertThrows(IllegalArgumentException.class, () -> Arranger.someBigDecimal(ten, ten));
+        assertThrows(IllegalArgumentException.class, () -> Arranger.someBigDecimal(ten, BigDecimal.ONE));
     }
 
     @Test

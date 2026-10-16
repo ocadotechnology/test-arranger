@@ -29,13 +29,9 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * EnumSet has no accessible constructor, therefore the generic mechanism EasyRandom uses for collections
- * (reflective instantiation with a fallback to Objenesis) ends up with an InstantiationError.
- * This registry recognizes fields of type EnumSet, extracts the enum type from the field declaration
- * and creates the set with the dedicated EnumSet factory method.
+ * EnumSet has no accessible constructor, therefore the generic mechanism EasyRandom uses for collections ends up with an InstantiationError.
  * <p>
- * The priority is aligned with {@link CustomArrangerRandomizerRegistry}, i.e. lower than the
- * BeanValidationRandomizerRegistry one but greater than the InternalRandomizerRegistry one.
+ * The priority is aligned with {@link CustomArrangerRandomizerRegistry}, i.e. lower than the BeanValidationRandomizerRegistry one but greater than the InternalRandomizerRegistry one.
  */
 @Priority(-3)
 public class EnumSetRandomizerRegistry implements RandomizerRegistry {
