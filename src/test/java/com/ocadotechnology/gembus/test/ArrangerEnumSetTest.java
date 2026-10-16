@@ -81,7 +81,9 @@ public class ArrangerEnumSetTest {
 
         //then
         assertThat(actual).allSatisfy(it -> assertThat(it.enumeration).isNotEmpty().isSubsetOf(SomeEnum.values()));
-        Set<EnumSet<SomeEnum>> distinct = actual.stream().map(it -> it.enumeration).collect(Collectors.toSet());
+        Set<EnumSet<SomeEnum>> distinct = actual.stream()
+                .map(it -> it.enumeration)
+                .collect(Collectors.toSet());
         assertThat(distinct).hasSizeGreaterThan(1);
     }
 
