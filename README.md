@@ -83,7 +83,7 @@ Some of the possible calls are listed below:
 |```Arranger.someEmail()```|```someEmail()```| a string containing email address                                                                                                                                                                                                                                                                                                                                                                                          |
 |```Arranger.someLong()```|```someLong()```| a pseudo random number of type long                                                                                                                                                                                                                                                                                                                                                                                        |
 |```Arranger.someFrom(listOfCategories)```|```someFrom(listOfCategories)```| an entry form the listOfCategories                                                                                                                                                                                                                                                                                                                                                                                         |
-|```Arranger.someText()```|```someText()```| a string generated from a Markov Chain; by default, it is a very simple chain, but it can be reconfigured by putting other 'enMarkovChain' file on the test classpath with alternative definition, you can find one trained on an english corpus [here](https://github.com/ocadotechnology/test-arranger/releases/download/v1.1/enMarkovChain.zip); consult the included in the project 'enMarkovChain' file for the file format; the language of the generated text can be switched with the `arranger.text.language` property |
+|```Arranger.someText()```|```someText()```| a string generated from a Markov Chain; by default, it is a very simple chain, but adding a `test-arranger-text-{lang}` artifact (`en`, `pl` or `de`) to the test dependencies switches to a word based chain of that language, see [Texts in a natural language](#texts-in-a-natural-language) |
 | - |```some<Product> {name = "not so random"}```| an instance of Product with all fields filled with random values except for `name` which is set to "not so random", this syntax can be used to set as many fields of the object as necessary, but each of the objects must be mutable                                                                                                                                                                                      |
 
 ### Adjusting the arranged data
@@ -193,6 +193,25 @@ Order expeditedVipOrder = Rearranger.copy(vipOrder, Map.of(
 * Objenesis path (for classes without a matching constructor) skips constructor logic; ensure invariants that rely on constructor code are either not critical for the test or manually restored via overrides.
 * Kotlin property reference for a parent type cannot directly override on a child; always use the child’s property or an explicit cast.
 
+### Texts in a natural language
+
+`Arranger.someText()` generates texts with a Markov chain.
+The default chain is a very simple placeholder.
+To get texts that look like a natural language, add one of the artifacts with a word based chain to the test dependencies:
+
+```xml
+<dependency>
+    <groupId>com.ocadotechnology.gembus</groupId>
+    <artifactId>test-arranger-text-pl</artifactId>
+    <version>${test-arranger.version}</version>
+    <scope>test</scope>
+</dependency>
+```
+
+The available artifacts are `test-arranger-text-en`, `test-arranger-text-pl` and `test-arranger-text-de`.
+The chain is detected on the classpath, there is no configuration.
+When more than one of the artifacts is present, the first one in the order `en`, `pl`, `de` is used.
+
 ### Properties
 The behaviour of the test-arranger can be configured using properties.
 If you create `arranger.properties` file and save it in the root of classpath (usually that will be `src/test/resources/` directory), it will be picked up and the following properties will be applied:
@@ -223,10 +242,6 @@ If you create `arranger.properties` file and save it in the root of classpath (u
   However, to effectively use them in a test case, it's crucial to control the length of these chains. 
   By default, Test-arranger stops creating new objects at the 4th level of nesting depth. 
   If this default setting does not suit your project test cases, it can be adjusted using this parameter.
-* `arranger.text.language`
-  The texts produced by `Arranger.someText()` are generated with a Markov chain trained on a text in a natural language, English by default.
-  Chains for Polish (`pl`) and German (`de`) are shipped with the library, hence e.g. `arranger.text.language=pl` is enough to get texts that look Polish.
-  Any other language can be used as well, it is enough to put a file named `{language}MarkovChain` on the test classpath.
 * `arranger.scanClasspathForConcreteTypes`
   A field of an abstract class or interface type cannot be instantiated directly, hence by default arranging such a field fails.
   Setting `arranger.scanClasspathForConcreteTypes=true` makes test-arranger scan the classpath for concrete subtypes of the abstract type and arrange an instance of one of them.
